@@ -1,0 +1,131 @@
+system_requirements:
+  # Disclaimer!!! - the ai act articles mappings were done by an llm. Will need to be reviewd
+  functional_requirements:
+
+    - id: FR1
+      name: Run-Level Traceability
+      description: >
+        PyPyrus shall uniquely identify each training run and record associated
+        configuration, code reference, and environment metadata.
+      ai_act_articles:
+        - Article 11   # Technical documentation
+        - Article 12   # Logging and traceability
+
+    - id: FR2
+      name: Dataset Identity Tracking
+      description: >
+        PyPyrus shall register datasets used during training and compute a
+        stable dataset fingerprint to detect changes across runs.
+      ai_act_articles:
+        - Article 10   # Data governance
+        - Article 11   # Technical documentation
+        - Article 13   # Transparency regarding training data
+
+    - id: FR3
+      name: Dataset Usage Logging
+      description: >
+        PyPyrus shall record dataset access events during training to enable
+        reconstruction of which data was accessed and how frequently.
+      ai_act_articles:
+        - Article 10   # Data governance
+        - Article 12   # Logging requirements
+
+    - id: FR4
+      name: Batch-Level Data Stream Tracking
+      description: >
+        PyPyrus shall record batch-level consumption events to enable comparison
+        of training data streams across runs and detect divergence.
+      ai_act_articles:
+        - Article 12   # Logging requirements
+        - Article 11   # Documentation
+
+    - id: FR5
+      name: Transform and Preprocessing Declaration
+      description: >
+        PyPyrus shall record declared preprocessing and transformation pipelines
+        applied to training data.
+        For pytorch, we could capture the transform objects
+      ai_act_articles:
+        - Article 10   # Data preparation governance
+        - Article 13   # Transparency obligations
+
+    - id: FR6
+      name: Query and Reporting Interface
+      description: >
+        PyPyrus shall provide programmatic interfaces to query provenance records
+        and generate human-readable summaries.
+      ai_act_articles:
+        - Article 11   # Technical documentation
+        - Article 23   # Access to logs by authorities
+
+    - id: FR7
+      name: Reproducibility Comparison
+      description: >
+        PyPyrus shall enable comparison between runs to detect divergence in
+        dataset identity, usage patterns, or batch composition.
+        Dataset identity match
+        Transform pipeline match,
+        Batch stream match (fingerprint comparison at each step), could report which steps diverge.
+        Usage-level similarity e.g. compare dataset access patterns across runs (e.g. which samples accessed, how frequently)
+        usage some similarity measure like jaccard similarity or distributional similarity of access patterns.
+      ai_act_articles:
+        - Article 12   # Traceability
+        - Article 61   # Post-market monitoring (supporting evidence)
+
+  non_functional_requirements:
+
+    - id: NFR1
+      name: Low Runtime Overhead
+      description: >
+        Instrumentation shall introduce minimal performance degradation during training.
+      ai_act_articles:
+        - Article 8    # Risk management system (proportionate measures)
+
+    - id: NFR2
+      name: Bounded Storage Growth
+      description: >
+        Provenance logging shall remain storage-efficient through event coalescing
+        and compact representations.
+      ai_act_articles:
+        - Article 12   # Logging appropriate to intended purpose
+        - Article 20   # Log retention
+
+    - id: NFR3
+      name: Single-Machine Scalability
+      description: >
+        The system shall operate reliably on single-machine training pipelines
+        with multiprocessing data loaders.
+      ai_act_articles:
+        - Article 17   # Quality management system (procedural reliability)
+
+    - id: NFR4
+      name: Extensibility to Distributed Systems
+      description: >
+        The architecture shall allow future extension to multi-node distributed
+        training environments.
+      ai_act_articles:
+        - Article 17   # Quality management
+        - Article 61   # Lifecycle monitoring
+
+    - id: NFR5
+      name: Framework Extensibility
+      description: >
+        Instrumentation shall be modular and extensible to additional ML frameworks.
+      ai_act_articles:
+        - Article 17   # Quality management system
+
+    - id: NFR6
+      name: Deterministic Event Semantics
+      description: >
+        Event definitions shall be stable and versioned to ensure long-term
+        interpretability of provenance logs.
+      ai_act_articles:
+        - Article 11   # Documentation
+        - Article 12   # Traceability
+
+    - id: NFR7
+      name: Usability
+      description: >
+        Integration into existing training pipelines shall require minimal code changes.
+      ai_act_articles:
+        - Article 13   # Transparency and information provision

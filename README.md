@@ -64,6 +64,7 @@ We'll keep them small and cheap.
 Records preprocessing steps applied to the data at a logical level
 - transform_name, params_hash
 - this gives us visibility into data augmentations and transformations history, i.e. what operations were applied and in what order.
+- Could be emitted by instrumenting common transform libraries (e.g. torchvision.transforms), or by providing a decorator for user defined transforms. We could also "envelope" each data sample at access time so it can carry a transform history that gets updated on each transform call and then emitted when it reaches the model.
 
 **EnvEvent**:
 - captures environment details at runtime.
