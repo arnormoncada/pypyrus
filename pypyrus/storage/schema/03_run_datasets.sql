@@ -2,10 +2,10 @@
 -- Link: which datasets were used in which runs
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS run_datasets (
-  run_id TEXT NOT NULL,
-  dataset_id TEXT NOT NULL,
+  run_id TEXT NOT NULL, -- FK to runs(run_id)
+  dataset_id TEXT NOT NULL, -- FK to datasets(dataset_id)
   role TEXT,                      -- e.g. train/val/test/unspecified (optional)
-  registered_at TEXT NOT NULL,
+  -- registered_at TEXT NOT NULL,
 
   PRIMARY KEY (run_id, dataset_id),
   FOREIGN KEY (run_id) REFERENCES runs(run_id) ON DELETE CASCADE,

@@ -1,17 +1,18 @@
 -- ----------------------------
 -- Transform pipeline: declared (not per-sample)
+-- These fields describe the declared transform configuration, not exact augmentation outcome per sample.
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS transform_declared (
   event_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  run_id TEXT NOT NULL,
-  dataset_id TEXT NOT NULL,
-  timestamp TEXT NOT NULL,
+  run_id TEXT NOT NULL, -- FK to runs(run_id)
+  dataset_id TEXT NOT NULL, -- FK to datasets(dataset_id)
+  timestamp TEXT NOT NULL, -- ISO 8601 timestamp generated at event generation time
 
-  transform_chain_id TEXT NOT NULL,     -- stable id within a run
-  transform_list_json TEXT NOT NULL,    -- ordered list of transform names/classes
-  params_hash TEXT NOT NULL,            -- hash over pipeline description
+  transform_chain_id TEXT NOT NULL,     -- stable id for the transform pipeline in this run (uuid or stable hash)
+  transform_list_json TEXT NOT NULL,    -- ordered list of transform names/classes + key params perchance
+  params_hash TEXT NOT NULL,            -- hash over pipeline description... faster to compare than full JSON; 
   seed_policy TEXT,                     -- global/per-worker/per-sample (optional)
-  deterministic INTEGER,                -- 0/1 (best-effort)
+  deterministic INTEGER,                -- 0/1 (best-effort) (lets see if this is useful to store at all)
 
   FOREIGN KEY (run_id) REFERENCES runs(run_id) ON DELETE CASCADE,
   FOREIGN KEY (dataset_id) REFERENCES datasets(dataset_id) ON DELETE CASCADE

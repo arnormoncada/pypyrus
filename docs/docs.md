@@ -377,6 +377,31 @@ Transforms raw provenance into meaningful outputs.
 </p>
 
 
+# Entity Relationship Diagram
+The following ER diagram illustrates the core tables and relationships in the PyPyrus schema. 
+The db schema is subject to change as we iterate, and a few fields are still TBD (e.g. seed policy, deterministic flag, etc.) but this should give a good overview of the main entities and their connections.
+
+![ER Diagram](../pypyrus_er.png)
+
+
+
+<p style="margin: 6em 0; text-align: center;">
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+</p>
+
 # What Do We Mean by “Reproducibility”?
 
 Reproducibility is not one thing. There are **levels**.
