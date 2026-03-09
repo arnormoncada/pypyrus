@@ -170,7 +170,7 @@ Purpose:
 
 ---
 
-## 5️⃣ DatasetAccessEvent (coalesced)
+<!-- ## 5️⃣ DatasetAccessEvent (coalesced)
 
 Emitted at dataset boundary (e.g. `__getitem__`, `__iter__`).
 
@@ -187,9 +187,8 @@ Emitted at dataset boundary (e.g. `__getitem__`, `__iter__`).
 
 Important design choice:
 
-* Events are **coalesced**
-* We do not log one event per sample unless in debug mode
-* Aggregation may occur per batch or time window
+* Events are **coalesced** 
+* Aggregation may occur per batch or time window -->
 
 Purpose:
 
@@ -199,7 +198,7 @@ Purpose:
 
 ---
 
-## 6️⃣ BatchConsumedEvent (Primary Reproducibility Event)
+## 6️⃣ BatchDeliveredEvent (Primary Reproducibility Event)
 
 Emitted when a batch is received by the training loop.
 
@@ -219,12 +218,24 @@ Purpose:
 
 * Compare batch streams across runs
 * Detect divergence
-* Enable batch-level replay
-* Core for “extreme shuffling” experiments
+* Reconstruct training order under shuffling
+* Enable data-stream reproducibility experiments
 
 This event answers:
 
 > What did batch t contain in run A vs run B?
+
+### Optional Strict version — BatchConsumedEvent (Step Boundary)
+
+This is emitted inside a wrapped training step function, immediately before or after the model forward pass.
+
+This mode requires minimal additional integration (e.g., wrapping a `train_step` function).
+
+In strict version:
+
+* `global_step` aligns with training steps
+* Skipped batches are not logged
+* Logging reflects actual computation entry
 
 ---
 
@@ -254,35 +265,57 @@ Instrumentation defines **where events are emitted** in the training flow.
 
 ## Flow Mapping
 
-| Training Flow Step              | Event Emitted                  |
-| ------------------------------- | ------------------------------ |
-| `start_run()`                   | RunStartEvent                  |
-| Dataset wrapped                 | DatasetRegisteredEvent         |
-| Transform defined               | TransformDeclaredEvent         |
-| `dataset.__getitem__()`         | DatasetAccessEvent (coalesced) |
-| Batch consumed by training loop | BatchConsumedEvent             |
-| `end_run()`                     | RunEndEvent                    |
+| Training Flow Step                       | Event Emitted          |
+| ---------------------------------------- | ---------------------- |
+| `start_run()`                            | RunStartEvent          |
+| Dataset registered / wrapped             | DatasetRegisteredEvent |
+| Transform introspected at registration   | TransformDeclaredEvent |
+| DataLoader yields batch to training loop | BatchDeliveredEvent    |
+| `end_run()`                              | RunEndEvent            |
 
+PyPyrus captures provenance at the **DataLoader → training loop handoff**, avoiding intrusive modification of model or optimizer logic.
+
+### Optional Strict Flow (Step Boundary Mode)
+| Training Flow Step     | Event Emitted          |
+| ---------------------- | ---------------------- |
+| `start_run()`          | RunStartEvent          |
+| Dataset registered     | DatasetRegisteredEvent |
+| Transform introspected | TransformDeclaredEvent |
+| Batch yielded          | (IDs attached only)    |
+| Training step executed | BatchConsumedEvent     |
+| `end_run()`            | RunEndEvent            |
+
+In this mode:
+
+* DataLoader wrapper propagates sample IDs (BatchDeliveredEvent)
+* Step wrapper emits the event (BatchConsumedEvent)
 ---
 
 ## Instrumentor Interface
 
 ```
-attach(dataset) -> dataset_proxy
+attach_dataloader(loader) -> loader_proxy
 ```
 
 Responsibilities:
 
-* Intercept dataset access
-* Emit DatasetAccessEvents
-* Optionally propagate sample IDs
-* Buffer events for coalescing
+* Wrap DataLoader iterator
+* Ensure sample IDs are propagated per batch
+* Compute ordered batch fingerprint
+* Emit BatchDeliveredEvent
+* Buffer events for efficient storage writes
 
-Coalescing strategies:
+Optional batch-consumed instrumentation:
 
-* Per-batch
-* Per-time-window
-* Per-worker aggregation
+```
+wrap_step(train_step) -> instrumented_step
+```
+
+Responsibilities:
+
+* Emit BatchConsumedEvent at computation boundary
+* Maintain accurate global_step alignment
+
 
 ---
 
@@ -311,14 +344,13 @@ Design properties:
 Transforms raw provenance into meaningful outputs.
 
 ---
-
 ## Query Examples
 
 * Which datasets were used in run X?
-* How many accesses per dataset?
-* What changed between run A and run B?
+* What was the delivered batch sequence?
 * At what step did batch streams diverge?
 * What did batch 127 contain?
+* What is the match rate between run A and B?
 
 ---
 
@@ -329,10 +361,12 @@ Transforms raw provenance into meaningful outputs.
 * Dataset identity + fingerprint
 * Split information (if available)
 
-### Usage Summary
+### Data Stream Summary
 
-* Access counts
-* Worker-level statistics (optional)
+* Total batches delivered
+* Match rate across runs
+* First divergence step
+* Batch size consistency
 
 ### Transform Chain
 
@@ -381,7 +415,7 @@ Transforms raw provenance into meaningful outputs.
 The following ER diagram illustrates the core tables and relationships in the PyPyrus schema. 
 The db schema is subject to change as we iterate, and a few fields are still TBD (e.g. seed policy, deterministic flag, etc.) but this should give a good overview of the main entities and their connections.
 
-![ER Diagram](../pypyrus_er.png)
+![ER Diagram](../pypyrus_er_refined.png)
 
 
 
@@ -454,7 +488,7 @@ WandB and others can log dataset versions, but they often rely on user input.
 
 This is where the schema shines.
 
-From `batch_consumed`:
+From `batch_delivered` (or `batch_consumed` in strict version):
 
 * `global_step`
 * `batch_fingerprint`
@@ -465,7 +499,7 @@ You can:
 * Compute match rate
 * Find first divergence step
 * Detect shuffling differences
-* Detect dropped batches (e.g. DatasetAccessEvent shows fetch but no corresponding BatchConsumedEvent)
+* Detect dropped batches (missing steps)
 
 This is **reproducibility of the training data stream**.
 
@@ -543,5 +577,103 @@ But we are claiming:
 
 That is precise, defensible, and aligned with AI Act traceability requirements.
 
+PyPyrus defines dataset-level reproducibility at the data stream boundary rather than at raw dataset access or internal model computation. This avoids logging execution-layer artifacts (e.g., worker scheduling or prefetching) and instead records the exact sequence of samples delivered to training.
+
 ---
 
+<p style="margin: 6em 0; text-align: center;">
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+  <img src="../../zelda-map.png" width="6%" />
+</p>
+
+# Instrumentation Architecture
+
+PyPyrus instruments the training pipeline at two boundaries:
+
+1. **Dataset boundary** — inject stable sample identifiers
+2. **DataLoader boundary** — observe and log the delivered batch stream
+
+Instrumentation is part of the `instrumentation/` module:
+
+```
+pypyrus/
+  instrumentation/
+    dataset.py      # Inject sample IDs
+    dataloader.py   # Observe batch stream + emit events
+    collate.py      # Preserve IDs through collation (helper)
+```
+
+---
+
+## Dataset Wrapper (`dataset.py`)
+
+**Boundary:** `dataset.__getitem__`
+
+The dataset wrapper injects a stable `sample_id` into every returned sample.
+
+Responsibilities:
+
+* Attach deterministic `sample_id` (default: dataset index)
+* Preserve original dataset behavior
+* Perform no logging
+
+This ensures identity propagates through batching and multiprocessing.
+
+---
+
+## DataLoader Wrapper (`dataloader.py`)
+
+**Boundary:** DataLoader iterator (`for batch in loader:`)
+
+The DataLoader wrapper:
+
+* Extracts ordered `sample_ids` per batch
+* Computes a batch fingerprint
+* Emits `BatchDeliveredEvent`
+* Buffers events for efficient storage
+
+A `BatchDeliveredEvent` means:
+
+> This batch was delivered from the DataLoader to the training loop.
+
+This defines the observable **data stream boundary** used for reproducibility analysis.
+
+---
+
+## Collate Handling (`collate.py`)
+
+Because batches may have arbitrary structure (tuples, dicts, nested objects, custom `collate_fn`), PyPyrus optionally wraps the `collate_fn` to ensure `sample_id`s are preserved during collation.
+
+The original batch structure is preserved for user code.
+
+---
+
+## Public API
+
+Instrumentation requires a single call:
+
+```python
+loader = pypyrus.attach(loader)
+```
+
+Internally this:
+
+1. Wraps the dataset
+2. Wraps the DataLoader
+3. Enables batch-level provenance logging
+
+No changes to model or optimizer code are required in default mode.
+
+---

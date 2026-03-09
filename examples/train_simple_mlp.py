@@ -9,6 +9,10 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 from torchvision import datasets, transforms
 
+# Pypyurus imports
+from pypyrus.core.attach import attach
+from pypyrus.core.run import Run
+
 # --- Config ---
 EPOCHS = 5
 BATCH_SIZE = 256
@@ -37,20 +41,22 @@ model = SimpleMLP().to(DEVICE)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 loss_fn = nn.CrossEntropyLoss()
+with Run() as run:
+    # Attach PyPyrus to the DataLoader so we can track batch deliveries.
+    train_loader = attach(train_loader, run)
+    # --- Train ---
+    for epoch in range(1, EPOCHS + 1):
+        total_loss = 0
+        for images, labels in train_loader:
+            images, labels = images.to(DEVICE), labels.to(DEVICE)
 
-# --- Train ---
-for epoch in range(1, EPOCHS + 1):
-    total_loss = 0
-    for images, labels in train_loader:
-        images, labels = images.to(DEVICE), labels.to(DEVICE)
+            loss = loss_fn(model(images), labels)
+            optimizer.zero_grad()
+            loss.backward()
+            optimizer.step()
 
-        loss = loss_fn(model(images), labels)
-        optimizer.zero_grad()
-        loss.backward()
-        optimizer.step()
+            total_loss += loss.item()
 
-        total_loss += loss.item()
+        print(f"Epoch {epoch}/{EPOCHS}  loss: {total_loss / len(train_loader):.4f}")
 
-    print(f"Epoch {epoch}/{EPOCHS}  loss: {total_loss / len(train_loader):.4f}")
-
-print("Done.")
+    print("Done.")

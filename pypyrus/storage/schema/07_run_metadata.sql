@@ -1,12 +1,20 @@
--- ----------------------------
--- Run metadata: config, environment, extra info
--- ----------------------------
-CREATE TABLE IF NOT EXISTS run_metadata (
-  run_id           TEXT NOT NULL PRIMARY KEY, -- FK to runs.run_id
+PRAGMA foreign_keys = ON;
 
-  config_json      TEXT, -- full config JSON; NULL if not captured
-  environment_json TEXT, -- full env snapshot JSON; NULL if not captured
-  metadata_json    TEXT, -- any extra structured info; NULL if not provided
+-- ----------------------------
+-- Environment snapshot
+-- One row per EnvironmentSnapshotEvent.
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS environment_snapshot (
+  event_id TEXT PRIMARY KEY,      -- UUID; EnvironmentSnapshotEvent.event_id
+  run_id TEXT NOT NULL,           -- EnvironmentSnapshotEvent.run_id
+  timestamp TEXT NOT NULL,        -- ISO 8601; EnvironmentSnapshotEvent.timestamp
 
-  FOREIGN KEY (run_id) REFERENCES runs (run_id) ON DELETE CASCADE
+  python_version TEXT NOT NULL,   -- EnvironmentSnapshotEvent.python_version
+  library_versions_hash TEXT,     -- EnvironmentSnapshotEvent.library_versions_hash
+  hardware_summary TEXT,          -- EnvironmentSnapshotEvent.hardware_summary
+  cuda_version TEXT,              -- EnvironmentSnapshotEvent.cuda_version
+
+  FOREIGN KEY (run_id) REFERENCES runs(run_id) ON DELETE CASCADE
 );
+
+CREATE INDEX IF NOT EXISTS idx_env_snapshot_run ON environment_snapshot(run_id);

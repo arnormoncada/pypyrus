@@ -1,0 +1,27 @@
+PRAGMA foreign_keys = ON;
+
+-- ----------------------------
+-- BatchDelivered: the key reproducibility event
+-- One row per BatchDeliveredEvent.
+-- ----------------------------
+CREATE TABLE IF NOT EXISTS batch_delivered (
+  event_id TEXT PRIMARY KEY,      -- UUID; BatchDeliveredEvent.event_id
+  run_id TEXT NOT NULL,           -- BatchDeliveredEvent.run_id
+  dataset_id TEXT NOT NULL,       -- BatchDeliveredEvent.dataset_id
+
+  global_step INTEGER NOT NULL,   -- BatchDeliveredEvent.global_step
+  timestamp TEXT NOT NULL,        -- ISO 8601; BatchDeliveredEvent.timestamp
+
+  batch_size INTEGER NOT NULL,    -- BatchDeliveredEvent.batch_size
+  batch_fingerprint TEXT NOT NULL, -- BatchDeliveredEvent.batch_fingerprint
+  sample_ids_blob BLOB,           -- BatchDeliveredEvent.sample_ids_blob (gzip-compressed bytes)
+  rng_state_hash TEXT,            -- BatchDeliveredEvent.rng_state_hash
+
+  FOREIGN KEY (run_id)     REFERENCES runs(run_id)              ON DELETE CASCADE,
+  FOREIGN KEY (dataset_id) REFERENCES datasets(dataset_id)      ON DELETE CASCADE,
+
+  UNIQUE (run_id, global_step)
+);
+
+CREATE INDEX IF NOT EXISTS idx_batch_run_step    ON batch_delivered(run_id, global_step);
+CREATE INDEX IF NOT EXISTS idx_batch_fingerprint ON batch_delivered(batch_fingerprint);

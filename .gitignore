@@ -6,3 +6,6 @@ __pycache__/
 
 # db files
 *.db
+
+#data files
+/data

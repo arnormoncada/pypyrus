@@ -2,20 +2,23 @@ PRAGMA foreign_keys = ON;
 
 -- ----------------------------
 -- Runs: audit boundary
+-- Populated from RunStartEvent (on open) and RunEndEvent (on close).
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS runs (
-  run_id TEXT PRIMARY KEY, -- UUID
-  start_time TEXT NOT NULL, -- ISO 8601 timestamp
-  end_time TEXT, -- ISO 8601 timestamp; NULL if still running
+  run_id TEXT PRIMARY KEY,        -- UUID; RunStartEvent.run_id
 
-  -- reproducibility bundle
-  git_commit TEXT, -- git commit hash (40 chars)
-  git_dirty INTEGER,              -- 0/1
-  config_hash TEXT,               -- hash of config file/dict
-  env_hash TEXT,                  -- hash of env snapshot
+  -- RunStartEvent fields
+  start_time TEXT NOT NULL,       -- ISO 8601; RunStartEvent.timestamp
+  code_ref TEXT,                  -- RunStartEvent.code_ref (e.g. git SHA, script path)
+  config_ref TEXT,                -- RunStartEvent.config_ref
+  environment_hash TEXT,          -- RunStartEvent.environment_hash
+  seed_summary_json TEXT,         -- RunStartEvent.seed_summary serialised as JSON
 
-  -- optional lightweight metadata
-  tags_json TEXT                  -- optional; keep as JSON string
+  -- RunEndEvent fields (NULL while run is still active)
+  end_time TEXT,                  -- ISO 8601; RunEndEvent.timestamp
+  status TEXT,                    -- 'success' / 'failure' / 'interrupted'
+  event_count INTEGER             -- RunEndEvent.event_count
 );
 
 CREATE INDEX IF NOT EXISTS idx_runs_start_time ON runs(start_time);
+CREATE INDEX IF NOT EXISTS idx_runs_status     ON runs(status);

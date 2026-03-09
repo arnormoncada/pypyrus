@@ -1,22 +1,25 @@
+PRAGMA foreign_keys = ON;
+
 -- ----------------------------
 -- Transform pipeline: declared (not per-sample)
--- These fields describe the declared transform configuration, not exact augmentation outcome per sample.
+-- One row per TransformDeclaredEvent.
 -- ----------------------------
 CREATE TABLE IF NOT EXISTS transform_declared (
-  event_id INTEGER PRIMARY KEY AUTOINCREMENT,
-  run_id TEXT NOT NULL, -- FK to runs(run_id)
-  dataset_id TEXT NOT NULL, -- FK to datasets(dataset_id)
-  timestamp TEXT NOT NULL, -- ISO 8601 timestamp generated at event generation time
+  event_id TEXT PRIMARY KEY,      -- UUID; TransformDeclaredEvent.event_id
+  run_id TEXT NOT NULL,           -- TransformDeclaredEvent.run_id
+  dataset_id TEXT NOT NULL,       -- TransformDeclaredEvent.dataset_id
+  timestamp TEXT NOT NULL,        -- ISO 8601; TransformDeclaredEvent.timestamp
 
-  transform_chain_id TEXT NOT NULL,     -- stable id for the transform pipeline in this run (uuid or stable hash)
-  transform_list_json TEXT NOT NULL,    -- ordered list of transform names/classes + key params perchance
-  params_hash TEXT NOT NULL,            -- hash over pipeline description... faster to compare than full JSON; 
-  seed_policy TEXT,                     -- global/per-worker/per-sample (optional)
-  deterministic INTEGER,                -- 0/1 (best-effort) (lets see if this is useful to store at all)
+  transform_chain_id TEXT NOT NULL, -- TransformDeclaredEvent.transform_chain_id
+  transform_list_json TEXT NOT NULL, -- TransformDeclaredEvent.transform_list serialised as JSON array
+  params_hash TEXT NOT NULL,        -- TransformDeclaredEvent.params_hash
+  deterministic_flag INTEGER NOT NULL, -- TransformDeclaredEvent.deterministic_flag (0/1)
+  seed_policy TEXT NOT NULL,        -- TransformDeclaredEvent.seed_policy
 
-  FOREIGN KEY (run_id) REFERENCES runs(run_id) ON DELETE CASCADE,
+  FOREIGN KEY (run_id)     REFERENCES runs(run_id)         ON DELETE CASCADE,
   FOREIGN KEY (dataset_id) REFERENCES datasets(dataset_id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_transform_declared_run ON transform_declared(run_id);
+CREATE INDEX IF NOT EXISTS idx_transform_declared_run     ON transform_declared(run_id);
 CREATE INDEX IF NOT EXISTS idx_transform_declared_dataset ON transform_declared(dataset_id);
+CREATE INDEX IF NOT EXISTS idx_transform_chain            ON transform_declared(transform_chain_id);

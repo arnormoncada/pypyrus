@@ -1,10 +1,15 @@
-"""PyPyrus storage module - SQLite-based provenance store."""
+"""
+Persistence backends for provenance events (e.g. SQLite).
 
-from pypyrus.storage.migrate import init_db, load_schema
-from pypyrus.storage.sqlite_store import SQLiteStore
+Storage knows how to store/query events, but is framework-agnostic.
+"""
+
+from __future__ import annotations
+
+from .store import Store
+from .sqlite_store import SQLiteStore
 
 __all__ = [
+    "Store",
     "SQLiteStore",
-    "init_db",
-    "load_schema",
 ]
