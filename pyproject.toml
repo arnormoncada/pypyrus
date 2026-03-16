@@ -9,5 +9,16 @@ dependencies = [
     "torchvision"
 ]
 
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+
 [tool.setuptools.packages.find]
 include = ["pypyrus*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]

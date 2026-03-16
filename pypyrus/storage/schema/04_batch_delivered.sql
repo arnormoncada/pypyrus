@@ -9,8 +9,9 @@ CREATE TABLE IF NOT EXISTS batch_delivered (
   run_id TEXT NOT NULL,           -- BatchDeliveredEvent.run_id
   dataset_id TEXT NOT NULL,       -- BatchDeliveredEvent.dataset_id
 
-  global_step INTEGER NOT NULL,   -- BatchDeliveredEvent.global_step
-  timestamp TEXT NOT NULL,        -- ISO 8601; BatchDeliveredEvent.timestamp
+  global_step INTEGER NOT NULL,     -- BatchDeliveredEvent.global_step (per-loader counter)
+  global_sequence INTEGER NOT NULL, -- BatchDeliveredEvent.global_sequence (run-wide counter)
+  timestamp TEXT NOT NULL,          -- ISO 8601; BatchDeliveredEvent.timestamp
 
   batch_size INTEGER NOT NULL,    -- BatchDeliveredEvent.batch_size
   batch_fingerprint TEXT NOT NULL, -- BatchDeliveredEvent.batch_fingerprint
@@ -20,8 +21,10 @@ CREATE TABLE IF NOT EXISTS batch_delivered (
   FOREIGN KEY (run_id)     REFERENCES runs(run_id)              ON DELETE CASCADE,
   FOREIGN KEY (dataset_id) REFERENCES datasets(dataset_id)      ON DELETE CASCADE,
 
-  UNIQUE (run_id, global_step)
+  UNIQUE (run_id, dataset_id, global_step),
+  UNIQUE (run_id, global_sequence)
 );
 
-CREATE INDEX IF NOT EXISTS idx_batch_run_step    ON batch_delivered(run_id, global_step);
-CREATE INDEX IF NOT EXISTS idx_batch_fingerprint ON batch_delivered(batch_fingerprint);
+CREATE INDEX IF NOT EXISTS idx_batch_run_step     ON batch_delivered(run_id, global_step);
+CREATE INDEX IF NOT EXISTS idx_batch_sequence     ON batch_delivered(run_id, global_sequence);
+CREATE INDEX IF NOT EXISTS idx_batch_fingerprint  ON batch_delivered(batch_fingerprint);

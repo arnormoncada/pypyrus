@@ -43,7 +43,7 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 loss_fn = nn.CrossEntropyLoss()
 with Run() as run:
     # Attach PyPyrus to the DataLoader so we can track batch deliveries.
-    train_loader = attach(train_loader, run)
+    train_loader = attach(train_loader, run, role="train")
     # --- Train ---
     for epoch in range(1, EPOCHS + 1):
         total_loss = 0

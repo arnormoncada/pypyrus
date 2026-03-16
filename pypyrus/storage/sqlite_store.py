@@ -171,14 +171,16 @@ class SQLiteStore(Store):
             INSERT OR IGNORE INTO run_datasets (
                 run_id,
                 dataset_id,
-                registered_at
+                registered_at,
+                role
             )
-            VALUES (?, ?, ?)
+            VALUES (?, ?, ?, ?)
             """,
             (
                 event.run_id,
                 event.dataset_id,
                 event.timestamp,
+                event.role,
             ),
         )
 
@@ -195,10 +197,9 @@ class SQLiteStore(Store):
                 transform_chain_id,
                 transform_list_json,
                 params_hash,
-                deterministic_flag,
-                seed_policy
+                introspection_level
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
@@ -208,8 +209,7 @@ class SQLiteStore(Store):
                 event.transform_chain_id,
                 json.dumps(event.transform_list),
                 event.params_hash,
-                1 if event.deterministic_flag else 0,
-                event.seed_policy,
+                event.introspection_level,
             ),
         )
 
@@ -223,19 +223,21 @@ class SQLiteStore(Store):
                 run_id,
                 dataset_id,
                 global_step,
+                global_sequence,
                 timestamp,
                 batch_size,
                 batch_fingerprint,
                 sample_ids_blob,
                 rng_state_hash
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
                 event.run_id,
                 event.dataset_id,
                 event.global_step,
+                event.global_sequence,
                 event.timestamp,
                 event.batch_size,
                 event.batch_fingerprint,
@@ -291,7 +293,43 @@ class SQLiteStore(Store):
                 """
                 SELECT * FROM batch_delivered
                 WHERE run_id = ?
-                ORDER BY global_step
+                ORDER BY global_sequence
+                """,
+                (run_id,),
+            ).fetchall()
+
+        elif event_type == "dataset_registered":
+            rows = conn.execute(
+                """
+                SELECT
+                    d.event_id, d.dataset_id, d.name, d.uri,
+                    d.version_hint, d.fingerprint, d.fingerprint_method,
+                    d.registered_at AS timestamp,
+                    rd.run_id, rd.role
+                FROM datasets d
+                JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
+                WHERE rd.run_id = ?
+                ORDER BY rd.registered_at
+                """,
+                (run_id,),
+            ).fetchall()
+
+        elif event_type == "transform_declared":
+            rows = conn.execute(
+                """
+                SELECT * FROM transform_declared
+                WHERE run_id = ?
+                ORDER BY timestamp
+                """,
+                (run_id,),
+            ).fetchall()
+
+        elif event_type == "environment_snapshot":
+            rows = conn.execute(
+                """
+                SELECT * FROM environment_snapshot
+                WHERE run_id = ?
+                ORDER BY timestamp
                 """,
                 (run_id,),
             ).fetchall()

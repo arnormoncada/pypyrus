@@ -21,7 +21,6 @@ EventType = Literal[
 ]
 
 RunStatus = Literal["success", "failure", "interrupted"]
-SeedPolicy = Literal["unknown", "global", "per_worker", "per_sample"]
 
 
 @dataclass(slots=True, kw_only=True)
@@ -59,6 +58,7 @@ class RunEndEvent(ProvenanceEvent):
 class DatasetRegisteredEvent(ProvenanceEvent):
     dataset_id: str
     name: str
+    role: str
     uri: str | None = None
     version_hint: str | None = None
     fingerprint: str | None = None
@@ -71,10 +71,9 @@ class DatasetRegisteredEvent(ProvenanceEvent):
 class TransformDeclaredEvent(ProvenanceEvent):
     dataset_id: str
     transform_chain_id: str
-    transform_list: list[str]
+    transform_list: list[dict[str, Any]]
     params_hash: str
-    deterministic_flag: bool
-    seed_policy: SeedPolicy = "unknown"
+    introspection_level: Literal["full", "partial"]
 
     event_type: EventType = field(default="transform_declared", init=False)
 
@@ -83,6 +82,7 @@ class TransformDeclaredEvent(ProvenanceEvent):
 class BatchDeliveredEvent(ProvenanceEvent):
     dataset_id: str
     global_step: int
+    global_sequence: int
     batch_size: int
     batch_fingerprint: str
     sample_ids_blob: bytes | None = None

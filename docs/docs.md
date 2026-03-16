@@ -5,21 +5,43 @@
 ## Project structure
 
 ```
-pypyrus                
-├─ docs                
-├─ examples            
-├─ experiments         
-├─ pypyrus             
-│  ├─ core               # Core abstractions (run, dataset identity, etc.)
-│  ├─ instrumentation    # Library-specific instrumentation (PyTorch, TF, JAX)
-│  ├─ provenance         # Event schemas + provenance semantics
-│  ├─ reporting          # Query + report generation logic      
-│  ├─ storage            # Store implementations (e.g. SQLite)                 
-│  └─ utils              # Helper functions   
-├─ scripts             
-├─ tests               
-├─ README.md           
-└─ pyproject.toml      
+pypyrus                                              
+├─ core                                      
+│  ├─ __init__.py                            
+│  ├─ attach.py                              
+│  ├─ config.py                              
+│  ├─ dataset_identity.py                    
+│  ├─ run.py                                 
+│  └─ transform_identity.py                  
+├─ instrumentation                                    
+│  ├─ __init__.py                            
+│  ├─ collate.py                             
+│  ├─ dataloader.py                          
+│  └─ dataset.py                             
+├─ provenance                                       
+│  ├─ __init__.py                            
+│  ├─ events.py                              
+│  ├─ fingerprints.py                        
+│  └─ semantics.py                           
+├─ reporting                                           
+│  ├─ __init__.py                            
+│  ├─ compare.py                             
+│  └─ queries.py                             
+├─ storage                                              
+│  ├─ schema                                 
+│  │  ├─ 01_runs.sql                         
+│  │  ├─ 02_datasets.sql                     
+│  │  ├─ 03_run_datasets.sql                 
+│  │  ├─ 04_batch_delivered.sql              
+│  │  ├─ 05_transform_declared.sql           
+│  │  ├─ 06_dataset_access_agg.sql           
+│  │  └─ 07_run_metadata.sql                 
+│  ├─ __init__.py                            
+│  ├─ migrate.py                             
+│  ├─ sqlite_store.py                        
+│  └─ store.py                               
+└─ __init__.py                               
+  
 ```
 
 ---
@@ -677,3 +699,124 @@ Internally this:
 No changes to model or optimizer code are required in default mode.
 
 ---
+
+## Next features, in order
+
+1. **Dataset fingerprinting**
+
+   * Implement `core/dataset_identity.py`
+   * Compute and store `fingerprint` + `fingerprint_method`
+   * Practical method (hybrid approach for file backed datasets):
+   Sample content only from a deterministic subset of the dataset.
+      * Sort all files by relative path
+      * Take every Nth file (e.g. ceil(total/256) stride).
+      * Hash 64kb of each sampled file
+      * Comine with path and size of all files
+   This gives us portability (no mtime dependence). Can catch bytes-level changes without hashing everything. Still O(total_files) for the stat pass, but only ~256 file reads regardless of dataset size.
+
+   * Hugging face datasets: use built in fingerprint
+
+   * In- memory objects: deterministic hashing of content
+
+   * Database-backed datasets: query-based fingerprinting (e.g. query signature + table snapshot markers (row count, pk range, max updated_at, db engine/version))
+2. **Wire dataset identity into registration**
+
+   * Update DataLoader instrumentation so `DatasetRegisteredEvent` uses the real descriptor/fingerprint logic
+   * Stop emitting `fingerprint=None`
+
+3. **Compare dataset identity before batch streams**
+
+   * Update `compare_runs` to first compare dataset fingerprints
+   * Then compare transforms
+   * Then compare batch fingerprints
+
+4. **Transform declaration cleanup**
+
+   * Make transform extraction a separate helper/module
+   * Store valid JSON, not ad hoc strings
+   * Improve best-effort support for common torchvision patterns
+
+5. **Decode and inspect stored sample IDs cleanly**
+
+   * Keep the reporting query you added
+   * Add a helper to fetch one batch by `(run_id, global_step)`
+   * This will be useful in experiments and debugging
+
+6. **Schema and store cleanup pass**
+
+   * Make sure `sqlite_store.py` matches the SQL exactly
+   * Confirm `event_id` is written everywhere
+   * Remove any remaining legacy assumptions from old `batch_consumed` / access logging design
+
+7. **Run-level deduplication/state**
+
+   * Prevent duplicate dataset registration and duplicate transform declaration within a run
+   * Track this in `Run` rather than only in the DataLoader proxy
+
+8. **Config support**
+
+   * Add `core/config.py`
+   * Put settings there like:
+
+     * store sample IDs or not
+     * compression on/off
+     * compression method
+     * default boundary mode
+     * debug/full mode
+
+9. **More robust DataLoader cloning**
+
+   * Harden the loader wrapper against more PyTorch configurations
+   * Especially custom samplers, batch samplers, multiple workers, persistent workers
+
+10. **Tests**
+
+* Unit tests for:
+
+  * fingerprint helpers
+  * dataset wrapper
+  * collate wrapper
+  * batch logging
+  * compare runs
+* This should happen early too, but definitely before thesis experiments
+
+11. **Experiment helpers**
+
+* Small scripts to run:
+
+  * same seed / same config
+  * changed shuffle
+  * changed dataset
+  * changed transform
+* These will support your results chapter directly
+
+12. **Reporting outputs**
+
+* Add concise report builders for:
+
+  * dataset traceability
+  * transform summary
+  * reproducibility comparison
+  * first divergence details
+
+13. **Strict step-boundary mode**
+
+* Optional, later
+* Useful, but not necessary for your main MVP claim
+
+14. **Exact replay / advanced reconstruction**
+
+* Definitely later, if at all
+* Nice extension, not core MVP
+
+## If you want the shortest “do this now” sequence
+
+Do these next five:
+
+1. Dataset fingerprinting
+2. Wire fingerprinting into dataset registration
+3. Compare dataset fingerprints first in `compare_runs`
+4. Clean up transform declaration
+5. Add tests
+
+That’s the highest-value path.

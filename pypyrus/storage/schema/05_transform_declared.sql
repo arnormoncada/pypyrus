@@ -13,8 +13,7 @@ CREATE TABLE IF NOT EXISTS transform_declared (
   transform_chain_id TEXT NOT NULL, -- TransformDeclaredEvent.transform_chain_id
   transform_list_json TEXT NOT NULL, -- TransformDeclaredEvent.transform_list serialised as JSON array
   params_hash TEXT NOT NULL,        -- TransformDeclaredEvent.params_hash
-  deterministic_flag INTEGER NOT NULL, -- TransformDeclaredEvent.deterministic_flag (0/1)
-  seed_policy TEXT NOT NULL,        -- TransformDeclaredEvent.seed_policy
+  introspection_level TEXT NOT NULL, -- TransformDeclaredEvent.introspection_level (full/partial)
 
   FOREIGN KEY (run_id)     REFERENCES runs(run_id)         ON DELETE CASCADE,
   FOREIGN KEY (dataset_id) REFERENCES datasets(dataset_id) ON DELETE CASCADE

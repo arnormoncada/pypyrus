@@ -1,13 +1,15 @@
 from __future__ import annotations
 
 import gzip
-import json
+import inspect
+import warnings
 from typing import Any, Iterator
 
-import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, IterableDataset
 
 from pypyrus.core.run import Run
+from pypyrus.core.dataset_identity import resolve_dataset_identity
+from pypyrus.core.transform_identity import extract_transform_declaration, transform_chain_id
 from pypyrus.instrumentation.collate import wrap_collate
 from pypyrus.instrumentation.dataset import wrap_dataset
 from pypyrus.provenance.events import (
@@ -15,53 +17,7 @@ from pypyrus.provenance.events import (
     DatasetRegisteredEvent,
     TransformDeclaredEvent,
 )
-from pypyrus.provenance.fingerprints import (
-    encode_sample_ids,
-    hash_json,
-    hash_ordered_ids,
-)
-
-
-def _best_effort_dataset_name(dataset: Any) -> str:
-    return dataset.__class__.__name__
-
-
-def _best_effort_dataset_uri(dataset: Any) -> str | None:
-    for attr in ("root", "path", "data_dir", "directory"):
-        if hasattr(dataset, attr):
-            value = getattr(dataset, attr)
-            if value is not None:
-                return str(value)
-    return None
-
-
-def _best_effort_dataset_id(dataset: Any) -> str:
-    descriptor = {
-        "class_name": dataset.__class__.__name__,
-        "name": _best_effort_dataset_name(dataset),
-        "uri": _best_effort_dataset_uri(dataset),
-        "length": len(dataset) if hasattr(dataset, "__len__") else None,
-    }
-    return hash_json(descriptor)
-
-
-def _best_effort_transform_decl(dataset: Any) -> dict[str, Any] | None:
-    transforms_found: list[str] = []
-
-    for attr in ("transform", "transforms", "target_transform"):
-        if hasattr(dataset, attr):
-            value = getattr(dataset, attr)
-            if value is not None:
-                transforms_found.append(repr(value))
-
-    if not transforms_found:
-        return None
-
-    return {
-        "transform_list": transforms_found,
-        "deterministic_flag": False,
-        "seed_policy": "unknown",
-    }
+from pypyrus.provenance.fingerprints import encode_sample_ids, hash_json, hash_ordered_ids
 
 
 def _compress_sample_ids(sample_ids: list[int | str]) -> bytes:
@@ -88,7 +44,17 @@ def _clone_dataloader_with_wrapped_dataset(loader: DataLoader) -> DataLoader:
     Create a new DataLoader with the same configuration, but using:
     - wrapped dataset
     - wrapped collate_fn
+
+    Note:
+    - This path currently supports map-style datasets only.
     """
+    if isinstance(loader.dataset, IterableDataset):
+        raise TypeError(
+            "PyPyrus attach currently supports map-style datasets only. "
+            "Received an IterableDataset, which is not yet supported by "
+            "the wrapper-based sample ID injection path."
+        )
+
     wrapped_dataset = wrap_dataset(loader.dataset)
     wrapped_collate_fn = wrap_collate(loader.collate_fn)
 
@@ -125,8 +91,41 @@ def _clone_dataloader_with_wrapped_dataset(loader: DataLoader) -> DataLoader:
 
     # Remove None values that some torch versions dislike
     kwargs = {k: v for k, v in kwargs.items() if v is not None}
+    safe_kwargs, dropped = _filter_supported_dataloader_kwargs(kwargs)
 
-    return DataLoader(**kwargs)
+    try:
+        return DataLoader(**safe_kwargs)
+    except TypeError as exc:
+        dropped_str = ", ".join(sorted(dropped)) if dropped else "<none>"
+        used_keys = ", ".join(sorted(safe_kwargs.keys()))
+        raise TypeError(
+            "Failed to clone DataLoader for PyPyrus instrumentation. "
+            f"Dropped unsupported kwargs: {dropped_str}. "
+            f"Used kwargs: {used_keys}. "
+            f"Original error: {exc}"
+        ) from exc
+
+
+def _filter_supported_dataloader_kwargs(kwargs: dict[str, Any]) -> tuple[dict[str, Any], set[str]]:
+    """
+    Keep only kwargs supported by the current torch DataLoader constructor.
+
+    This makes cloning more robust across torch versions where optional
+    DataLoader parameters differ.
+    """
+    signature = inspect.signature(DataLoader.__init__)
+    parameters = signature.parameters
+    accepts_kwargs = any(
+        p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values()
+    )
+
+    if accepts_kwargs:
+        return dict(kwargs), set()
+
+    allowed = {name for name in parameters if name != "self"}
+    filtered = {k: v for k, v in kwargs.items() if k in allowed}
+    dropped = {k for k in kwargs if k not in allowed}
+    return filtered, dropped
 
 
 class DataLoaderProxy:
@@ -141,9 +140,11 @@ class DataLoaderProxy:
     - yields the original batch payload to user code
     """
 
-    def __init__(self, loader: DataLoader, run: Run):
+    def __init__(self, loader: DataLoader, run: Run, role: str):
         self.run = run
+        self.role = role
         self._registered = False
+        self._dataset_id: str | None = None
         self._global_step = 0
         self._source_loader = loader
         self.loader = _clone_dataloader_with_wrapped_dataset(loader)
@@ -153,31 +154,44 @@ class DataLoaderProxy:
             return
 
         dataset = self.loader.dataset
-        dataset_id = _best_effort_dataset_id(dataset)
+        descriptor, dataset_fingerprint, warning = resolve_dataset_identity(dataset)
+
+        if warning is not None:
+            warnings.warn(
+                (
+                    "PyPyrus dataset fingerprint fallback used "
+                    f"for dataset_id={descriptor.dataset_id}, "
+                    f"name={descriptor.name}, reason={warning}"
+                ),
+                stacklevel=2,
+            )
+
+        self._dataset_id = descriptor.dataset_id
 
         self.run.emit(
             DatasetRegisteredEvent(
                 run_id=self.run.run_id,
-                dataset_id=dataset_id,
-                name=_best_effort_dataset_name(dataset),
-                uri=_best_effort_dataset_uri(dataset),
-                version_hint=None,
-                fingerprint=None,
-                fingerprint_method=None,
+                dataset_id=descriptor.dataset_id,
+                name=descriptor.name,
+                role=self.role,
+                uri=descriptor.uri,
+                version_hint=descriptor.version_hint,
+                fingerprint=dataset_fingerprint.fingerprint,
+                fingerprint_method=dataset_fingerprint.fingerprint_method,
             )
         )
 
-        transform_decl = _best_effort_transform_decl(dataset)
+        declared_transform = getattr(dataset, "transform", None)
+        transform_decl = extract_transform_declaration(declared_transform)
         if transform_decl is not None:
             self.run.emit(
                 TransformDeclaredEvent(
                     run_id=self.run.run_id,
-                    dataset_id=dataset_id,
-                    transform_chain_id=hash_json(transform_decl["transform_list"]),
+                    dataset_id=descriptor.dataset_id,
+                    transform_chain_id=transform_chain_id(transform_decl),
                     transform_list=transform_decl["transform_list"],
-                    params_hash=hash_json(transform_decl),
-                    deterministic_flag=transform_decl["deterministic_flag"],
-                    seed_policy=transform_decl["seed_policy"],
+                    params_hash=transform_decl["params_hash"],
+                    introspection_level=transform_decl["introspection_level"],
                 )
             )
 
@@ -186,7 +200,11 @@ class DataLoaderProxy:
     def __iter__(self) -> Iterator[Any]:
         self._emit_registration_events_once()
 
-        dataset_id = _best_effort_dataset_id(self.loader.dataset)
+        dataset_id = self._dataset_id
+        if dataset_id is None:
+            descriptor, _, _ = resolve_dataset_identity(self.loader.dataset)
+            dataset_id = descriptor.dataset_id
+            self._dataset_id = dataset_id
 
         for batch_payload, sample_ids in self.loader:
             batch_size = len(sample_ids) if sample_ids else _infer_batch_size(batch_payload)
@@ -204,6 +222,7 @@ class DataLoaderProxy:
                     run_id=self.run.run_id,
                     dataset_id=dataset_id,
                     global_step=self._global_step,
+                    global_sequence=self.run.next_batch_sequence(),
                     batch_size=batch_size,
                     batch_fingerprint=batch_fingerprint,
                     sample_ids_blob=sample_ids_blob,
@@ -221,5 +240,5 @@ class DataLoaderProxy:
         return getattr(self.loader, name)
 
 
-def wrap_dataloader(loader: DataLoader, run: Run) -> DataLoaderProxy:
-    return DataLoaderProxy(loader, run)
+def wrap_dataloader(loader: DataLoader, run: Run, role: str) -> DataLoaderProxy:
+    return DataLoaderProxy(loader, run, role=role)

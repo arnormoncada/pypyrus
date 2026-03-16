@@ -1,4 +1,4 @@
-from pypyrus.reporting.queries import get_batches_for_run
+from pypyrus.reporting.queries import get_batch_for_run_step, get_batches_for_run
 from pypyrus.storage.sqlite_store import SQLiteStore
 
 
@@ -16,6 +16,17 @@ print(f"Run: {run_id}")
 print(f"Num batches: {len(batches)}\n")
 
 for batch in batches[:5]:
+    print(
+        f"step={batch['global_step']} "
+        f"size={batch['batch_size']} "
+        f"fingerprint={batch['batch_fingerprint'][:12]} "
+        f"sample_ids={batch['sample_ids']}"
+    )
+
+example_step = 0
+batch = get_batch_for_run_step(store, run_id, example_step, include_sample_ids=True)
+if batch is not None:
+    print("\nSingle-step lookup:")
     print(
         f"step={batch['global_step']} "
         f"size={batch['batch_size']} "
