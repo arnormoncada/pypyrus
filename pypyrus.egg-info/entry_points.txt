@@ -1,0 +1,2 @@
+[console_scripts]
+pypyrus = pypyrus.cli.main:main

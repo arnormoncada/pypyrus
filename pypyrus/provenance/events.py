@@ -15,6 +15,7 @@ EventType = Literal[
     "run_start",
     "run_end",
     "dataset_registered",
+    "loader_registered",
     "transform_declared",
     "batch_delivered",
     "environment_snapshot",
@@ -68,6 +69,15 @@ class DatasetRegisteredEvent(ProvenanceEvent):
 
 
 @dataclass(slots=True, kw_only=True)
+class LoaderRegisteredEvent(ProvenanceEvent):
+    loader_id: str
+    dataset_id: str
+    role: str
+
+    event_type: EventType = field(default="loader_registered", init=False)
+
+
+@dataclass(slots=True, kw_only=True)
 class TransformDeclaredEvent(ProvenanceEvent):
     dataset_id: str
     transform_chain_id: str
@@ -80,6 +90,7 @@ class TransformDeclaredEvent(ProvenanceEvent):
 
 @dataclass(slots=True, kw_only=True)
 class BatchDeliveredEvent(ProvenanceEvent):
+    loader_id: str
     dataset_id: str
     global_step: int
     global_sequence: int

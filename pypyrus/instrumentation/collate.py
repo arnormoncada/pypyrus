@@ -62,6 +62,16 @@ def collate_with_ids(
     return batch, sample_ids
 
 
+class CollateWithIdsWrapper:
+    """Pickle-safe callable wrapper for DataLoader collate instrumentation."""
+
+    def __init__(self, collate_fn: Callable[[list[Any]], Any] | None):
+        self.collate_fn = collate_fn
+
+    def __call__(self, samples: list[Any]) -> tuple[Any, list[Any]]:
+        return collate_with_ids(samples, user_collate_fn=self.collate_fn)
+
+
 def wrap_collate(
     collate_fn: Callable[[list[Any]], Any] | None,
 ) -> Callable[[list[Any]], tuple[Any, list[Any]]]:
@@ -71,7 +81,4 @@ def wrap_collate(
     The returned function always returns:
         (batch_payload, sample_ids)
     """
-    def _wrapped(samples: list[Any]) -> tuple[Any, list[Any]]:
-        return collate_with_ids(samples, user_collate_fn=collate_fn)
-
-    return _wrapped
+    return CollateWithIdsWrapper(collate_fn)

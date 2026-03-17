@@ -4,6 +4,7 @@ import gzip
 import inspect
 import warnings
 from typing import Any, Iterator
+from uuid import uuid4
 
 from torch.utils.data import DataLoader, IterableDataset
 
@@ -15,6 +16,7 @@ from pypyrus.instrumentation.dataset import wrap_dataset
 from pypyrus.provenance.events import (
     BatchDeliveredEvent,
     DatasetRegisteredEvent,
+    LoaderRegisteredEvent,
     TransformDeclaredEvent,
 )
 from pypyrus.provenance.fingerprints import encode_sample_ids, hash_json, hash_ordered_ids
@@ -92,15 +94,20 @@ def _clone_dataloader_with_wrapped_dataset(loader: DataLoader) -> DataLoader:
     # Remove None values that some torch versions dislike
     kwargs = {k: v for k, v in kwargs.items() if v is not None}
     safe_kwargs, dropped = _filter_supported_dataloader_kwargs(kwargs)
+    if dropped:
+        dropped_str = ", ".join(sorted(dropped))
+        raise TypeError(
+            "Failed to clone DataLoader for PyPyrus instrumentation. "
+            "Dropping DataLoader kwargs is not allowed because it may change "
+            f"training behavior. Unsupported kwargs: {dropped_str}"
+        )
 
     try:
         return DataLoader(**safe_kwargs)
     except TypeError as exc:
-        dropped_str = ", ".join(sorted(dropped)) if dropped else "<none>"
         used_keys = ", ".join(sorted(safe_kwargs.keys()))
         raise TypeError(
             "Failed to clone DataLoader for PyPyrus instrumentation. "
-            f"Dropped unsupported kwargs: {dropped_str}. "
             f"Used kwargs: {used_keys}. "
             f"Original error: {exc}"
         ) from exc
@@ -143,6 +150,7 @@ class DataLoaderProxy:
     def __init__(self, loader: DataLoader, run: Run, role: str):
         self.run = run
         self.role = role
+        self.loader_id = str(uuid4())
         self._registered = False
         self._dataset_id: str | None = None
         self._global_step = 0
@@ -178,6 +186,15 @@ class DataLoaderProxy:
                 version_hint=descriptor.version_hint,
                 fingerprint=dataset_fingerprint.fingerprint,
                 fingerprint_method=dataset_fingerprint.fingerprint_method,
+            )
+        )
+
+        self.run.emit(
+            LoaderRegisteredEvent(
+                run_id=self.run.run_id,
+                loader_id=self.loader_id,
+                dataset_id=descriptor.dataset_id,
+                role=self.role,
             )
         )
 
@@ -220,6 +237,7 @@ class DataLoaderProxy:
             self.run.emit(
                 BatchDeliveredEvent(
                     run_id=self.run.run_id,
+                    loader_id=self.loader_id,
                     dataset_id=dataset_id,
                     global_step=self._global_step,
                     global_sequence=self.run.next_batch_sequence(),

@@ -175,6 +175,8 @@ def _compare_role_batches(
 
 def _batch_view(row: dict[str, Any]) -> dict[str, Any]:
     return {
+        "loader_id": row.get("loader_id"),
+        "role": row.get("role"),
         "global_step": row["global_step"],
         "global_sequence": row.get("global_sequence"),
         "batch_size": row["batch_size"],
@@ -224,6 +226,8 @@ def _format_one_batch(label: str, batch: dict[str, Any] | None) -> list[str]:
     ids_str = ", ".join(map(str, sample_ids)) if sample_ids else "<unavailable>"
     return [
         f"  {label}:",
+        f"    loader_id:       {batch.get('loader_id')}",
+        f"    role:            {batch.get('role')}",
         f"    global_sequence: {batch.get('global_sequence')}",
         f"    global_step:     {batch['global_step']}",
         f"    batch_size:      {batch['batch_size']}",

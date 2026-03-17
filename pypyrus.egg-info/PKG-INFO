@@ -5,3 +5,5 @@ Summary: Data provenance layer for reproducible ML training
 Requires-Python: >=3.9
 Requires-Dist: torch
 Requires-Dist: torchvision
+Provides-Extra: dev
+Requires-Dist: pytest>=8.0; extra == "dev"

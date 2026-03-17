@@ -21,7 +21,6 @@ def load_schema(conn: sqlite3.Connection, schema_dir: Path | None = None) -> Non
     """
     if schema_dir is None:
         schema_dir = Path(__file__).parent / "schema"
-        print(f"Using default schema directory: {schema_dir}")
 
     if not schema_dir.exists():
         raise FileNotFoundError(f"Schema directory not found: {schema_dir}")

@@ -1,14 +1,17 @@
 from __future__ import annotations
 
+import random
 import sqlite3
 from pathlib import Path
 from typing import Any
 
 import torch
-from torch.utils.data import Dataset
+from torch.utils.data import BatchSampler, Dataset
 
 
 class ComposeLike:
+    """Minimal Compose-like container for transform declaration tests."""
+
     def __init__(self, transforms: list[Any]):
         self.transforms = transforms
 
@@ -67,7 +70,47 @@ class TinyMapDataset(Dataset):
         return sample
 
 
+def custom_collate_with_metadata(
+    samples: list[tuple[torch.Tensor, int]],
+) -> dict[str, Any]:
+    """Return a richer batch object to verify custom collate preservation."""
+    features = torch.stack([sample[0] for sample in samples])
+    labels = torch.tensor([sample[1] for sample in samples], dtype=torch.long)
+    return {
+        "features": features,
+        "labels": labels,
+        "label_sum": int(labels.sum().item()),
+    }
+
+
+class EvenOddBatchSampler(BatchSampler):
+    """Group even and odd indices separately to stress custom batch sampling."""
+
+    def __init__(self, data_source: Dataset):
+        self._batches = [
+            [idx for idx in range(len(data_source)) if idx % 2 == 0],
+            [idx for idx in range(len(data_source)) if idx % 2 == 1],
+        ]
+
+    def __iter__(self):
+        yield from self._batches
+
+    def __len__(self) -> int:
+        return len(self._batches)
+
+
+def seed_worker(worker_id: int) -> None:
+    """Top-level worker seeding helper so multi-worker tests stay pickle-safe."""
+    worker_seed = torch.initial_seed() % 2**32
+    random.seed(worker_seed)
+
+
+def iter_payloads(loader: Any) -> list[Any]:
+    return list(loader)
+
+
 def equal_payload(lhs: Any, rhs: Any) -> bool:
+    """Recursively check equality of batch payloads, handling tensors and nested structures."""
     if type(lhs) is not type(rhs):
         return False
 
@@ -89,6 +132,8 @@ def equal_payload(lhs: Any, rhs: Any) -> bool:
 
 
 def assert_loader_settings_preserved(original: Any, cloned: Any) -> None:
+    """Check clone-time settings that should remain behaviorally equivalent."""
+
     def effective_batch_size(loader: Any) -> int | None:
         if loader.batch_size is not None:
             return loader.batch_size
@@ -106,15 +151,33 @@ def assert_loader_settings_preserved(original: Any, cloned: Any) -> None:
         "num_workers": (original.num_workers, cloned.num_workers),
         "pin_memory": (original.pin_memory, cloned.pin_memory),
         "timeout": (original.timeout, cloned.timeout),
+        "worker_init_fn": (original.worker_init_fn, cloned.worker_init_fn),
+        "generator_is_same": (original.generator is cloned.generator, True),
         "has_batch_sampler": (
             original.batch_sampler is not None,
             cloned.batch_sampler is not None,
         ),
-        "sampler_type": (
-            type(original.sampler).__name__,
-            type(cloned.sampler).__name__,
+        "persistent_workers": (
+            getattr(original, "persistent_workers", False),
+            getattr(cloned, "persistent_workers", False),
+        ),
+        "prefetch_factor": (
+            getattr(original, "prefetch_factor", None),
+            getattr(cloned, "prefetch_factor", None),
         ),
     }
+    # With an explicit batch_sampler, PyTorch may rewrite `.sampler`
+    # internally, so compare the batch-sampler contract instead.
+    if original.batch_sampler is None and cloned.batch_sampler is None:
+        checks["sampler_type"] = (
+            type(original.sampler).__name__,
+            type(cloned.sampler).__name__,
+        )
+    else:
+        checks["batch_sampler_type"] = (
+            type(original.batch_sampler).__name__,
+            type(cloned.batch_sampler).__name__,
+        )
 
     mismatches = [
         f"{name}: original={left!r}, cloned={right!r}"

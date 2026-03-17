@@ -17,6 +17,7 @@ from pypyrus.provenance.events import (
     RunStartEvent,
     RunEndEvent,
     DatasetRegisteredEvent,
+    LoaderRegisteredEvent,
     TransformDeclaredEvent,
     BatchDeliveredEvent,
     EnvironmentSnapshotEvent,
@@ -57,6 +58,7 @@ class SQLiteStore(Store):
         """Initialize schema."""
         conn = self._get_conn()
         load_schema(conn)
+        # self._validate_schema_compatibility(conn)
 
     def close(self) -> None:
         """Close connection."""
@@ -85,6 +87,9 @@ class SQLiteStore(Store):
 
         elif isinstance(event, DatasetRegisteredEvent):
             self._insert_dataset_registered(event)
+
+        elif isinstance(event, LoaderRegisteredEvent):
+            self._insert_loader_registered(event)
 
         elif isinstance(event, TransformDeclaredEvent):
             self._insert_transform_declared(event)
@@ -213,6 +218,31 @@ class SQLiteStore(Store):
             ),
         )
 
+    def _insert_loader_registered(self, event: LoaderRegisteredEvent) -> None:
+        conn = self._get_conn()
+
+        conn.execute(
+            """
+            INSERT INTO loaders (
+                event_id,
+                loader_id,
+                run_id,
+                dataset_id,
+                role,
+                registered_at
+            )
+            VALUES (?, ?, ?, ?, ?, ?)
+            """,
+            (
+                event.event_id,
+                event.loader_id,
+                event.run_id,
+                event.dataset_id,
+                event.role,
+                event.timestamp,
+            ),
+        )
+
     def _insert_batch_delivered(self, event: BatchDeliveredEvent) -> None:
         conn = self._get_conn()
 
@@ -221,6 +251,7 @@ class SQLiteStore(Store):
             INSERT INTO batch_delivered (
                 event_id,
                 run_id,
+                loader_id,
                 dataset_id,
                 global_step,
                 global_sequence,
@@ -230,11 +261,12 @@ class SQLiteStore(Store):
                 sample_ids_blob,
                 rng_state_hash
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
                 event.run_id,
+                event.loader_id,
                 event.dataset_id,
                 event.global_step,
                 event.global_sequence,
@@ -291,9 +323,13 @@ class SQLiteStore(Store):
         if event_type == "batch_delivered":
             rows = conn.execute(
                 """
-                SELECT * FROM batch_delivered
-                WHERE run_id = ?
-                ORDER BY global_sequence
+                SELECT
+                    b.*,
+                    l.role
+                FROM batch_delivered b
+                JOIN loaders l ON l.loader_id = b.loader_id
+                WHERE b.run_id = ?
+                ORDER BY b.global_sequence
                 """,
                 (run_id,),
             ).fetchall()
@@ -310,6 +346,23 @@ class SQLiteStore(Store):
                 JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
                 WHERE rd.run_id = ?
                 ORDER BY rd.registered_at
+                """,
+                (run_id,),
+            ).fetchall()
+
+        elif event_type == "loader_registered":
+            rows = conn.execute(
+                """
+                SELECT
+                    event_id,
+                    loader_id,
+                    run_id,
+                    dataset_id,
+                    role,
+                    registered_at AS timestamp
+                FROM loaders
+                WHERE run_id = ?
+                ORDER BY registered_at
                 """,
                 (run_id,),
             ).fetchall()

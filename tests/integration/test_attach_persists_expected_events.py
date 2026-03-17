@@ -76,10 +76,23 @@ def test_attached_loader_persists_run_dataset_transform_and_batch_events(
     ]
     assert transform_row["introspection_level"] == "full"
 
+    loader_row = fetch_one(
+        db_path,
+        """
+        SELECT loader_id, dataset_id, role
+        FROM loaders
+        WHERE run_id = ?
+        """,
+        (run.run_id,),
+    )
+    assert loader_row["dataset_id"] == dataset_row["dataset_id"]
+    assert loader_row["role"] == "train"
+    assert loader_row["loader_id"]
+
     batch_rows = fetch_all(
         db_path,
         """
-        SELECT global_step, global_sequence, batch_size, sample_ids_blob
+        SELECT loader_id, global_step, global_sequence, batch_size, sample_ids_blob
         FROM batch_delivered
         WHERE run_id = ?
         ORDER BY global_sequence
@@ -87,6 +100,7 @@ def test_attached_loader_persists_run_dataset_transform_and_batch_events(
         (run.run_id,),
     )
     assert len(batch_rows) == len(consumed_batches) == 4
+    assert all(row["loader_id"] == loader_row["loader_id"] for row in batch_rows)
     assert [row["global_step"] for row in batch_rows] == [0, 1, 2, 3]
     assert [row["global_sequence"] for row in batch_rows] == [0, 1, 2, 3]
     assert [row["batch_size"] for row in batch_rows] == [3, 3, 3, 1]

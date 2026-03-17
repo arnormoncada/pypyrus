@@ -41,9 +41,24 @@ def list_runs(store: Store) -> list[str]:
     return store.list_runs()
 
 
+def list_run_summaries(store: Store) -> list[dict[str, Any]]:
+    """Return basic metadata for all known runs ordered by start time."""
+    summaries: list[dict[str, Any]] = []
+    for run_id in store.list_runs():
+        run = get_run(store, run_id)
+        if run is not None:
+            summaries.append(run)
+    return summaries
+
+
 def get_datasets_for_run(store: Store, run_id: str) -> list[dict[str, Any]]:
     """Return dataset descriptors registered during a run."""
     return store.get_events(run_id, event_type="dataset_registered")
+
+
+def get_loaders_for_run(store: Store, run_id: str) -> list[dict[str, Any]]:
+    """Return loader registrations recorded during a run."""
+    return store.get_events(run_id, event_type="loader_registered")
 
 
 def get_transforms_for_run(store: Store, run_id: str) -> list[dict[str, Any]]:
@@ -77,18 +92,12 @@ def get_batches_for_run(
     include_sample_ids:
         When True, decode ``sample_ids_blob`` into ``sample_ids`` (list of str).
     role:
-        Optional filter — only return batches belonging to the dataset
-        with this role.  Requires a join through run_datasets.
+        Optional filter — only return batches emitted by loaders with this role.
     """
     rows = store.get_events(run_id=run_id, event_type="batch_delivered")
 
     if role is not None:
-        role_dataset_ids = {
-            d["dataset_id"]
-            for d in store.get_events(run_id, event_type="dataset_registered")
-            if d.get("role") == role
-        }
-        rows = [r for r in rows if r["dataset_id"] in role_dataset_ids]
+        rows = [r for r in rows if r.get("role") == role]
 
     results: list[dict[str, Any]] = []
     for row in rows:
@@ -110,6 +119,7 @@ def get_batch_for_run_step(
     *,
     role: str | None = None,
     dataset_id: str | None = None,
+    loader_id: str | None = None,
     include_sample_ids: bool = True,
 ) -> dict[str, Any] | None:
     """
@@ -117,9 +127,9 @@ def get_batch_for_run_step(
 
     Notes
     -----
-    ``global_step`` is per-dataset/per-loader, not run-global. If a run has
-    multiple datasets/loaders, multiple rows can share the same step. Use
-    ``role`` or ``dataset_id`` to disambiguate.
+    ``global_step`` is per-loader, not run-global. If a run has multiple
+    loaders, multiple rows can share the same step. Use ``role``,
+    ``dataset_id``, or ``loader_id`` to disambiguate.
     """
     rows = get_batches_for_run(
         store,
@@ -133,13 +143,16 @@ def get_batch_for_run_step(
     if dataset_id is not None:
         matches = [row for row in matches if row.get("dataset_id") == dataset_id]
 
+    if loader_id is not None:
+        matches = [row for row in matches if row.get("loader_id") == loader_id]
+
     if not matches:
         return None
 
     if len(matches) > 1:
         raise ValueError(
             "Multiple batches match (run_id, global_step). "
-            "Pass role=... or dataset_id=... to disambiguate."
+            "Pass role=..., dataset_id=..., or loader_id=... to disambiguate."
         )
 
     return matches[0]
@@ -148,3 +161,42 @@ def get_batch_for_run_step(
 def get_environment_for_run(store: Store, run_id: str) -> list[dict[str, Any]]:
     """Return environment snapshots recorded during a run."""
     return store.get_events(run_id, event_type="environment_snapshot")
+
+
+def build_run_overview(store: Store, run_id: str) -> dict[str, Any] | None:
+    """
+    Return a CLI-friendly overview for a single run.
+
+    This combines run metadata with related dataset, transform, environment,
+    and batch summary information.
+    """
+    run = get_run(store, run_id)
+    if run is None:
+        return None
+
+    datasets = get_datasets_for_run(store, run_id)
+    loaders = get_loaders_for_run(store, run_id)
+    transforms = get_transforms_for_run(store, run_id)
+    environments = get_environment_for_run(store, run_id)
+    batches = get_batches_for_run(store, run_id, include_sample_ids=False)
+
+    batches_by_role: dict[str, int] = {}
+    for loader in loaders:
+        role = loader.get("role")
+        if not role:
+            continue
+        batches_by_role.setdefault(role, 0)
+    for batch in batches:
+        role = batch.get("role")
+        if role:
+            batches_by_role[role] = batches_by_role.get(role, 0) + 1
+
+    return {
+        "run": run,
+        "datasets": datasets,
+        "loaders": loaders,
+        "transforms": transforms,
+        "environment": environments,
+        "batch_count": len(batches),
+        "batches_by_role": batches_by_role,
+    }

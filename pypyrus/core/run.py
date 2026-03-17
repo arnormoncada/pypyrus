@@ -4,6 +4,7 @@ import warnings
 from typing import Iterable
 from uuid import uuid4
 
+from pypyrus.core.code_ref import collect_code_ref
 from pypyrus.core.environment import collect_environment_snapshot
 from pypyrus.provenance.events import (
     EnvironmentSnapshotEvent,
@@ -54,6 +55,9 @@ class Run:
 
         if self._started:
             raise RuntimeError("Run already started")
+
+        if code_ref is None:
+            code_ref = collect_code_ref()
 
         event = RunStartEvent(
             run_id=self.run_id,

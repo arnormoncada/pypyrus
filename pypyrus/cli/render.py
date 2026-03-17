@@ -1,0 +1,133 @@
+from __future__ import annotations
+
+import json
+from typing import Any
+
+
+def format_json(data: Any) -> str:
+    """Render structured CLI output as pretty JSON."""
+    return json.dumps(data, indent=2, sort_keys=True, default=_json_default)
+
+
+def render_runs_table(runs: list[dict[str, Any]]) -> str:
+    """Render a compact runs table for terminal output."""
+    if not runs:
+        return "No runs found."
+
+    headers = ("RUN ID", "STATUS", "START", "END")
+    rows = [
+        (
+            str(run.get("run_id") or ""),
+            str(run.get("status") or "active"),
+            str(run.get("start_time") or ""),
+            str(run.get("end_time") or ""),
+        )
+        for run in runs
+    ]
+    return _render_table(headers, rows)
+
+
+def render_run_overview(overview: dict[str, Any]) -> str:
+    """Render a human-readable run overview."""
+    run = overview["run"]
+    datasets = overview["datasets"]
+    loaders = overview["loaders"]
+    transforms = overview["transforms"]
+    environment = overview["environment"]
+    batches_by_role = overview["batches_by_role"]
+
+    lines = [
+        "Run overview",
+        "-" * 60,
+        f"Run ID: {run.get('run_id')}",
+        f"Status: {run.get('status') or 'active'}",
+        f"Start:  {run.get('start_time')}",
+        f"End:    {run.get('end_time') or '<active>'}",
+        f"Datasets: {len(datasets)}",
+        f"Loaders: {len(loaders)}",
+        f"Transforms: {len(transforms)}",
+        f"Batches: {overview['batch_count']}",
+    ]
+
+    if batches_by_role:
+        role_counts = ", ".join(
+            f"{role}={count}" for role, count in sorted(batches_by_role.items())
+        )
+        lines.append(f"Batch counts by role: {role_counts}")
+
+    if datasets:
+        lines.append("")
+        lines.append("Datasets")
+        for dataset in datasets:
+            lines.append(
+                "  "
+                f"[{dataset.get('role')}] "
+                f"{dataset.get('name')} "
+                f"(dataset_id={dataset.get('dataset_id')}, "
+                f"fingerprint_method={dataset.get('fingerprint_method')})"
+            )
+
+    if transforms:
+        lines.append("")
+        lines.append("Transforms")
+        for transform in transforms:
+            transform_list = transform.get("transform_list") or []
+            transform_names = ", ".join(item.get("name", "?") for item in transform_list)
+            lines.append(
+                "  "
+                f"{transform.get('dataset_id')}: "
+                f"{transform_names or '<none>'} "
+                f"[{transform.get('introspection_level')}]"
+            )
+
+    if environment:
+        snapshot = environment[0]
+        lines.append("")
+        lines.append("Environment")
+        lines.append(f"  Python: {snapshot.get('python_version')}")
+        lines.append(f"  CUDA:   {snapshot.get('cuda_version') or '<none>'}")
+
+    return "\n".join(lines)
+
+
+def render_batch(batch: dict[str, Any]) -> str:
+    """Render a single batch record."""
+    sample_ids = batch.get("sample_ids")
+    sample_ids_text = ", ".join(map(str, sample_ids)) if sample_ids else "<unavailable>"
+    lines = [
+        "Batch",
+        "-" * 60,
+        f"Run ID:         {batch.get('run_id')}",
+        f"Loader ID:      {batch.get('loader_id')}",
+        f"Role:           {batch.get('role')}",
+        f"Dataset ID:     {batch.get('dataset_id')}",
+        f"Global step:    {batch.get('global_step')}",
+        f"Global sequence:{batch.get('global_sequence')}",
+        f"Batch size:     {batch.get('batch_size')}",
+        f"Fingerprint:    {batch.get('batch_fingerprint')}",
+        f"Sample IDs:     [{sample_ids_text}]",
+    ]
+    return "\n".join(lines)
+
+
+def _render_table(headers: tuple[str, ...], rows: list[tuple[str, ...]]) -> str:
+    widths = [len(header) for header in headers]
+    for row in rows:
+        for index, value in enumerate(row):
+            widths[index] = max(widths[index], len(value))
+
+    def render_row(row: tuple[str, ...]) -> str:
+        return "  ".join(value.ljust(widths[index]) for index, value in enumerate(row))
+
+    lines = [
+        render_row(headers),
+        render_row(tuple("-" * width for width in widths)),
+    ]
+    lines.extend(render_row(row) for row in rows)
+    return "\n".join(lines)
+
+
+def _json_default(value: Any) -> Any:
+    if isinstance(value, (bytes, bytearray)):
+        return {"__bytes_hex__": value.hex()}
+    raise TypeError(f"Object of type {value.__class__.__name__} is not JSON serializable")

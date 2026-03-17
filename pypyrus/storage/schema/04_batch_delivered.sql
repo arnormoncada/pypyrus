@@ -7,6 +7,7 @@ PRAGMA foreign_keys = ON;
 CREATE TABLE IF NOT EXISTS batch_delivered (
   event_id TEXT PRIMARY KEY,      -- UUID; BatchDeliveredEvent.event_id
   run_id TEXT NOT NULL,           -- BatchDeliveredEvent.run_id
+  loader_id TEXT NOT NULL,        -- BatchDeliveredEvent.loader_id
   dataset_id TEXT NOT NULL,       -- BatchDeliveredEvent.dataset_id
 
   global_step INTEGER NOT NULL,     -- BatchDeliveredEvent.global_step (per-loader counter)
@@ -19,12 +20,13 @@ CREATE TABLE IF NOT EXISTS batch_delivered (
   rng_state_hash TEXT,            -- BatchDeliveredEvent.rng_state_hash
 
   FOREIGN KEY (run_id)     REFERENCES runs(run_id)              ON DELETE CASCADE,
+  FOREIGN KEY (loader_id)  REFERENCES loaders(loader_id)        ON DELETE CASCADE,
   FOREIGN KEY (dataset_id) REFERENCES datasets(dataset_id)      ON DELETE CASCADE,
 
-  UNIQUE (run_id, dataset_id, global_step),
+  UNIQUE (loader_id, global_step),
   UNIQUE (run_id, global_sequence)
 );
 
-CREATE INDEX IF NOT EXISTS idx_batch_run_step     ON batch_delivered(run_id, global_step);
+CREATE INDEX IF NOT EXISTS idx_batch_loader_step  ON batch_delivered(loader_id, global_step);
 CREATE INDEX IF NOT EXISTS idx_batch_sequence     ON batch_delivered(run_id, global_sequence);
 CREATE INDEX IF NOT EXISTS idx_batch_fingerprint  ON batch_delivered(batch_fingerprint);

@@ -1,4 +1,5 @@
 # PyPyrus — A Data Provenance Layer for Transparent and Reproducible Machine Learning Systems
+### Focus on single machine pytorch training pipelines for now, but design with future extensibility in mind.
 
 ---
 
@@ -687,7 +688,8 @@ The original batch structure is preserved for user code.
 Instrumentation requires a single call:
 
 ```python
-loader = pypyrus.attach(loader)
+with pypyrus.Run() as run:
+    loader = pypyrus.attach(loader, run, role="train")
 ```
 
 Internally this:
@@ -700,123 +702,140 @@ No changes to model or optimizer code are required in default mode.
 
 ---
 
-## Next features, in order
+## Next Steps v2
 
-1. **Dataset fingerprinting**
+This is the project state after the current MVP pass:
 
-   * Implement `core/dataset_identity.py`
-   * Compute and store `fingerprint` + `fingerprint_method`
-   * Practical method (hybrid approach for file backed datasets):
-   Sample content only from a deterministic subset of the dataset.
-      * Sort all files by relative path
-      * Take every Nth file (e.g. ceil(total/256) stride).
-      * Hash 64kb of each sampled file
-      * Comine with path and size of all files
-   This gives us portability (no mtime dependence). Can catch bytes-level changes without hashing everything. Still O(total_files) for the stat pass, but only ~256 file reads regardless of dataset size.
+* Run lifecycle exists
+* SQLite persistence exists
+* Dataset identity + fingerprinting exists
+* Transform declaration capture exists
+* Batch delivery provenance exists
+* Run comparison exists
+* A query/reporting layer exists
+* A first CLI exists
+* Basic integration and smoke tests exist
+* DataLoader cloning has now been hardened for custom collate, custom batch samplers, seeded shuffle, and multi-worker loading
 
-   * Hugging face datasets: use built in fingerprint
+That means the project is no longer in "build the core primitives" mode.
+The next phase should focus on **stabilizing the MVP boundary**, **closing the biggest correctness gaps**, and **making the tool usable for experiments and demos**.
 
-   * In- memory objects: deterministic hashing of content
+### 1. Fix the remaining batch identity model gap
 
-   * Database-backed datasets: query-based fingerprinting (e.g. query signature + table snapshot markers (row count, pk range, max updated_at, db engine/version))
-2. **Wire dataset identity into registration**
+Current risk:
 
-   * Update DataLoader instrumentation so `DatasetRegisteredEvent` uses the real descriptor/fingerprint logic
-   * Stop emitting `fingerprint=None`
+* `BatchDeliveredEvent` is keyed by `run_id + dataset_id + global_step`
+* this is fragile when the same logical dataset is attached multiple times in one run under different roles or loaders
 
-3. **Compare dataset identity before batch streams**
+Next step:
 
-   * Update `compare_runs` to first compare dataset fingerprints
-   * Then compare transforms
-   * Then compare batch fingerprints
+* add a stable loader identity to batch-level provenance
+* make role/loader identity explicit in `BatchDeliveredEvent` and the schema
+* update comparison/query code to use this identity rather than inferring everything from dataset ID alone
 
-4. **Transform declaration cleanup**
+This is the most important correctness task left in the current architecture.
 
-   * Make transform extraction a separate helper/module
-   * Store valid JSON, not ad hoc strings
-   * Improve best-effort support for common torchvision patterns
+### 2. Add a real configuration surface (skip for now, not sure if this is actually needed for the MVP)
 
-5. **Decode and inspect stored sample IDs cleanly**
+The project now has enough behavior toggles that an explicit config object is justified.
 
-   * Keep the reporting query you added
-   * Add a helper to fetch one batch by `(run_id, global_step)`
-   * This will be useful in experiments and debugging
+Add configuration for:
 
-6. **Schema and store cleanup pass**
+* store sample IDs or not
+* compression on/off
+* strict clone mode / clone validation policy
+* default DB path
+* future debug vs compact provenance mode
 
-   * Make sure `sqlite_store.py` matches the SQL exactly
-   * Confirm `event_id` is written everywhere
-   * Remove any remaining legacy assumptions from old `batch_consumed` / access logging design
+Goal:
 
-7. **Run-level deduplication/state**
+* move operational choices out of ad hoc code paths and examples
 
-   * Prevent duplicate dataset registration and duplicate transform declaration within a run
-   * Track this in `Run` rather than only in the DataLoader proxy
+### 3. Strengthen run metadata for actual reproducibility claims
 
-8. **Config support**
+The run abstraction should capture more of the "why this run is reproducible" story.
 
-   * Add `core/config.py`
-   * Put settings there like:
+Next step:
 
-     * store sample IDs or not
-     * compression on/off
-     * compression method
-     * default boundary mode
-     * debug/full mode
+* standardize code reference capture
+* standardize config hashing / config snapshot input
+* standardize seed summary collection
+* expose this in both the stored schema and CLI output
 
-9. **More robust DataLoader cloning**
+This makes the system stronger for thesis experiments and reporting.
 
-   * Harden the loader wrapper against more PyTorch configurations
-   * Especially custom samplers, batch samplers, multiple workers, persistent workers
+### 4. Expand reporting and CLI into an experiment workflow
 
-10. **Tests**
+The CLI now exists, but it is still an MVP inspection surface.
 
-* Unit tests for:
+Next step:
 
-  * fingerprint helpers
-  * dataset wrapper
-  * collate wrapper
-  * batch logging
-  * compare runs
-* This should happen early too, but definitely before thesis experiments
+* improve `runs list` with richer summaries
+* improve `runs show` with more useful run-level counts and metadata
+* improve `compare` output for first divergence diagnosis
+* add filters for role and maybe compact vs detailed output
 
-11. **Experiment helpers**
+Goal:
 
-* Small scripts to run:
+* let the CLI become the default way to inspect runs, not just a thin demo
 
-  * same seed / same config
-  * changed shuffle
-  * changed dataset
-  * changed transform
-* These will support your results chapter directly
+### 5. Add focused tests around the non-covered seams
 
-12. **Reporting outputs**
+The current tests are good enough to build on, but not yet broad enough to defend the whole project.
 
-* Add concise report builders for:
+Next test additions:
 
-  * dataset traceability
-  * transform summary
-  * reproducibility comparison
-  * first divergence details
+* fingerprint helper unit tests
+* transform declaration unit tests
+* reporting query tests
+* compare-run regression tests
+* CLI json contract tests
+* explicit regression test for "same dataset attached twice in one run"
 
-13. **Strict step-boundary mode**
+Keep prioritizing integration tests first when they validate a real contract boundary.
 
-* Optional, later
-* Useful, but not necessary for your main MVP claim
+### 6. Create experiment scripts that support thesis evidence directly
 
-14. **Exact replay / advanced reconstruction**
+At this point, experiments are more valuable than adding another internal abstraction.
 
-* Definitely later, if at all
-* Nice extension, not core MVP
+Add small repeatable scripts for:
 
-## If you want the shortest “do this now” sequence
+* same seed, same config
+* changed shuffle only
+* changed transform only
+* changed dataset contents only
+* changed loader role / multi-loader run
 
-Do these next five:
+Each script should produce a clear claim that PyPyrus can detect.
 
-1. Dataset fingerprinting
-2. Wire fingerprinting into dataset registration
-3. Compare dataset fingerprints first in `compare_runs`
-4. Clean up transform declaration
-5. Add tests
+### 7. Tighten packaging and developer ergonomics
 
-That’s the highest-value path.
+Before wider use, clean up the developer surface:
+
+* make editable install + CLI flow explicit
+* clean up stale docs and examples
+* document the supported DataLoader envelope clearly
+* add a simple "known limitations" section
+
+This is boring work, but it reduces confusion and saves time later.
+
+### 8. Optional next-phase research features
+
+These are useful, but they should not distract from the MVP hardening phase:
+
+* strict step-boundary / batch-consumed mode
+* richer transform provenance
+* replay or advanced reconstruction
+* non-PyTorch backends
+* remote / multi-machine storage backends
+
+## If you feel aimless, do this next
+
+Do these four in order:
+
+1. Fix the batch identity model so multiple loaders on the same dataset are first-class
+2. Add a real config object and wire it into `Run` / `attach`
+3. Improve the CLI/reporting output so runs and comparisons are genuinely usable
+4. Add experiment scripts that demonstrate the core claims end-to-end
+
+That sequence keeps you on the MVP path while turning the current code into something defensible and demoable.

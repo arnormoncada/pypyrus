@@ -55,7 +55,11 @@ class DatasetWrapper:
         This helps preserve compatibility with code that accesses dataset
         properties such as `.transform`, `.targets`, `.classes`, etc.
         """
-        return getattr(self.dataset, name)
+        try:
+            dataset = object.__getattribute__(self, "dataset")
+        except AttributeError as exc:
+            raise AttributeError(name) from exc
+        return getattr(dataset, name)
 
 
 def is_wrapped_dataset(dataset: Any) -> bool:
