@@ -112,10 +112,19 @@ def test_multiple_loaders_can_share_one_dataset_identity_without_batch_collision
     assert [row["global_step"] for row in train_batches] == [0, 1, 2]
     assert [row["global_step"] for row in val_batches] == [0, 1]
 
+    # global_sequence follows emission order across the whole run. Because this
+    # test fully consumes train before val, steps 0-2 belong to train and 3-4
+    # belong to val.
     first_batch = get_batch_for_run_step(store, run.run_id, 0)
     second_batch = get_batch_for_run_step(store, run.run_id, 1)
+    fourth_batch = get_batch_for_run_step(store, run.run_id, 3)
     assert first_batch is not None
     assert second_batch is not None
+    assert fourth_batch is not None
     assert first_batch["global_sequence"] == 0
     assert second_batch["global_sequence"] == 1
-    assert first_batch["loader_id"] != second_batch["loader_id"]
+    assert fourth_batch["global_sequence"] == 3
+    # loader_id is the same for the first two batches (train)
+    assert first_batch["loader_id"] == second_batch["loader_id"]
+    # Compare across loader boundary: fourth batch belongs to val
+    assert first_batch["loader_id"] != fourth_batch["loader_id"]
