@@ -107,7 +107,13 @@ def test_compare_and_batch_show_support_json_output(tmp_path, capsys) -> None:
     assert exit_code == 0
     assert comparison["run_id_a"] == "run-a"
     assert comparison["run_id_b"] == "run-b"
+    assert comparison["roles_compared"] == ["train"]
+    assert comparison["dataset_identities_match"] is False
+    assert comparison["batch_streams_match"] is False
     assert comparison["roles"]["train"]["fully_matches"] is False
+    assert comparison["roles"]["train"]["reason"] == "dataset_fingerprint_mismatch"
+    assert comparison["roles"]["train"]["dataset_identity_matches"] is False
+    assert comparison["roles"]["train"]["batch_stream_matches"] is False
 
     exit_code = main(
         ["--db", str(db_path), "--json", "batches", "show", "run-a", "--step", "0"]

@@ -97,6 +97,13 @@ def compare_runs(
 
     role_results: dict[str, Any] = {}
     for role in all_roles:
+        if role not in roles_a:
+            role_results[role] = _missing_role_result(role, missing_from="run_a")
+            continue
+        if role not in roles_b:
+            role_results[role] = _missing_role_result(role, missing_from="run_b")
+            continue
+
         dataset_identity = _compare_role_dataset_identity(
             role,
             datasets_by_role_a.get(role, []),
@@ -114,15 +121,25 @@ def compare_runs(
         role_result["dataset_identity"] = dataset_identity
         role_result["dataset_identity_matches"] = dataset_identity["matches"]
         role_result["fully_matches"] = role_result["fully_matches"] and dataset_identity["matches"]
+        role_result["reason"] = _determine_role_reason(role_result)
 
         role_results[role] = role_result
 
     fully_matches = all(r["fully_matches"] for r in role_results.values())
+    dataset_identities_match = all(
+        r.get("dataset_identity_matches", False) for r in role_results.values()
+    )
+    batch_streams_match = all(
+        r.get("batch_stream_matches", False) for r in role_results.values()
+    )
 
     return {
         "run_id_a": run_id_a,
         "run_id_b": run_id_b,
         "roles": role_results,
+        "roles_compared": all_roles,
+        "dataset_identities_match": dataset_identities_match,
+        "batch_streams_match": batch_streams_match,
         "fully_matches": fully_matches,
     }
 
@@ -157,6 +174,7 @@ def _compare_role_batches(
 
     fully_matches = (len_a == len_b) and (matching_steps == min_len)
     match_rate = matching_steps / max(len_a, len_b, 1)
+    batch_stream_matches = fully_matches
 
     return {
         "role": role,
@@ -165,12 +183,51 @@ def _compare_role_batches(
         "matching_steps": matching_steps,
         "match_rate": match_rate,
         "first_divergence_step": first_divergence_step,
+        "batch_stream_matches": batch_stream_matches,
         "fully_matches": fully_matches,
         "divergence": {
             "run_a": divergence_a,
             "run_b": divergence_b,
         } if first_divergence_step is not None else None,
     }
+
+
+def _missing_role_result(role: str, *, missing_from: str) -> dict[str, Any]:
+    missing_reason = f"missing_role_in_{missing_from}"
+    return {
+        "role": role,
+        "num_batches_a": 0,
+        "num_batches_b": 0,
+        "matching_steps": 0,
+        "match_rate": 0.0,
+        "first_divergence_step": None,
+        "batch_stream_matches": False,
+        "dataset_identity": {
+            "role": role,
+            "matches": False,
+            "run_a": [],
+            "run_b": [],
+            "reason": missing_reason,
+        },
+        "dataset_identity_matches": False,
+        "fully_matches": False,
+        "reason": missing_reason,
+        "divergence": None,
+    }
+
+
+def _determine_role_reason(role_result: dict[str, Any]) -> str | None:
+    dataset_identity = role_result["dataset_identity"]
+    if not dataset_identity["matches"]:
+        return dataset_identity["reason"]
+
+    if role_result["num_batches_a"] != role_result["num_batches_b"]:
+        return "batch_count_mismatch"
+
+    if role_result["first_divergence_step"] is not None:
+        return "batch_fingerprint_mismatch"
+
+    return None
 
 
 def _batch_view(row: dict[str, Any]) -> dict[str, Any]:
@@ -192,13 +249,19 @@ def format_run_comparison(result: dict[str, Any]) -> str:
     lines.append("-" * 60)
     lines.append(f"Run A: {result['run_id_a']}")
     lines.append(f"Run B: {result['run_id_b']}")
+    roles_compared = ", ".join(result.get("roles_compared") or [])
+    lines.append(f"Roles compared: {roles_compared or '<none>'}")
+    lines.append(f"Dataset identities match: {result['dataset_identities_match']}")
+    lines.append(f"Batch streams match: {result['batch_streams_match']}")
     lines.append(f"Fully matches: {result['fully_matches']}")
     lines.append("")
 
     for role, r in result["roles"].items():
         lines.append(f"Role: {role}")
-        lines.append(f"  Batches A / B:   {r['num_batches_a']} / {r['num_batches_b']}")
+        lines.append(f"  Reason:          {r.get('reason') or 'match'}")
         lines.append(f"  Dataset match:   {r['dataset_identity_matches']}")
+        lines.append(f"  Batch match:     {r.get('batch_stream_matches')}")
+        lines.append(f"  Batches A / B:   {r['num_batches_a']} / {r['num_batches_b']}")
         dataset_identity = r["dataset_identity"]
         if not dataset_identity["matches"]:
             lines.append(f"  Dataset reason:  {dataset_identity['reason']}")

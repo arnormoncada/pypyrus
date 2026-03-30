@@ -64,8 +64,14 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--num-workers",
         type=int,
-        default=0,
-        help="DataLoader worker count. Default: 0",
+        default=2,
+        help="DataLoader worker count. Default: 2",
+    )
+    parser.add_argument(
+        "--seed",
+        type=int,
+        default=7,
+        help="Random seed for model init and train-loader shuffle. Default: 7",
     )
     return parser
 
@@ -83,7 +89,8 @@ def main() -> int:
         )
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    torch.manual_seed(7)
+    torch.manual_seed(args.seed)
+    train_generator = torch.Generator().manual_seed(args.seed)
 
     weights = models.MobileNet_V3_Small_Weights.DEFAULT
     transform = weights.transforms()
@@ -96,6 +103,7 @@ def main() -> int:
         batch_size=args.batch_size,
         shuffle=True,
         num_workers=args.num_workers,
+        generator=train_generator,
     )
     test_loader = DataLoader(
         test_data,
@@ -115,6 +123,7 @@ def main() -> int:
     loss_fn = nn.CrossEntropyLoss()
 
     with Run() as run:
+        print(f"seed={args.seed}")
         train_loader = attach(train_loader, run, role="train")
         test_loader = attach(test_loader, run, role="test")
 
