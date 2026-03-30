@@ -54,30 +54,51 @@ def render_run_overview(overview: dict[str, Any]) -> str:
         "-" * 60,
         f"Run ID: {run.get('run_id')}",
         f"Status: {run.get('status') or 'active'}",
-        f"Start:  {run.get('start_time')}",
-        f"End:    {run.get('end_time') or '<active>'}",
-        f"Datasets: {len(datasets)}",
-        f"Loaders: {len(loaders)}",
-        f"Transforms: {len(transforms)}",
-        f"Batches: {overview['batch_count']}",
+        f"Start: {run.get('start_time')}",
+        f"End: {run.get('end_time') or '<active>'}",
+        f"Duration: {_format_duration(run.get('duration_seconds'))}",
+        f"Code ref: {run.get('code_ref') or '<none>'}",
+        f"Config ref: {run.get('config_ref') or '<none>'}",
+        f"Environment hash: {run.get('environment_hash') or '<none>'}",
+        f"Seed summary: {_format_seed_summary(run.get('seed_summary_json'))}",
+        "",
+        "Summary",
+        f"  Datasets: {len(datasets)}",
+        f"  Loaders: {len(loaders)}",
+        f"  Transforms: {len(transforms)}",
+        f"  Batches: {overview['batch_count']}",
     ]
 
     if batches_by_role:
         role_counts = ", ".join(
             f"{role}={count}" for role, count in sorted(batches_by_role.items())
         )
-        lines.append(f"Batch counts by role: {role_counts}")
+        lines.append(f"  Batch counts by role: {role_counts}")
 
     if datasets:
         lines.append("")
         lines.append("Datasets")
         for dataset in datasets:
+            lines.append(f"  [{dataset.get('role')}] {dataset.get('name')}")
+            lines.append(f"    dataset_id: {dataset.get('dataset_id')}")
+            lines.append(f"    fingerprint: {dataset.get('fingerprint') or '<none>'}")
+            lines.append(
+                f"    fingerprint_method: {dataset.get('fingerprint_method') or '<none>'}"
+            )
+            if dataset.get("uri"):
+                lines.append(f"    uri: {dataset.get('uri')}")
+            if dataset.get("version_hint"):
+                lines.append(f"    version_hint: {dataset.get('version_hint')}")
+
+    if loaders:
+        lines.append("")
+        lines.append("Loaders")
+        for loader in loaders:
             lines.append(
                 "  "
-                f"[{dataset.get('role')}] "
-                f"{dataset.get('name')} "
-                f"(dataset_id={dataset.get('dataset_id')}, "
-                f"fingerprint_method={dataset.get('fingerprint_method')})"
+                f"[{loader.get('role')}] "
+                f"{loader.get('loader_id')} "
+                f"(dataset_id={loader.get('dataset_id')})"
             )
 
     if transforms:
@@ -86,19 +107,26 @@ def render_run_overview(overview: dict[str, Any]) -> str:
         for transform in transforms:
             transform_list = transform.get("transform_list") or []
             transform_names = ", ".join(item.get("name", "?") for item in transform_list)
+            lines.append(f"  dataset_id={transform.get('dataset_id')}")
+            lines.append(f"    names: {transform_names or '<none>'}")
             lines.append(
-                "  "
-                f"{transform.get('dataset_id')}: "
-                f"{transform_names or '<none>'} "
-                f"[{transform.get('introspection_level')}]"
+                f"    introspection_level: {transform.get('introspection_level')}"
             )
+            lines.append(f"    params_hash: {transform.get('params_hash')}")
 
     if environment:
         snapshot = environment[0]
         lines.append("")
         lines.append("Environment")
         lines.append(f"  Python: {snapshot.get('python_version')}")
-        lines.append(f"  CUDA:   {snapshot.get('cuda_version') or '<none>'}")
+        lines.append(f"  CUDA: {snapshot.get('cuda_version') or '<none>'}")
+        lines.append(
+            "  "
+            f"Library versions hash: {snapshot.get('library_versions_hash') or '<none>'}"
+        )
+        lines.append(
+            f"  Hardware summary: {snapshot.get('hardware_summary') or '<none>'}"
+        )
 
     return "\n".join(lines)
 
@@ -157,6 +185,20 @@ def _format_duration(duration_seconds: Any) -> str:
     if minutes > 0:
         return f"{minutes:d}m{seconds:02d}s"
     return f"{seconds:d}s"
+
+
+def _format_seed_summary(raw_seed_summary: Any) -> str:
+    if raw_seed_summary in (None, ""):
+        return "<none>"
+
+    if isinstance(raw_seed_summary, str):
+        try:
+            parsed = json.loads(raw_seed_summary)
+        except json.JSONDecodeError:
+            return raw_seed_summary
+        return json.dumps(parsed, sort_keys=True)
+
+    return json.dumps(raw_seed_summary, sort_keys=True)
 
 
 def _json_default(value: Any) -> Any:

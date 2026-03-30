@@ -217,6 +217,12 @@ def build_run_overview(store: Store, run_id: str) -> dict[str, Any] | None:
     if run is None:
         return None
 
+    run = dict(run)
+    run["duration_seconds"] = _compute_duration_seconds(
+        run.get("start_time"),
+        run.get("end_time"),
+    )
+
     datasets = get_datasets_for_run(store, run_id)
     loaders = get_loaders_for_run(store, run_id)
     transforms = get_transforms_for_run(store, run_id)

@@ -17,6 +17,7 @@ pypyrus/cli/commands/compare.py
 pypyrus/cli/commands/runs.py
 pypyrus/core/__init__.py
 pypyrus/core/attach.py
+pypyrus/core/code_ref.py
 pypyrus/core/dataset_identity.py
 pypyrus/core/environment.py
 pypyrus/core/run.py

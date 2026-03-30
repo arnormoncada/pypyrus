@@ -60,8 +60,22 @@ def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
     assert exit_code == 0
     assert "Run overview" in captured.out
     assert "Run ID: run-001" in captured.out
+    assert "Duration: 10m00s" in captured.out
+    assert "Code ref: git:run-001:clean" in captured.out
+    assert "Config ref: config-run-001" in captured.out
+    assert "Environment hash: env-run-001" in captured.out
+    assert 'Seed summary: {"global_seed": 7}' in captured.out
+    assert "Summary" in captured.out
     assert "Batch counts by role: train=1" in captured.out
+    assert "Datasets" in captured.out
+    assert "fingerprint: fingerprint-run-001" in captured.out
+    assert "Loaders" in captured.out
+    assert "loader-run-001-train" in captured.out
+    assert "Transforms" in captured.out
     assert "ScaleTransform" in captured.out
+    assert "Environment" in captured.out
+    assert "Library versions hash: lib-hash" in captured.out
+    assert 'Hardware summary: {"system":"Darwin"}' in captured.out
 
 
 def test_compare_and_batch_show_support_json_output(tmp_path, capsys) -> None:
@@ -140,6 +154,10 @@ def _seed_run(
         RunStartEvent(
             run_id=run_id,
             timestamp=f"2026-03-16T00:00:0{1 if run_id.endswith('1') else 2}+00:00",
+            code_ref=f"git:{run_id}:clean",
+            config_ref=f"config-{run_id}",
+            environment_hash=f"env-{run_id}",
+            seed_summary={"global_seed": 7},
         )
     )
     store.append_event(

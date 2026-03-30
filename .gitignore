@@ -7,8 +7,10 @@ __pycache__/
 # db files
 *.db
 
-#data files
-/data
+#/data folders (recursive in case there are multiple in non-root folders)
+data/
+
+
 
 # test stuff
 .coverage
