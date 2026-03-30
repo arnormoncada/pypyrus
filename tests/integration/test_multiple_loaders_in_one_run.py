@@ -112,8 +112,10 @@ def test_multiple_loaders_can_share_one_dataset_identity_without_batch_collision
     assert [row["global_step"] for row in train_batches] == [0, 1, 2]
     assert [row["global_step"] for row in val_batches] == [0, 1]
 
-    train_step_zero = get_batch_for_run_step(store, run.run_id, 0, role="train")
-    val_step_zero = get_batch_for_run_step(store, run.run_id, 0, role="val")
-    assert train_step_zero is not None
-    assert val_step_zero is not None
-    assert train_step_zero["loader_id"] != val_step_zero["loader_id"]
+    first_batch = get_batch_for_run_step(store, run.run_id, 0)
+    second_batch = get_batch_for_run_step(store, run.run_id, 1)
+    assert first_batch is not None
+    assert second_batch is not None
+    assert first_batch["global_sequence"] == 0
+    assert second_batch["global_sequence"] == 1
+    assert first_batch["loader_id"] != second_batch["loader_id"]

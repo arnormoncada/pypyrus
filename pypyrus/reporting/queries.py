@@ -165,10 +165,7 @@ def get_batch_for_run_step(
     """
     Return one batch for (run_id, global_sequence).
 
-    Notes
-    -----
-    The CLI uses the run-global batch position (`global_sequence`) as the
-    stable lookup key for a single batch within a run.
+    This is the run-global batch position used by the CLI batch-inspection path.
     """
     rows = get_batches_for_run(store, run_id, include_sample_ids=include_sample_ids)
     for row in rows:
