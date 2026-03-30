@@ -44,8 +44,15 @@ def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
 
     assert exit_code == 0
     assert "RUN ID" in captured.out
+    assert "DURATION" in captured.out
+    assert "DATASETS" in captured.out
+    assert "LOADERS" in captured.out
+    assert "ROLES" in captured.out
+    assert "BATCHES" in captured.out
     assert "run-001" in captured.out
     assert "run-002" in captured.out
+    assert "10m00s" in captured.out
+    assert "train" in captured.out
 
     exit_code = main(["--db", str(db_path), "runs", "show", "run-001"])
     captured = capsys.readouterr()

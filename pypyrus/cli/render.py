@@ -14,13 +14,26 @@ def render_runs_table(runs: list[dict[str, Any]]) -> str:
     if not runs:
         return "No runs found."
 
-    headers = ("RUN ID", "STATUS", "START", "END")
+    headers = (
+        "RUN ID",
+        "STATUS",
+        "START",
+        "DURATION",
+        "DATASETS",
+        "LOADERS",
+        "ROLES",
+        "BATCHES",
+    )
     rows = [
         (
             str(run.get("run_id") or ""),
             str(run.get("status") or "active"),
             str(run.get("start_time") or ""),
-            str(run.get("end_time") or ""),
+            _format_duration(run.get("duration_seconds")),
+            str(run.get("dataset_count") or 0),
+            str(run.get("loader_count") or 0),
+            ",".join(run.get("roles") or []) or "-",
+            str(run.get("batch_count") or 0),
         )
         for run in runs
     ]
@@ -125,6 +138,25 @@ def _render_table(headers: tuple[str, ...], rows: list[tuple[str, ...]]) -> str:
     ]
     lines.extend(render_row(row) for row in rows)
     return "\n".join(lines)
+
+
+def _format_duration(duration_seconds: Any) -> str:
+    if duration_seconds is None:
+        return "<active>"
+
+    try:
+        total_seconds = int(round(float(duration_seconds)))
+    except (TypeError, ValueError):
+        return "?"
+
+    minutes, seconds = divmod(total_seconds, 60)
+    hours, minutes = divmod(minutes, 60)
+
+    if hours > 0:
+        return f"{hours:d}h{minutes:02d}m{seconds:02d}s"
+    if minutes > 0:
+        return f"{minutes:d}m{seconds:02d}s"
+    return f"{seconds:d}s"
 
 
 def _json_default(value: Any) -> Any:

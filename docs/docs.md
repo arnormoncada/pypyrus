@@ -764,20 +764,142 @@ Next step:
 
 This makes the system stronger for thesis experiments and reporting.
 
+Currently captured:
+* code_ref (git commit + dirty flag)  
+* environment_ref (python version + library versions hash + hardware summary hash + cuda version)
+
+Not yet captured but could be (not sure if we need all of these for the MVP, but they are worth considering):
+* config_ref (hash of config dict or file). Since we dont have an config to control pypyrus behavior yet, this is more of a "user config" reference that could be added to the Run metadata. 
+* seed_summary (summary of all relevant seeds, e.g. global seed, worker seeds, etc.). This is important for reproducibility claims, but we cant capture this reilibly just by inspecting the process. Would have to be captured via explicit user input like config yaml files in WandB or Hydra.
+
 ### 4. Expand reporting and CLI into an experiment workflow
 
 The CLI now exists, but it is still an MVP inspection surface.
 
-Next step:
+Concrete MVP plan:
 
-* improve `runs list` with richer summaries
-* improve `runs show` with more useful run-level counts and metadata
-* improve `compare` output for first divergence diagnosis
-* add filters for role and maybe compact vs detailed output
+The goal is not to add many commands. The goal is to make the existing commands
+good enough that they become the default workflow for inspecting provenance runs
+during experiments and demos.
+
+Keep the command surface small:
+
+* `pypyrus runs list`
+* `pypyrus runs show <run_id>`
+* `pypyrus compare <run_a> <run_b>`
+* `pypyrus batches show <run_id> --step N`
+
+What each command should do well:
+
+#### `runs list`
+
+This should answer:
+
+> What runs do I have, and which ones are worth inspecting?
+
+Minimum improvements:
+
+* show enough summary data to scan runs without opening each one
+* include basic scale indicators such as status, start/end, batch count, and roles present
+* include lightweight identity hints such as dataset count and maybe dataset names when concise
+* keep the default table compact and readable for terminal use
+
+Optional later:
+
+* compact vs detailed table modes
+* sorting / limiting / status filters if the run list grows
+
+#### `runs show`
+
+This should answer:
+
+> What exactly happened in this run?
+
+Minimum improvements:
+
+* show run-level provenance metadata that already exists or is likely to exist soon:
+  `code_ref`, `config_ref`, environment summary, and any available seed/config notes
+* show counts that matter for debugging:
+  datasets, loaders, transforms, batches, and batch counts by role
+* show dataset identity in a more useful way:
+  role, name, dataset_id, fingerprint, fingerprint method
+* show registered loaders explicitly so multi-loader runs are understandable
+* keep the output readable in text mode and complete in `--json`
+
+#### `compare`
+
+This should answer:
+
+> Do these two runs match, and if not, why not?
+
+Minimum improvements:
+
+* keep comparison role-aware by default
+* clearly separate dataset identity mismatch from batch-stream mismatch
+* show the first divergence in a way that is useful for diagnosis:
+  role, loader_id, global step, global sequence, batch fingerprint, sample IDs if present
+* report whether the mismatch is:
+  dataset mismatch, batch count mismatch, or batch fingerprint divergence
+* make the output useful for thesis/demo evidence, not just raw debugging
+
+Optional later:
+
+* role filter so users can compare only `train` or only `val`
+* compact vs detailed compare output
+
+#### `batches show`
+
+This should answer:
+
+> Show me the exact batch at the point I care about.
+
+Minimum improvements:
+
+* preserve explicit disambiguation for multi-loader runs via `--role`, `--dataset-id`, or `--loader-id`
+* keep sample IDs optional so the command stays usable in compact provenance modes
+* show enough batch identity to connect it back to compare output
+
+#### `samples find` (scoped MVP extension)
+
+This should answer:
+
+> Was this specific sample used in a run?
+
+MVP scope:
+
+* support direct lookup by stored `sample_id`
+* support filepath lookup via `--dataset-path` + file path for file-backed map-style datasets
+* require dataset fingerprint match before trusting filepath-based reverse lookup
+* return a practical answer rather than raw rows:
+  found yes/no, occurrence count, first occurrence, and relevant roles/loaders/steps
+
+Important limitation:
+
+* direct `sample_id` lookup is the generic feature
+* filepath lookup is only a convenience layer for dataset types where a file path can be mapped back to the stored sample identity
+* this should not pretend to support arbitrary custom datasets in the MVP
+
+#### Design rule for the MVP CLI
+
+The CLI should let a user answer these five questions without writing Python or SQL:
+
+1. What runs exist?
+2. What datasets / loaders / transforms were involved in a run?
+3. What code/environment context was attached to that run?
+4. Do two runs match at the dataset and batch-stream level?
+5. Where is the first concrete point of divergence?
+
+Immediate implementation order:
+
+1. improve `runs show` so it exposes the full run story
+2. improve `runs list` so it is useful as the default entry point
+3. improve `compare` so divergence diagnosis is explicit and easy to read
+4. add role filtering and compact/detailed output only if the first three are solid
 
 Goal:
 
 * let the CLI become the default way to inspect runs, not just a thin demo
+* keep the interface small, stable, and defensible for the MVP
 
 ### 5. Add focused tests around the non-covered seams
 

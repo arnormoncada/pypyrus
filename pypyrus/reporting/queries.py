@@ -6,6 +6,7 @@ from __future__ import annotations
 
 import gzip
 import json
+from datetime import datetime
 from typing import Any
 
 from pypyrus.storage.store import Store
@@ -42,13 +43,55 @@ def list_runs(store: Store) -> list[str]:
 
 
 def list_run_summaries(store: Store) -> list[dict[str, Any]]:
-    """Return basic metadata for all known runs ordered by start time."""
+    """Return CLI-friendly run summaries ordered by start time."""
     summaries: list[dict[str, Any]] = []
     for run_id in store.list_runs():
         run = get_run(store, run_id)
-        if run is not None:
-            summaries.append(run)
+        if run is None:
+            continue
+
+        datasets = get_datasets_for_run(store, run_id)
+        loaders = get_loaders_for_run(store, run_id)
+        batches = get_batches_for_run(store, run_id, include_sample_ids=False)
+
+        roles = sorted(
+            {
+                str(role)
+                for role in (
+                    loader.get("role") for loader in loaders
+                )
+                if role
+            }
+        )
+
+        summary = dict(run)
+        summary["duration_seconds"] = _compute_duration_seconds(
+            run.get("start_time"),
+            run.get("end_time"),
+        )
+        summary["dataset_count"] = len(datasets)
+        summary["loader_count"] = len(loaders)
+        summary["batch_count"] = len(batches)
+        summary["roles"] = roles
+        summaries.append(summary)
     return summaries
+
+
+def _compute_duration_seconds(
+    start_time: Any,
+    end_time: Any,
+) -> float | None:
+    """Return run duration in seconds when both timestamps are present."""
+    if not start_time or not end_time:
+        return None
+
+    try:
+        start = datetime.fromisoformat(str(start_time))
+        end = datetime.fromisoformat(str(end_time))
+    except ValueError:
+        return None
+
+    return max((end - start).total_seconds(), 0.0)
 
 
 def get_datasets_for_run(store: Store, run_id: str) -> list[dict[str, Any]]:
