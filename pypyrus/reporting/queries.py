@@ -158,47 +158,23 @@ def get_batches_for_run(
 def get_batch_for_run_step(
     store: Store,
     run_id: str,
-    global_step: int,
+    global_sequence: int,
     *,
-    role: str | None = None,
-    dataset_id: str | None = None,
-    loader_id: str | None = None,
     include_sample_ids: bool = True,
 ) -> dict[str, Any] | None:
     """
-    Return one batch for (run_id, global_step), with optional disambiguation.
+    Return one batch for (run_id, global_sequence).
 
     Notes
     -----
-    ``global_step`` is per-loader, not run-global. If a run has multiple
-    loaders, multiple rows can share the same step. Use ``role``,
-    ``dataset_id``, or ``loader_id`` to disambiguate.
+    The CLI uses the run-global batch position (`global_sequence`) as the
+    stable lookup key for a single batch within a run.
     """
-    rows = get_batches_for_run(
-        store,
-        run_id,
-        include_sample_ids=include_sample_ids,
-        role=role,
-    )
-
-    matches = [row for row in rows if row.get("global_step") == global_step]
-
-    if dataset_id is not None:
-        matches = [row for row in matches if row.get("dataset_id") == dataset_id]
-
-    if loader_id is not None:
-        matches = [row for row in matches if row.get("loader_id") == loader_id]
-
-    if not matches:
-        return None
-
-    if len(matches) > 1:
-        raise ValueError(
-            "Multiple batches match (run_id, global_step). "
-            "Pass role=..., dataset_id=..., or loader_id=... to disambiguate."
-        )
-
-    return matches[0]
+    rows = get_batches_for_run(store, run_id, include_sample_ids=include_sample_ids)
+    for row in rows:
+        if row.get("global_sequence") == global_sequence:
+            return row
+    return None
 
 
 def get_environment_for_run(store: Store, run_id: str) -> list[dict[str, Any]]:

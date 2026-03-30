@@ -124,7 +124,52 @@ def test_compare_and_batch_show_support_json_output(tmp_path, capsys) -> None:
     assert exit_code == 0
     assert batch["run_id"] == "run-a"
     assert batch["global_step"] == 0
+    assert batch["global_sequence"] == 0
     assert batch["sample_ids"] == [0, 1]
+
+    exit_code = main(["--db", str(db_path), "batches", "show", "run-a", "--step", "0"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Batch" in captured.out
+    assert "Role: train" in captured.out
+    assert "Loader ID: loader-run-a-train" in captured.out
+    assert "Batch fingerprint: shared-batch" in captured.out
+    assert "Sample IDs: [0, 1]" in captured.out
+
+
+def test_batches_show_uses_run_global_step(tmp_path, capsys) -> None:
+    db_path = tmp_path / "cli_batches_global.db"
+    store = SQLiteStore(db_path)
+
+    _seed_run(
+        store,
+        run_id="run-global",
+        status="success",
+        role="train",
+        sample_ids=[0, 1],
+        fingerprint="batch-train",
+    )
+    _append_loader_batch(
+        store,
+        run_id="run-global",
+        role="val",
+        sample_ids=[2, 3],
+        fingerprint="batch-val",
+    )
+    store.close()
+
+    exit_code = main(
+        ["--db", str(db_path), "--json", "batches", "show", "run-global", "--step", "1"]
+    )
+    captured = capsys.readouterr()
+    batch = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert batch["run_id"] == "run-global"
+    assert batch["global_sequence"] == 1
+    assert batch["loader_id"] == "loader-run-global-val"
+    assert batch["role"] == "val"
 
 
 def test_missing_db_returns_nonzero(tmp_path, capsys) -> None:
@@ -220,6 +265,50 @@ def _seed_run(
             run_id=run_id,
             status=status,
             timestamp=f"2026-03-16T00:10:0{1 if run_id.endswith('1') else 2}+00:00",
+        )
+    )
+    store.flush()
+
+
+def _append_loader_batch(
+    store: SQLiteStore,
+    *,
+    run_id: str,
+    role: str,
+    sample_ids: list[int],
+    fingerprint: str,
+) -> None:
+    dataset_id = f"dataset-{run_id}-{role}"
+    loader_id = f"loader-{run_id}-{role}"
+
+    store.append_event(
+        DatasetRegisteredEvent(
+            run_id=run_id,
+            dataset_id=dataset_id,
+            name=f"TinyDataset-{role}",
+            role=role,
+            fingerprint=f"fingerprint-{run_id}-{role}",
+            fingerprint_method="in_memory_deterministic_v1",
+        )
+    )
+    store.append_event(
+        LoaderRegisteredEvent(
+            run_id=run_id,
+            loader_id=loader_id,
+            dataset_id=dataset_id,
+            role=role,
+        )
+    )
+    store.append_event(
+        BatchDeliveredEvent(
+            run_id=run_id,
+            loader_id=loader_id,
+            dataset_id=dataset_id,
+            global_step=0,
+            global_sequence=1,
+            batch_size=len(sample_ids),
+            batch_fingerprint=fingerprint,
+            sample_ids_blob=gzip.compress(json.dumps(sample_ids).encode("utf-8")),
         )
     )
     store.flush()

@@ -22,7 +22,7 @@ def build_parser() -> argparse.ArgumentParser:
             "  pypyrus runs list\n"
             "  pypyrus runs show <run_id>\n"
             "  pypyrus compare <run_a> <run_b>\n"
-            "  pypyrus batches show <run_id> --step 12 --role train\n"
+            "  pypyrus batches show <run_id> --step 12\n"
             "  pypyrus --json runs show <run_id>"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -119,7 +119,7 @@ def build_parser() -> argparse.ArgumentParser:
         ),
         epilog=(
             "Example:\n"
-            "  pypyrus batches show <run_id> --step 12 --role train"
+            "  pypyrus batches show <run_id> --step 12"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -127,17 +127,16 @@ def build_parser() -> argparse.ArgumentParser:
 
     batches_show_parser = batches_subparsers.add_parser(
         "show",
-        help="Show one batch for a run/global_step pair.",
+        help="Show one batch for a run/global batch step.",
         description=(
             "Show one delivered batch for a given run and step.\n\n"
-            "Because global_step is per-loader, multi-loader runs may require\n"
-            "--role, --dataset-id, or --loader-id to disambiguate."
+            "The step is the run-global batch position (`global_sequence`),\n"
+            "so each step identifies at most one batch within a run."
         ),
         epilog=(
             "Examples:\n"
             "  pypyrus batches show <run_id> --step 3\n"
-            "  pypyrus batches show <run_id> --step 3 --role train\n"
-            "  pypyrus --json batches show <run_id> --step 3 --loader-id <loader_id>"
+            "  pypyrus --json batches show <run_id> --step 3"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
@@ -146,19 +145,7 @@ def build_parser() -> argparse.ArgumentParser:
         "--step",
         type=int,
         required=True,
-        help="Per-loader global_step to inspect.",
-    )
-    batches_show_parser.add_argument(
-        "--role",
-        help="Optional role to disambiguate batches with the same global_step.",
-    )
-    batches_show_parser.add_argument(
-        "--dataset-id",
-        help="Optional dataset_id to disambiguate batches with the same global_step.",
-    )
-    batches_show_parser.add_argument(
-        "--loader-id",
-        help="Optional loader_id to disambiguate batches with the same global_step.",
+        help="Run-global batch position (`global_sequence`) to inspect.",
     )
     batches_show_parser.add_argument(
         "--no-sample-ids",

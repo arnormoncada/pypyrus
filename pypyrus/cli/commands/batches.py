@@ -11,15 +11,12 @@ def cmd_batches_show(args) -> int:
             store,
             args.run_id,
             args.step,
-            role=args.role,
-            dataset_id=args.dataset_id,
-            loader_id=args.loader_id,
             include_sample_ids=not args.no_sample_ids,
         )
 
     if batch is None:
         raise ValueError(
-            f"Batch not found for run_id={args.run_id}, global_step={args.step}"
+            f"Batch not found for run_id={args.run_id}, step={args.step}"
         )
 
     if args.json:

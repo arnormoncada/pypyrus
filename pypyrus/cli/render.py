@@ -134,19 +134,24 @@ def render_run_overview(overview: dict[str, Any]) -> str:
 def render_batch(batch: dict[str, Any]) -> str:
     """Render a single batch record."""
     sample_ids = batch.get("sample_ids")
-    sample_ids_text = ", ".join(map(str, sample_ids)) if sample_ids else "<unavailable>"
+    sample_ids_text = (
+        f"[{', '.join(map(str, sample_ids))}]"
+        if sample_ids is not None
+        else "<not stored>"
+    )
     lines = [
         "Batch",
         "-" * 60,
-        f"Run ID:         {batch.get('run_id')}",
-        f"Loader ID:      {batch.get('loader_id')}",
-        f"Role:           {batch.get('role')}",
-        f"Dataset ID:     {batch.get('dataset_id')}",
-        f"Global step:    {batch.get('global_step')}",
-        f"Global sequence:{batch.get('global_sequence')}",
-        f"Batch size:     {batch.get('batch_size')}",
-        f"Fingerprint:    {batch.get('batch_fingerprint')}",
-        f"Sample IDs:     [{sample_ids_text}]",
+        f"Run ID: {batch.get('run_id')}",
+        f"Role: {batch.get('role')}",
+        f"Loader ID: {batch.get('loader_id')}",
+        f"Dataset ID: {batch.get('dataset_id')}",
+        f"Timestamp: {batch.get('timestamp') or '<unknown>'}",
+        f"Global step: {batch.get('global_step')}",
+        f"Global sequence: {batch.get('global_sequence')}",
+        f"Batch size: {batch.get('batch_size')}",
+        f"Batch fingerprint: {batch.get('batch_fingerprint')}",
+        f"Sample IDs: {sample_ids_text}",
     ]
     return "\n".join(lines)
 
