@@ -85,6 +85,12 @@ def render_run_overview(overview: dict[str, Any]) -> str:
             lines.append(
                 f"    fingerprint_method: {dataset.get('fingerprint_method') or '<none>'}"
             )
+            lines.append(
+                f"    sample_id_scheme: {dataset.get('sample_id_scheme') or '<none>'}"
+            )
+            lines.append(
+                f"    sample_id_resolver: {dataset.get('sample_id_resolver') or '<none>'}"
+            )
             if dataset.get("uri"):
                 lines.append(f"    uri: {dataset.get('uri')}")
             if dataset.get("version_hint"):
@@ -153,6 +159,52 @@ def render_batch(batch: dict[str, Any]) -> str:
         f"Batch fingerprint: {batch.get('batch_fingerprint')}",
         f"Sample IDs: {sample_ids_text}",
     ]
+    return "\n".join(lines)
+
+
+def render_sample_find(result: dict[str, Any]) -> str:
+    scoped_dataset_ids = result.get("scoped_dataset_ids") or []
+    query_scope = result.get("query_scope") or "run"
+    lines = [
+        "Sample lookup",
+        "-" * 60,
+        f"Run ID: {result.get('run_id')}",
+        f"Sample ID: {result.get('sample_id')}",
+        f"Sample ID scheme: {result.get('sample_id_scheme')}",
+        f"Query scope: {query_scope}",
+        f"Found: {result.get('found')}",
+        f"Occurrences: {result.get('occurrence_count')}",
+        f"Matching steps: {result.get('matching_steps') or []}",
+    ]
+
+    if scoped_dataset_ids:
+        lines.append(f"Scoped datasets: {', '.join(scoped_dataset_ids)}")
+
+    if result.get("matching_roles"):
+        lines.append(f"Roles: {', '.join(result['matching_roles'])}")
+    if result.get("matching_loader_ids"):
+        lines.append(f"Loaders: {', '.join(result['matching_loader_ids'])}")
+    if result.get("matching_dataset_ids"):
+        lines.append(f"Datasets: {', '.join(result['matching_dataset_ids'])}")
+
+    first_occurrence = result.get("first_occurrence")
+    if first_occurrence is not None:
+        lines.append("")
+        lines.append("First occurrence")
+        lines.append(f"  Global sequence: {first_occurrence.get('global_sequence')}")
+        lines.append(f"  Role: {first_occurrence.get('role')}")
+        lines.append(f"  Loader ID: {first_occurrence.get('loader_id')}")
+        lines.append(f"  Dataset ID: {first_occurrence.get('dataset_id')}")
+
+    last_occurrence = result.get("last_occurrence")
+    if last_occurrence is not None:
+        lines.append("")
+        lines.append("Last occurrence")
+        lines.append(f"  Global sequence: {last_occurrence.get('global_sequence')}")
+        lines.append(f"  Role: {last_occurrence.get('role')}")
+        lines.append(f"  Loader ID: {last_occurrence.get('loader_id')}")
+        lines.append(f"  Dataset ID: {last_occurrence.get('dataset_id')}")
+
     return "\n".join(lines)
 
 

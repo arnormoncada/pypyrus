@@ -15,6 +15,8 @@ CREATE TABLE IF NOT EXISTS datasets (
 
   fingerprint TEXT,               -- DatasetRegisteredEvent.fingerprint (nullable)
   fingerprint_method TEXT,        -- DatasetRegisteredEvent.fingerprint_method
+  sample_id_scheme TEXT,          -- DatasetRegisteredEvent.sample_id_scheme
+  sample_id_resolver TEXT,        -- DatasetRegisteredEvent.sample_id_resolver
 
   registered_at TEXT NOT NULL     -- ISO 8601; DatasetRegisteredEvent.timestamp
 );

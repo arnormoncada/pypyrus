@@ -116,6 +116,11 @@ def _local_sampled_manifest_fingerprint(path: Path) -> DatasetFingerprint:
 	)
 
 
+def fingerprint_local_path(path: str | Path) -> DatasetFingerprint:
+	path_obj = Path(path).expanduser()
+	return _local_sampled_manifest_fingerprint(path_obj)
+
+
 def _is_supported_in_memory(value: Any) -> bool:
 	if value is None or isinstance(value, (bool, int, float, str, bytes)):
 		return True
@@ -211,4 +216,3 @@ def resolve_dataset_identity(
 		return descriptor, in_memory, None
 
 	return descriptor, _fallback_descriptor_fingerprint(descriptor, reason="unsupported_source"), None
-

@@ -122,7 +122,11 @@ def test_attached_loader_preserves_custom_collate_behavior(db_path, store) -> No
     assert [
         decode_sample_ids_blob(row["sample_ids_blob"])
         for row in batch_rows
-    ] == [["0", "1", "2", "3"], ["4", "5", "6", "7"], ["8"]]
+    ] == [
+        ["index:0", "index:1", "index:2", "index:3"],
+        ["index:4", "index:5", "index:6", "index:7"],
+        ["index:8"],
+    ]
 
 
 def test_attached_loader_preserves_custom_batch_sampler_behavior(store) -> None:

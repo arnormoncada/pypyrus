@@ -58,6 +58,7 @@ class SQLiteStore(Store):
         """Initialize schema."""
         conn = self._get_conn()
         load_schema(conn)
+        self._ensure_dataset_metadata_columns(conn)
         # self._validate_schema_compatibility(conn)
 
     def close(self) -> None:
@@ -69,6 +70,17 @@ class SQLiteStore(Store):
     def flush(self) -> None:
         """Commit current transaction."""
         self._get_conn().commit()
+
+    def _ensure_dataset_metadata_columns(self, conn: sqlite3.Connection) -> None:
+        existing = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(datasets)").fetchall()
+        }
+        if "sample_id_scheme" not in existing:
+            conn.execute("ALTER TABLE datasets ADD COLUMN sample_id_scheme TEXT")
+        if "sample_id_resolver" not in existing:
+            conn.execute("ALTER TABLE datasets ADD COLUMN sample_id_resolver TEXT")
+        conn.commit()
 
     # ------------------------------------------------------------------
     # Event Writing
@@ -155,9 +167,11 @@ class SQLiteStore(Store):
                 version_hint,
                 fingerprint,
                 fingerprint_method,
+                sample_id_scheme,
+                sample_id_resolver,
                 registered_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
@@ -167,7 +181,24 @@ class SQLiteStore(Store):
                 event.version_hint,
                 event.fingerprint,
                 event.fingerprint_method,
+                event.sample_id_scheme,
+                event.sample_id_resolver,
                 event.timestamp,
+            ),
+        )
+
+        conn.execute(
+            """
+            UPDATE datasets
+            SET
+                sample_id_scheme = COALESCE(sample_id_scheme, ?),
+                sample_id_resolver = COALESCE(sample_id_resolver, ?)
+            WHERE dataset_id = ?
+            """,
+            (
+                event.sample_id_scheme,
+                event.sample_id_resolver,
+                event.dataset_id,
             ),
         )
 
@@ -340,6 +371,7 @@ class SQLiteStore(Store):
                 SELECT
                     d.event_id, d.dataset_id, d.name, d.uri,
                     d.version_hint, d.fingerprint, d.fingerprint_method,
+                    d.sample_id_scheme, d.sample_id_resolver,
                     d.registered_at AS timestamp,
                     rd.run_id, rd.role
                 FROM datasets d

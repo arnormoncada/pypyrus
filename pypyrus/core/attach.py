@@ -3,10 +3,17 @@ from __future__ import annotations
 from typing import Any
 
 from pypyrus.core.run import Run
+from pypyrus.core.sample_id import SampleIdResolver
 from pypyrus.instrumentation.dataloader import wrap_dataloader
 
 
-def attach(loader: Any, run: Run, *, role: str) -> Any:
+def attach(
+    loader: Any,
+    run: Run,
+    *,
+    role: str,
+    sample_id_resolver: SampleIdResolver | None = None,
+) -> Any:
     """
     Attach PyPyrus instrumentation to a DataLoader.
 
@@ -36,4 +43,9 @@ def attach(loader: Any, run: Run, *, role: str) -> Any:
             "This uniquely identifies the loader within the run."
         )
 
-    return wrap_dataloader(loader, run, role=role)
+    return wrap_dataloader(
+        loader,
+        run,
+        role=role,
+        sample_id_resolver=sample_id_resolver,
+    )

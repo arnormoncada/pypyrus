@@ -9,6 +9,7 @@ from pypyrus.reporting.queries import (
     build_run_overview,
     get_batch_for_run_step,
     decode_sample_ids_blob,
+    find_sample_occurrences,
     get_batches_for_run,
     get_datasets_for_run,
     get_environment_for_run,
@@ -17,12 +18,14 @@ from pypyrus.reporting.queries import (
     get_transforms_for_run,
     list_runs,
     list_run_summaries,
+    resolve_file_query_for_run,
 )
 
 __all__ = [
     "build_run_overview",
     "compare_runs",
     "decode_sample_ids_blob",
+    "find_sample_occurrences",
     "format_run_comparison",
     "get_batch_for_run_step",
     "get_batches_for_run",
@@ -33,4 +36,5 @@ __all__ = [
     "get_transforms_for_run",
     "list_runs",
     "list_run_summaries",
+    "resolve_file_query_for_run",
 ]

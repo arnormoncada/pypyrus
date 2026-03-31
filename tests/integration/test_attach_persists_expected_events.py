@@ -49,7 +49,8 @@ def test_attached_loader_persists_run_dataset_transform_and_batch_events(
     dataset_row = fetch_one(
         db_path,
         """
-        SELECT d.dataset_id, d.fingerprint, d.fingerprint_method, rd.role
+        SELECT d.dataset_id, d.fingerprint, d.fingerprint_method,
+               d.sample_id_scheme, d.sample_id_resolver, rd.role
         FROM datasets d
         JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
         WHERE rd.run_id = ?
@@ -59,6 +60,8 @@ def test_attached_loader_persists_run_dataset_transform_and_batch_events(
     assert dataset_row["role"] == "train"
     assert dataset_row["fingerprint"]
     assert dataset_row["fingerprint_method"] == "in_memory_deterministic_v1"
+    assert dataset_row["sample_id_scheme"] == "index"
+    assert dataset_row["sample_id_resolver"] == "fallback_index"
 
     transform_row = fetch_one(
         db_path,

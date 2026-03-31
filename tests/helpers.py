@@ -70,6 +70,28 @@ class TinyMapDataset(Dataset):
         return sample
 
 
+class TinyFileCollectionDataset(Dataset):
+    def __init__(self, root: Path):
+        self.root = str(root)
+        self.samples = []
+        class_dirs = sorted(path for path in root.iterdir() if path.is_dir())
+        for class_index, class_dir in enumerate(class_dirs):
+            for file_path in sorted(path for path in class_dir.iterdir() if path.is_file()):
+                self.samples.append((str(file_path), class_index))
+
+    def __len__(self) -> int:
+        return len(self.samples)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        _, class_index = self.samples[idx]
+        sample = torch.tensor([float(idx), float(idx + 1)], dtype=torch.float32)
+        return sample, class_index
+
+
+def custom_sample_id_resolver(dataset: Any, index: int, sample: Any) -> str:
+    return f"record_id:custom_{index}"
+
+
 def custom_collate_with_metadata(
     samples: list[tuple[torch.Tensor, int]],
 ) -> dict[str, Any]:

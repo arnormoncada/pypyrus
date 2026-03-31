@@ -1,7 +1,8 @@
 from __future__ import annotations
 
-from collections.abc import Sequence
 from typing import Any
+
+from pypyrus.core.sample_id import SampleIdResolution, SampleIdResolver, infer_sample_id_metadata, resolve_sample_id
 
 
 PYPYRUS_ID_KEY = "__pypyrus_id__"
@@ -25,8 +26,18 @@ class DatasetWrapper:
     The default sample_id is the dataset index.
     """
 
-    def __init__(self, dataset: Any):
+    def __init__(
+        self,
+        dataset: Any,
+        *,
+        sample_id_resolver: SampleIdResolver | None = None,
+    ):
         self.dataset = dataset
+        self._sample_id_resolver = sample_id_resolver
+        self._sample_id_scheme, self._sample_id_resolver_name = infer_sample_id_metadata(
+            dataset,
+            user_resolver=sample_id_resolver,
+        )
 
     def __len__(self) -> int:
         return len(self.dataset)
@@ -44,9 +55,10 @@ class DatasetWrapper:
         Return a stable identifier for a sample.
 
         MVP behavior:
-        - use dataset index for map-style datasets
+        - use resolver-driven normalized sample IDs
         """
-        return index
+        resolution = self._resolve_sample_id(index, sample)
+        return resolution.sample_id
 
     def __getattr__(self, name: str) -> Any:
         """
@@ -61,16 +73,34 @@ class DatasetWrapper:
             raise AttributeError(name) from exc
         return getattr(dataset, name)
 
+    def sample_id_metadata(self) -> tuple[str, str]:
+        return self._sample_id_scheme, self._sample_id_resolver_name
+
+    def _resolve_sample_id(self, index: int, sample: Any) -> SampleIdResolution:
+        resolution = resolve_sample_id(
+            self.dataset,
+            index,
+            sample,
+            user_resolver=self._sample_id_resolver,
+        )
+        self._sample_id_scheme = resolution.sample_id_scheme
+        self._sample_id_resolver_name = resolution.sample_id_resolver
+        return resolution
+
 
 def is_wrapped_dataset(dataset: Any) -> bool:
     """Return True if the dataset is already wrapped by PyPyrus."""
     return isinstance(dataset, DatasetWrapper)
 
 
-def wrap_dataset(dataset: Any) -> DatasetWrapper:
+def wrap_dataset(
+    dataset: Any,
+    *,
+    sample_id_resolver: SampleIdResolver | None = None,
+) -> DatasetWrapper:
     """
     Wrap a dataset with DatasetWrapper if it is not already wrapped.
     """
     if is_wrapped_dataset(dataset):
         return dataset
-    return DatasetWrapper(dataset)
+    return DatasetWrapper(dataset, sample_id_resolver=sample_id_resolver)

@@ -10,9 +10,10 @@ from torch.utils.data import DataLoader, IterableDataset
 
 from pypyrus.core.run import Run
 from pypyrus.core.dataset_identity import resolve_dataset_identity
+from pypyrus.core.sample_id import SampleIdResolver
 from pypyrus.core.transform_identity import extract_transform_declaration, transform_chain_id
 from pypyrus.instrumentation.collate import wrap_collate
-from pypyrus.instrumentation.dataset import wrap_dataset
+from pypyrus.instrumentation.dataset import DatasetWrapper, wrap_dataset
 from pypyrus.provenance.events import (
     BatchDeliveredEvent,
     DatasetRegisteredEvent,
@@ -41,7 +42,11 @@ def _infer_batch_size(batch: Any) -> int:
     raise ValueError("Unable to infer batch size from batch payload")
 
 
-def _clone_dataloader_with_wrapped_dataset(loader: DataLoader) -> DataLoader:
+def _clone_dataloader_with_wrapped_dataset(
+    loader: DataLoader,
+    *,
+    sample_id_resolver: SampleIdResolver | None = None,
+) -> DataLoader:
     """
     Create a new DataLoader with the same configuration, but using:
     - wrapped dataset
@@ -57,7 +62,10 @@ def _clone_dataloader_with_wrapped_dataset(loader: DataLoader) -> DataLoader:
             "the wrapper-based sample ID injection path."
         )
 
-    wrapped_dataset = wrap_dataset(loader.dataset)
+    wrapped_dataset = wrap_dataset(
+        loader.dataset,
+        sample_id_resolver=sample_id_resolver,
+    )
     wrapped_collate_fn = wrap_collate(loader.collate_fn)
 
     kwargs: dict[str, Any] = {
@@ -147,7 +155,13 @@ class DataLoaderProxy:
     - yields the original batch payload to user code
     """
 
-    def __init__(self, loader: DataLoader, run: Run, role: str):
+    def __init__(
+        self,
+        loader: DataLoader,
+        run: Run,
+        role: str,
+        sample_id_resolver: SampleIdResolver | None = None,
+    ):
         self.run = run
         self.role = role
         self.loader_id = str(uuid4())
@@ -155,7 +169,10 @@ class DataLoaderProxy:
         self._dataset_id: str | None = None
         self._global_step = 0
         self._source_loader = loader
-        self.loader = _clone_dataloader_with_wrapped_dataset(loader)
+        self.loader = _clone_dataloader_with_wrapped_dataset(
+            loader,
+            sample_id_resolver=sample_id_resolver,
+        )
 
     def _emit_registration_events_once(self) -> None:
         if self._registered:
@@ -176,6 +193,10 @@ class DataLoaderProxy:
 
         self._dataset_id = descriptor.dataset_id
 
+        sample_id_scheme, sample_id_resolver_name = ("index", "fallback_index")
+        if isinstance(dataset, DatasetWrapper):
+            sample_id_scheme, sample_id_resolver_name = dataset.sample_id_metadata()
+
         self.run.emit(
             DatasetRegisteredEvent(
                 run_id=self.run.run_id,
@@ -186,6 +207,8 @@ class DataLoaderProxy:
                 version_hint=descriptor.version_hint,
                 fingerprint=dataset_fingerprint.fingerprint,
                 fingerprint_method=dataset_fingerprint.fingerprint_method,
+                sample_id_scheme=sample_id_scheme,
+                sample_id_resolver=sample_id_resolver_name,
             )
         )
 
@@ -258,5 +281,15 @@ class DataLoaderProxy:
         return getattr(self.loader, name)
 
 
-def wrap_dataloader(loader: DataLoader, run: Run, role: str) -> DataLoaderProxy:
-    return DataLoaderProxy(loader, run, role=role)
+def wrap_dataloader(
+    loader: DataLoader,
+    run: Run,
+    role: str,
+    sample_id_resolver: SampleIdResolver | None = None,
+) -> DataLoaderProxy:
+    return DataLoaderProxy(
+        loader,
+        run,
+        role=role,
+        sample_id_resolver=sample_id_resolver,
+    )

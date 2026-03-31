@@ -64,6 +64,8 @@ class DatasetRegisteredEvent(ProvenanceEvent):
     version_hint: str | None = None
     fingerprint: str | None = None
     fingerprint_method: str | None = None
+    sample_id_scheme: str | None = None
+    sample_id_resolver: str | None = None
 
     event_type: EventType = field(default="dataset_registered", init=False)
 

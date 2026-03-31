@@ -7,8 +7,10 @@ from __future__ import annotations
 import gzip
 import json
 from datetime import datetime
+from pathlib import Path
 from typing import Any
 
+from pypyrus.core.dataset_identity import fingerprint_local_path
 from pypyrus.storage.store import Store
 
 
@@ -222,3 +224,128 @@ def build_run_overview(store: Store, run_id: str) -> dict[str, Any] | None:
         "batch_count": len(batches),
         "batches_by_role": batches_by_role,
     }
+
+
+def find_sample_occurrences(
+    store: Store,
+    run_id: str,
+    sample_id: str,
+    *,
+    dataset_ids: list[str] | None = None,
+) -> dict[str, Any]:
+    batches = get_batches_for_run(store, run_id, include_sample_ids=True)
+    occurrences: list[dict[str, Any]] = []
+    dataset_scope = {str(item) for item in dataset_ids or []}
+
+    for batch in batches:
+        batch_dataset_id = batch.get("dataset_id")
+        if dataset_scope and str(batch_dataset_id) not in dataset_scope:
+            continue
+        sample_ids = batch.get("sample_ids") or []
+        normalized_ids = [str(item) for item in sample_ids]
+        if sample_id not in normalized_ids:
+            continue
+        occurrences.append(
+            {
+                "run_id": batch.get("run_id"),
+                "dataset_id": batch.get("dataset_id"),
+                "loader_id": batch.get("loader_id"),
+                "role": batch.get("role"),
+                "global_step": batch.get("global_step"),
+                "global_sequence": batch.get("global_sequence"),
+                "timestamp": batch.get("timestamp"),
+                "batch_fingerprint": batch.get("batch_fingerprint"),
+            }
+        )
+
+    first_occurrence = occurrences[0] if occurrences else None
+    last_occurrence = occurrences[-1] if occurrences else None
+
+    return {
+        "run_id": run_id,
+        "sample_id": sample_id,
+        "sample_id_scheme": _sample_id_scheme(sample_id),
+        "query_scope": "dataset" if dataset_scope else "run",
+        "scoped_dataset_ids": sorted(dataset_scope),
+        "found": bool(occurrences),
+        "occurrence_count": len(occurrences),
+        "first_occurrence": first_occurrence,
+        "last_occurrence": last_occurrence,
+        "matching_steps": [item["global_sequence"] for item in occurrences],
+        "matching_roles": sorted({str(item["role"]) for item in occurrences if item.get("role")}),
+        "matching_loader_ids": sorted(
+            {str(item["loader_id"]) for item in occurrences if item.get("loader_id")}
+        ),
+        "matching_dataset_ids": sorted(
+            {str(item["dataset_id"]) for item in occurrences if item.get("dataset_id")}
+        ),
+        "occurrences": occurrences,
+    }
+
+
+def resolve_file_query_for_run(
+    store: Store,
+    run_id: str,
+    *,
+    dataset_path: str | Path,
+    file_path: str | Path,
+) -> dict[str, Any]:
+    dataset_root = Path(dataset_path).expanduser().resolve()
+    target_path = Path(file_path).expanduser()
+    if not target_path.is_absolute():
+        candidate_path = dataset_root / target_path
+        try:
+            relative_path = candidate_path.relative_to(dataset_root).as_posix()
+        except ValueError as exc:
+            raise ValueError(
+                f"File path {candidate_path} is not inside dataset path {dataset_root}"
+            ) from exc
+        target_path = candidate_path
+    else:
+        target_path = target_path.resolve(strict=False)
+        try:
+            relative_path = target_path.relative_to(dataset_root).as_posix()
+        except ValueError as exc:
+            raise ValueError(
+                f"File path {target_path} is not inside dataset path {dataset_root}"
+            ) from exc
+
+    if not dataset_root.exists():
+        raise FileNotFoundError(f"Dataset path not found: {dataset_root}")
+    if not target_path.exists():
+        raise FileNotFoundError(f"File path not found: {target_path}")
+
+    fingerprint = fingerprint_local_path(dataset_root)
+    datasets = get_datasets_for_run(store, run_id)
+    matching_datasets = [
+        dataset
+        for dataset in datasets
+        if dataset.get("sample_id_scheme") == "filepath"
+        and dataset.get("fingerprint") == fingerprint.fingerprint
+    ]
+
+    if not matching_datasets:
+        raise ValueError(
+            "No file-collection dataset in this run matches the provided dataset path fingerprint."
+        )
+
+    return {
+        "sample_id": f"filepath:{relative_path}",
+        "sample_id_scheme": "filepath",
+        "sample_id_resolver": "file_collection",
+        "query_scope": "dataset",
+        "dataset_fingerprint": fingerprint.fingerprint,
+        "dataset_fingerprint_method": fingerprint.fingerprint_method,
+        "matching_dataset_ids": [
+            str(dataset["dataset_id"])
+            for dataset in matching_datasets
+            if dataset.get("dataset_id") is not None
+        ],
+        "matching_datasets": matching_datasets,
+    }
+
+
+def _sample_id_scheme(sample_id: str) -> str:
+    if ":" not in sample_id:
+        return "custom"
+    return sample_id.split(":", 1)[0]
