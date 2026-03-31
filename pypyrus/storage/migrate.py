@@ -7,6 +7,7 @@ Uses CREATE TABLE IF NOT EXISTS so it's safe to run multiple times.
 
 from __future__ import annotations
 
+import importlib.resources as resources
 import sqlite3
 from pathlib import Path
 
@@ -20,7 +21,8 @@ def load_schema(conn: sqlite3.Connection, schema_dir: Path | None = None) -> Non
         schema_dir: Directory containing .sql files. Defaults to pypyrus/storage/schema/.
     """
     if schema_dir is None:
-        schema_dir = Path(__file__).parent / "schema"
+        schema_resource = resources.files("pypyrus.storage").joinpath("schema")
+        schema_dir = Path(str(schema_resource))
 
     if not schema_dir.exists():
         raise FileNotFoundError(f"Schema directory not found: {schema_dir}")

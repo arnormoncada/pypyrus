@@ -25,16 +25,25 @@ def resolve_sample_id(
     *,
     user_resolver: SampleIdResolver | None = None,
 ) -> SampleIdResolution:
+    
+    # If the user provided a resolver, use it
     if user_resolver is not None:
         return _normalize_user_resolution(
             user_resolver(dataset, index, sample),
             default_resolver="user_override",
         )
 
+    # Try file collection scheme
     file_resolution = _resolve_file_collection_sample_id(dataset, index)
     if file_resolution is not None:
         return file_resolution
 
+    # Try structured record scheme (e.g. csv, jsonl, parquet)
+    record_resolution = _resolve_structured_record_sample_id(dataset, index)
+    if record_resolution is not None:
+        return record_resolution
+
+    # Try framework logical scheme (basically just MNIST variants for now from torchvision)
     logical_resolution = _resolve_framework_logical_sample_id(dataset, index)
     if logical_resolution is not None:
         return logical_resolution
@@ -51,6 +60,8 @@ def infer_sample_id_metadata(
     *,
     user_resolver: SampleIdResolver | None = None,
 ) -> tuple[str, str]:
+    
+    # If the user provided a resolver, use it
     if user_resolver is not None:
         if hasattr(dataset, "__len__") and len(dataset) > 0 and hasattr(dataset, "__getitem__"):
             sample = dataset[0]
@@ -61,10 +72,21 @@ def infer_sample_id_metadata(
             return resolution.sample_id_scheme, resolution.sample_id_resolver
         return "custom", "user_override"
 
+    # Try file collection scheme
     file_resolution = _resolve_file_collection_sample_id(dataset, 0, allow_missing_index=True)
     if file_resolution is not None:
         return file_resolution.sample_id_scheme, file_resolution.sample_id_resolver
+    
+    # Try structured record scheme (e.g. csv, jsonl, parquet)
+    record_resolution = _resolve_structured_record_sample_id(
+        dataset,
+        0,
+        allow_missing_index=True,
+    )
+    if record_resolution is not None:
+        return record_resolution.sample_id_scheme, record_resolution.sample_id_resolver
 
+    # Try framework logical scheme (basically just MNIST variants for now from torchvision)
     logical_resolution = _resolve_framework_logical_sample_id(dataset, 0)
     if logical_resolution is not None:
         return logical_resolution.sample_id_scheme, logical_resolution.sample_id_resolver
@@ -142,6 +164,108 @@ def _resolve_framework_logical_sample_id(
             sample_id_scheme="logical",
             sample_id_resolver="framework_logical",
         )
+    return None
+
+
+def _resolve_structured_record_sample_id(
+    dataset: Any,
+    index: int,
+    *,
+    allow_missing_index: bool = False,
+) -> SampleIdResolution | None:
+    record_id = _get_indexed_record_id(
+        dataset,
+        index,
+        allow_missing_index=allow_missing_index,
+    )
+    if record_id is not None:
+        return SampleIdResolution(
+            sample_id=f"record_id:{record_id}",
+            sample_id_scheme="record_id",
+            sample_id_resolver="structured_record",
+        )
+
+    record = _get_indexed_record(
+        dataset,
+        index,
+        allow_missing_index=allow_missing_index,
+    )
+    if record is None:
+        return None
+
+    record_key = _extract_record_key(record)
+    if record_key is not None:
+        return SampleIdResolution(
+            sample_id=f"record_id:{record_key}",
+            sample_id_scheme="record_id",
+            sample_id_resolver="structured_record",
+        )
+
+    return SampleIdResolution(
+        sample_id=f"row:{index}",
+        sample_id_scheme="row",
+        sample_id_resolver="structured_record",
+    )
+
+
+def _get_indexed_record_id(
+    dataset: Any,
+    index: int,
+    *,
+    allow_missing_index: bool = False,
+) -> str | None:
+    for attr in ("record_ids", "ids"):
+        values = getattr(dataset, attr, None)
+        if values is None:
+            continue
+        item = _get_indexed_value(values, index, allow_missing_index=allow_missing_index)
+        if item is None:
+            continue
+        return str(item)
+    return None
+
+
+def _get_indexed_record(
+    dataset: Any,
+    index: int,
+    *,
+    allow_missing_index: bool = False,
+) -> Any | None:
+    for attr in ("records", "rows"):
+        values = getattr(dataset, attr, None)
+        if values is None:
+            continue
+        item = _get_indexed_value(values, index, allow_missing_index=allow_missing_index)
+        if item is not None:
+            return item
+    return None
+
+
+def _get_indexed_value(
+    values: Any,
+    index: int,
+    *,
+    allow_missing_index: bool = False,
+) -> Any | None:
+    try:
+        if index >= len(values):
+            if allow_missing_index and len(values) > 0:
+                index = 0
+            else:
+                return None
+        return values[index]
+    except Exception:
+        return None
+
+
+def _extract_record_key(record: Any) -> str | None:
+    for key in ("record_id", "id", "uuid", "key"):
+        if isinstance(record, dict):
+            value = record.get(key)
+        else:
+            value = getattr(record, key, None)
+        if value is not None:
+            return str(value)
     return None
 
 

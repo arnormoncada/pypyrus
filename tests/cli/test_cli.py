@@ -16,7 +16,7 @@ from pypyrus.provenance.events import (
 )
 from pypyrus.provenance.fingerprints import hash_json
 from pypyrus.storage.sqlite_store import SQLiteStore
-from tests.helpers import TinyFileCollectionDataset
+from tests.helpers import TinyFileCollectionDataset, TinyRecordsDataset, TinyRowsDataset
 
 
 def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
@@ -224,6 +224,83 @@ def test_samples_find_supports_direct_and_filepath_lookup(tmp_path, capsys) -> N
     assert result["found"] is True
     assert result["query_scope"] == "dataset"
     assert result["query_resolution"]["sample_id"] == "filepath:class_a/item_0.txt"
+
+
+def test_runs_show_and_samples_find_support_structured_record_sample_ids(
+    tmp_path, capsys
+) -> None:
+    db_path = tmp_path / "cli_records.db"
+    store = SQLiteStore(db_path)
+
+    from torch.utils.data import DataLoader
+    from pypyrus.core.attach import attach
+    from pypyrus.core.run import Run
+
+    records_loader = DataLoader(
+        TinyRecordsDataset(),
+        batch_size=2,
+        shuffle=False,
+        num_workers=0,
+    )
+    rows_loader = DataLoader(
+        TinyRowsDataset(),
+        batch_size=2,
+        shuffle=False,
+        num_workers=0,
+    )
+
+    with Run(store=store) as run:
+        list(attach(records_loader, run, role="train"))
+        list(attach(rows_loader, run, role="val"))
+    store.close()
+
+    exit_code = main(["--db", str(db_path), "runs", "show", run.run_id])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "sample_id_scheme: record_id" in captured.out
+    assert "sample_id_scheme: row" in captured.out
+    assert "sample_id_resolver: structured_record" in captured.out
+
+    exit_code = main(
+        [
+            "--db",
+            str(db_path),
+            "--json",
+            "samples",
+            "find",
+            run.run_id,
+            "--sample-id",
+            "record_id:cust_001",
+        ]
+    )
+    captured = capsys.readouterr()
+    record_result = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert record_result["found"] is True
+    assert record_result["sample_id_scheme"] == "record_id"
+    assert record_result["matching_roles"] == ["train"]
+
+    exit_code = main(
+        [
+            "--db",
+            str(db_path),
+            "--json",
+            "samples",
+            "find",
+            run.run_id,
+            "--sample-id",
+            "row:0",
+        ]
+    )
+    captured = capsys.readouterr()
+    row_result = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert row_result["found"] is True
+    assert row_result["sample_id_scheme"] == "row"
+    assert row_result["matching_roles"] == ["val"]
 
 
 def test_samples_find_filepath_lookup_requires_fingerprint_match(tmp_path, capsys) -> None:

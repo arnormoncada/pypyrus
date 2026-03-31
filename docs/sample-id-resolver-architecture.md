@@ -94,6 +94,15 @@ Example mappings:
 This family is architecturally in-scope for the MVP, but it is likely not the
 first CLI implementation target.
 
+Built-in support for this family should be treated as a narrow dataset-side
+contract, not a claim that PyPyrus can infer all row/record datasets
+automatically.
+
+If a custom dataset exposes obvious attributes like `record_ids`, `ids`,
+`records`, or `rows`, PyPyrus can derive `record_id:` or `row:` sample IDs
+automatically. Otherwise, users should supply `sample_id_resolver=` at
+`attach(...)`.
+
 ### 3. Framework / logical dataset
 
 The dataset exposes a stable logical access pattern even if the underlying

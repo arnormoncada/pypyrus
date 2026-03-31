@@ -88,6 +88,52 @@ class TinyFileCollectionDataset(Dataset):
         return sample, class_index
 
 
+class TinyRecordIdsDataset(Dataset):
+    def __init__(self):
+        self.record_ids = ["alpha", "beta", "gamma", "delta"]
+
+    def __len__(self) -> int:
+        return len(self.record_ids)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        sample = torch.tensor([float(idx), float(idx + 1)], dtype=torch.float32)
+        return sample, idx % 2
+
+
+class TinyRecordsDataset(Dataset):
+    def __init__(self):
+        self.records = [
+            {"id": "cust_001", "value": 1},
+            {"id": "cust_002", "value": 2},
+            {"id": "cust_003", "value": 3},
+            {"id": "cust_004", "value": 4},
+        ]
+
+    def __len__(self) -> int:
+        return len(self.records)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        sample = torch.tensor([float(idx), float(idx + 1)], dtype=torch.float32)
+        return sample, idx % 2
+
+
+class TinyRowsDataset(Dataset):
+    def __init__(self):
+        self.rows = [
+            {"value": 10},
+            {"value": 11},
+            {"value": 12},
+            {"value": 13},
+        ]
+
+    def __len__(self) -> int:
+        return len(self.rows)
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        sample = torch.tensor([float(idx), float(idx + 1)], dtype=torch.float32)
+        return sample, idx % 2
+
+
 def custom_sample_id_resolver(dataset: Any, index: int, sample: Any) -> str:
     return f"record_id:custom_{index}"
 

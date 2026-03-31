@@ -6,7 +6,9 @@ requires-python = ">=3.9"
 
 dependencies = [
     "torch",
-    "torchvision"
+    "torchvision",
+    "transformers==4.41.2",
+    "protobuf"
 ]
 
 [project.optional-dependencies]
@@ -19,6 +21,9 @@ pypyrus = "pypyrus.cli.main:main"
 
 [tool.setuptools.packages.find]
 include = ["pypyrus*"]
+
+[tool.setuptools.package-data]
+"pypyrus.storage" = ["schema/*.sql"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
