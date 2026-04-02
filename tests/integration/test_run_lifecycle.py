@@ -4,6 +4,7 @@ import pytest
 
 from pypyrus.core import run as run_module
 from pypyrus.core.run import Run
+from pypyrus.provenance.events import DatasetRegisteredEvent
 
 from tests.helpers import fetch_one
 
@@ -71,3 +72,36 @@ def test_explicit_code_ref_overrides_auto_capture(db_path, monkeypatch, store) -
         (run.run_id,),
     )
     assert run_row["code_ref"] == "git:manual:clean"
+
+
+def test_run_end_persists_total_event_count(db_path, monkeypatch, store) -> None:
+    monkeypatch.setattr(run_module, "collect_code_ref", lambda: "git:test:clean")
+    monkeypatch.setattr(
+        run_module,
+        "collect_environment_snapshot",
+        lambda: {
+            "python_version": "3.11.0",
+            "library_versions_hash": "libhash",
+            "hardware_summary": "cpu",
+            "cuda_version": None,
+        },
+    )
+
+    with Run(store=store) as run:
+        run.emit(
+            DatasetRegisteredEvent(
+                run_id=run.run_id,
+                dataset_id="dataset-001",
+                name="dummy",
+                role="train",
+                fingerprint="abc123",
+                fingerprint_method="path",
+            )
+        )
+
+    run_row = fetch_one(
+        db_path,
+        "SELECT event_count FROM runs WHERE run_id = ?",
+        (run.run_id,),
+    )
+    assert run_row["event_count"] == 4

@@ -37,6 +37,7 @@ class Run:
         self._started = False
         self._ended = False
         self._batch_sequence: int = 0
+        self._event_count: int = 0
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -101,6 +102,7 @@ class Run:
         event = RunEndEvent(
             run_id=self.run_id,
             status=status,
+            event_count=self._event_count + 1,
         )
 
         self.emit(event)
@@ -141,6 +143,7 @@ class Run:
             )
 
         self.store.append_event(event)
+        self._event_count += 1
 
     def emit_many(self, events: Iterable[ProvenanceEvent]) -> None:
         """
