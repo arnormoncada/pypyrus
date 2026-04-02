@@ -5,7 +5,9 @@ from pathlib import Path
 from torch.utils.data import DataLoader
 
 from pypyrus.core.attach import attach
+from pypyrus.core.dataset_identity import resolve_dataset_identity
 from pypyrus.core.run import Run
+from pypyrus.instrumentation.dataset import wrap_dataset
 from pypyrus.reporting.queries import decode_sample_ids_blob
 
 from tests.helpers import (
@@ -252,6 +254,22 @@ def test_structured_record_dataset_without_keys_falls_back_to_row_ids(db_path, s
         ["row:0", "row:1"],
         ["row:2", "row:3"],
     ]
+
+
+def test_wrapped_structured_record_datasets_use_underlying_identity_contract() -> None:
+    records_descriptor, records_fingerprint, _ = resolve_dataset_identity(
+        wrap_dataset(TinyRecordsDataset())
+    )
+    rows_descriptor, rows_fingerprint, _ = resolve_dataset_identity(
+        wrap_dataset(TinyRowsDataset())
+    )
+
+    assert records_descriptor.name == "TinyRecordsDataset"
+    assert rows_descriptor.name == "TinyRowsDataset"
+    assert records_fingerprint.fingerprint_method == "in_memory_deterministic_v1"
+    assert rows_fingerprint.fingerprint_method == "in_memory_deterministic_v1"
+    assert records_descriptor.dataset_id != rows_descriptor.dataset_id
+    assert records_fingerprint.fingerprint != rows_fingerprint.fingerprint
 
 
 def _build_file_dataset(root: Path) -> Path:

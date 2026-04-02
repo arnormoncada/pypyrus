@@ -7,6 +7,11 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
 
+from pypyrus.core.sample_id import (
+    FILE_COLLECTION_SAMPLE_ATTRS,
+    STRUCTURED_RECORD_CONTAINER_ATTRS,
+    STRUCTURED_RECORD_ID_ATTRS,
+)
 from pypyrus.provenance.fingerprints import hash_json, stable_json_dumps
 
 MAX_LOCAL_SAMPLED_FILES = 256
@@ -25,6 +30,22 @@ class DatasetDescriptor:
 class DatasetFingerprint:
 	fingerprint: str
 	fingerprint_method: str
+
+
+def _identity_target(dataset: Any) -> Any:
+	"""Unwrap PyPyrus dataset wrappers before inferring dataset identity."""
+	current = dataset
+	seen: set[int] = set()
+	while hasattr(current, "dataset") and id(current) not in seen:
+		seen.add(id(current))
+		try:
+			next_dataset = getattr(current, "dataset")
+		except Exception:
+			break
+		if next_dataset is None:
+			break
+		current = next_dataset
+	return current
 
 
 def _best_effort_dataset_name(dataset: Any) -> str:
@@ -50,6 +71,7 @@ def _best_effort_version_hint(dataset: Any) -> str | None:
 
 
 def infer_dataset_descriptor(dataset: Any) -> DatasetDescriptor:
+	dataset = _identity_target(dataset)
 	descriptor_payload = {
 		"class_name": dataset.__class__.__name__,
 		"name": _best_effort_dataset_name(dataset),
@@ -149,9 +171,10 @@ def _normalize_in_memory(value: Any) -> Any:
 
 
 def _in_memory_deterministic_fingerprint(dataset: Any) -> DatasetFingerprint | None:
+	dataset = _identity_target(dataset)
 	candidate = dataset
-	if not _is_supported_in_memory(candidate) and hasattr(dataset, "data"):
-		candidate = getattr(dataset, "data")
+	if not _is_supported_in_memory(candidate):
+		candidate = _best_effort_in_memory_payload(dataset)
 
 	if not _is_supported_in_memory(candidate):
 		return None
@@ -160,6 +183,24 @@ def _in_memory_deterministic_fingerprint(dataset: Any) -> DatasetFingerprint | N
 		fingerprint=hash_json(_normalize_in_memory(candidate)),
 		fingerprint_method="in_memory_deterministic_v1",
 	)
+
+
+def _best_effort_in_memory_payload(dataset: Any) -> Any:
+	for attr in (
+		"data",
+		*STRUCTURED_RECORD_CONTAINER_ATTRS,
+		*STRUCTURED_RECORD_ID_ATTRS,
+		*FILE_COLLECTION_SAMPLE_ATTRS,
+	):
+		if not hasattr(dataset, attr):
+			continue
+		try:
+			value = getattr(dataset, attr)
+		except Exception:
+			continue
+		if _is_supported_in_memory(value):
+			return value
+	return None
 
 
 def _fallback_descriptor_fingerprint(
@@ -195,6 +236,7 @@ def resolve_dataset_identity(
 	Returns (descriptor, fingerprint, warning_message).
 	warning_message is set only when fallback is used after a strategy failure.
 	"""
+	dataset = _identity_target(dataset)
 	descriptor = infer_dataset_descriptor(dataset)
 
 	hf = _hf_builtin_fingerprint(dataset)
