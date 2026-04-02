@@ -16,6 +16,12 @@ intentionally small:
 pip install -e .
 ```
 
+Optional example dependencies, including the UFO transformer path:
+
+```bash
+pip install -e ".[examples]"
+```
+
 ## Minimal SDK Example
 
 ```python

@@ -5,8 +5,8 @@ The task is to predict the reported UFO shape from the `comments` field in the
 structured UFO sightings CSV. The label space is the top 10 most common shapes
 plus `other`. The script supports two model paths:
 
-* `fast`: a tiny torch-native text classifier that trains quickly
-* `transformer`: a small pretrained BERT model
+* `fast`: a tiny torch-native text classifier that trains quickly and is the default
+* `transformer`: a small pretrained BERT model (optional extra dependency)
 
 Example:
 
@@ -14,6 +14,10 @@ Example:
       --data-path examples/ufo_sightings/data/scrubbed.csv \
       --epochs 2 \
       --model fast
+
+For the transformer path, install optional example dependencies first:
+
+    pip install -e ".[examples]"
 """
 
 from __future__ import annotations

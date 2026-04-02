@@ -15,6 +15,12 @@ pip install -e .
 
 PyPyrus currently targets map-style PyTorch DataLoaders.
 
+If you want to run optional example paths that use extra dependencies, install:
+
+```bash
+pip install -e ".[examples]"
+```
+
 ## Minimal Example
 
 ```python

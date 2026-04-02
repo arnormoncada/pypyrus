@@ -6,14 +6,16 @@ requires-python = ">=3.9"
 
 dependencies = [
     "torch",
-    "torchvision",
-    "transformers==4.41.2",
-    "protobuf"
+    "torchvision"
 ]
 
 [project.optional-dependencies]
 dev = [
     "pytest>=8.0",
+]
+examples = [
+    "transformers==4.41.2",
+    "protobuf",
 ]
 
 [project.scripts]

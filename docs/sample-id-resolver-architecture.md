@@ -1,10 +1,12 @@
 # PyPyrus Sample ID Resolver Architecture
 
-This note is the cleaned-up MVP architecture successor to
-`docs/pypyrus-sample-id-resolver-brainstorm.md`.
+This note is the implementation-facing architecture document for the sample ID
+resolver work.
 
-The brainstorm note should remain as raw ideation. This document is the
-implementation-facing version.
+It should be read alongside:
+
+- [docs/internal-working-notes.md](internal-working-notes.md) for broader internal planning
+- [docs/sample-identity-contract.md](sample-identity-contract.md) for the current user-facing contract
 
 ---
 
