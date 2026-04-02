@@ -1,3 +1,12 @@
+# PyPyrus Internal Working Notes
+
+This document is a live internal design and planning document used while
+implementing PyPyrus.
+
+It is not part of the user-facing SDK/CLI documentation.
+
+---
+
 # PyPyrus — A Data Provenance Layer for Transparent and Reproducible Machine Learning Systems
 ### Focus on single machine pytorch training pipelines for now, but design with future extensibility in mind.
 
