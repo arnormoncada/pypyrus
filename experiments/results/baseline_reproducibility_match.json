@@ -1,0 +1,735 @@
+{
+  "experiment": "baseline_reproducibility_match",
+  "config": {
+    "data_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split",
+    "train_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+    "test_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+    "epochs": 3,
+    "batch_size": 32,
+    "lr": 0.001,
+    "num_workers": 2,
+    "seed": 42,
+    "sample_file": "Black-grass/1.png"
+  },
+  "db_path": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/results/baseline_reproducibility_match.db",
+  "run_id_a": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+  "run_id_b": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+  "comparison": {
+    "run_id_a": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+    "run_id_b": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+    "roles": {
+      "test": {
+        "role": "test",
+        "num_batches_a": 105,
+        "num_batches_b": 105,
+        "matching_steps": 105,
+        "match_rate": 1.0,
+        "first_divergence_step": null,
+        "batch_stream_matches": true,
+        "fully_matches": true,
+        "divergence": null,
+        "dataset_identity": {
+          "role": "test",
+          "matches": true,
+          "run_a": [
+            {
+              "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
+              "name": "DatasetWrapper",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+              "fingerprint": "f1316f8c462a9961be3ef83b685e0b67b1c4ca8d5ccd67ca1a6394d2179ae163",
+              "fingerprint_method": "local_sampled_manifest_v1"
+            }
+          ],
+          "run_b": [
+            {
+              "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
+              "name": "DatasetWrapper",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+              "fingerprint": "f1316f8c462a9961be3ef83b685e0b67b1c4ca8d5ccd67ca1a6394d2179ae163",
+              "fingerprint_method": "local_sampled_manifest_v1"
+            }
+          ],
+          "reason": null
+        },
+        "dataset_identity_matches": true,
+        "reason": null
+      },
+      "train": {
+        "role": "train",
+        "num_batches_a": 417,
+        "num_batches_b": 417,
+        "matching_steps": 417,
+        "match_rate": 1.0,
+        "first_divergence_step": null,
+        "batch_stream_matches": true,
+        "fully_matches": true,
+        "divergence": null,
+        "dataset_identity": {
+          "role": "train",
+          "matches": true,
+          "run_a": [
+            {
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "name": "DatasetWrapper",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+              "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
+              "fingerprint_method": "local_sampled_manifest_v1"
+            }
+          ],
+          "run_b": [
+            {
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "name": "DatasetWrapper",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+              "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
+              "fingerprint_method": "local_sampled_manifest_v1"
+            }
+          ],
+          "reason": null
+        },
+        "dataset_identity_matches": true,
+        "reason": null
+      }
+    },
+    "roles_compared": [
+      "test",
+      "train"
+    ],
+    "dataset_identities_match": true,
+    "batch_streams_match": true,
+    "fully_matches": true
+  },
+  "run_overview_a": {
+    "run": {
+      "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+      "start_time": "2026-04-02T17:57:09.558451+00:00",
+      "code_ref": "git:d1c9d3743ea68697d96af8d029a0f6c50d7ec204:dirty",
+      "config_ref": null,
+      "environment_hash": null,
+      "seed_summary_json": null,
+      "end_time": "2026-04-02T18:02:28.447017+00:00",
+      "status": "success",
+      "event_count": null,
+      "duration_seconds": 318.888566
+    },
+    "datasets": [
+      {
+        "event_id": "8acc4675-7408-413d-8b8d-61552043756a",
+        "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+        "name": "DatasetWrapper",
+        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+        "version_hint": null,
+        "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
+        "fingerprint_method": "local_sampled_manifest_v1",
+        "sample_id_scheme": "filepath",
+        "sample_id_resolver": "file_collection",
+        "timestamp": "2026-04-02T17:57:10.049551+00:00",
+        "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+        "role": "train"
+      },
+      {
+        "event_id": "c174b420-973e-48b3-bb5c-c1c5c062269c",
+        "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
+        "name": "DatasetWrapper",
+        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+        "version_hint": null,
+        "fingerprint": "f1316f8c462a9961be3ef83b685e0b67b1c4ca8d5ccd67ca1a6394d2179ae163",
+        "fingerprint_method": "local_sampled_manifest_v1",
+        "sample_id_scheme": "filepath",
+        "sample_id_resolver": "file_collection",
+        "timestamp": "2026-04-02T17:58:25.429261+00:00",
+        "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+        "role": "test"
+      }
+    ],
+    "loaders": [
+      {
+        "event_id": "9707199b-c3ee-4581-ad50-57b98bd85b2a",
+        "loader_id": "4c3d4d75-66b5-49e5-b5d5-5f617512fc01",
+        "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+        "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+        "role": "train",
+        "timestamp": "2026-04-02T17:57:10.050041+00:00"
+      },
+      {
+        "event_id": "7c044da1-7651-4131-8c5c-c2029c88c880",
+        "loader_id": "2042d735-7a78-45ac-9526-74aa62678932",
+        "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+        "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
+        "role": "test",
+        "timestamp": "2026-04-02T17:58:25.429596+00:00"
+      }
+    ],
+    "transforms": [
+      {
+        "event_id": "f8c2faf8-f607-4d25-a8d5-bd266099b8bb",
+        "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+        "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+        "timestamp": "2026-04-02T17:57:10.050521+00:00",
+        "transform_chain_id": "9b1fefc4cfb72d7eef53bdfa8515f6e165210f88a0520144d4f0d48e4b546f48",
+        "transform_list_json": "[{\"name\": \"ImageClassification\", \"module\": \"torchvision.transforms._presets\", \"params\": {\"training\": true, \"crop_size\": [224], \"resize_size\": [256], \"mean\": [0.485, 0.456, 0.406], \"std\": [0.229, 0.224, 0.225], \"interpolation\": {\"type\": \"InterpolationMode\", \"repr\": \"<InterpolationMode.BILINEAR: 'bilinear'>\"}, \"antialias\": true}}]",
+        "params_hash": "9b1fefc4cfb72d7eef53bdfa8515f6e165210f88a0520144d4f0d48e4b546f48",
+        "introspection_level": "partial",
+        "transform_list": [
+          {
+            "name": "ImageClassification",
+            "module": "torchvision.transforms._presets",
+            "params": {
+              "training": true,
+              "crop_size": [
+                224
+              ],
+              "resize_size": [
+                256
+              ],
+              "mean": [
+                0.485,
+                0.456,
+                0.406
+              ],
+              "std": [
+                0.229,
+                0.224,
+                0.225
+              ],
+              "interpolation": {
+                "type": "InterpolationMode",
+                "repr": "<InterpolationMode.BILINEAR: 'bilinear'>"
+              },
+              "antialias": true
+            }
+          }
+        ]
+      },
+      {
+        "event_id": "1ed009c5-05e3-4ae7-8804-5a39d47e8ac7",
+        "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+        "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
+        "timestamp": "2026-04-02T17:58:25.429822+00:00",
+        "transform_chain_id": "9b1fefc4cfb72d7eef53bdfa8515f6e165210f88a0520144d4f0d48e4b546f48",
+        "transform_list_json": "[{\"name\": \"ImageClassification\", \"module\": \"torchvision.transforms._presets\", \"params\": {\"training\": true, \"crop_size\": [224], \"resize_size\": [256], \"mean\": [0.485, 0.456, 0.406], \"std\": [0.229, 0.224, 0.225], \"interpolation\": {\"type\": \"InterpolationMode\", \"repr\": \"<InterpolationMode.BILINEAR: 'bilinear'>\"}, \"antialias\": true}}]",
+        "params_hash": "9b1fefc4cfb72d7eef53bdfa8515f6e165210f88a0520144d4f0d48e4b546f48",
+        "introspection_level": "partial",
+        "transform_list": [
+          {
+            "name": "ImageClassification",
+            "module": "torchvision.transforms._presets",
+            "params": {
+              "training": true,
+              "crop_size": [
+                224
+              ],
+              "resize_size": [
+                256
+              ],
+              "mean": [
+                0.485,
+                0.456,
+                0.406
+              ],
+              "std": [
+                0.229,
+                0.224,
+                0.225
+              ],
+              "interpolation": {
+                "type": "InterpolationMode",
+                "repr": "<InterpolationMode.BILINEAR: 'bilinear'>"
+              },
+              "antialias": true
+            }
+          }
+        ]
+      }
+    ],
+    "environment": [
+      {
+        "event_id": "8b407c21-d770-4c95-879e-cee5cd0684d0",
+        "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+        "timestamp": "2026-04-02T17:57:09.660696+00:00",
+        "python_version": "3.11.6",
+        "library_versions_hash": "24e6a9977f63fa8529a8e8987e537b5e7992fa351b2a813b2ed5c480a8ec5301",
+        "hardware_summary": "{\"machine\":\"x86_64\",\"processor\":\"i386\",\"python_implementation\":\"CPython\",\"release\":\"25.3.0\",\"system\":\"Darwin\"}",
+        "cuda_version": null
+      }
+    ],
+    "batch_count": 522,
+    "batches_by_role": {
+      "train": 417,
+      "test": 105
+    }
+  },
+  "run_overview_b": {
+    "run": {
+      "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+      "start_time": "2026-04-02T18:02:28.936801+00:00",
+      "code_ref": "git:d1c9d3743ea68697d96af8d029a0f6c50d7ec204:dirty",
+      "config_ref": null,
+      "environment_hash": null,
+      "seed_summary_json": null,
+      "end_time": "2026-04-02T18:08:05.857907+00:00",
+      "status": "success",
+      "event_count": null,
+      "duration_seconds": 336.921106
+    },
+    "datasets": [
+      {
+        "event_id": "8acc4675-7408-413d-8b8d-61552043756a",
+        "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+        "name": "DatasetWrapper",
+        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+        "version_hint": null,
+        "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
+        "fingerprint_method": "local_sampled_manifest_v1",
+        "sample_id_scheme": "filepath",
+        "sample_id_resolver": "file_collection",
+        "timestamp": "2026-04-02T17:57:10.049551+00:00",
+        "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+        "role": "train"
+      },
+      {
+        "event_id": "c174b420-973e-48b3-bb5c-c1c5c062269c",
+        "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
+        "name": "DatasetWrapper",
+        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+        "version_hint": null,
+        "fingerprint": "f1316f8c462a9961be3ef83b685e0b67b1c4ca8d5ccd67ca1a6394d2179ae163",
+        "fingerprint_method": "local_sampled_manifest_v1",
+        "sample_id_scheme": "filepath",
+        "sample_id_resolver": "file_collection",
+        "timestamp": "2026-04-02T17:58:25.429261+00:00",
+        "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+        "role": "test"
+      }
+    ],
+    "loaders": [
+      {
+        "event_id": "404bda44-5337-4187-9fa8-323ed5c0f44e",
+        "loader_id": "9c21d0b3-f5a4-495a-bc6b-b35bbc5c36b8",
+        "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+        "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+        "role": "train",
+        "timestamp": "2026-04-02T18:02:29.457789+00:00"
+      },
+      {
+        "event_id": "50fab44d-b49f-4993-9c7f-883314788c85",
+        "loader_id": "fc1a5b77-d3be-4c85-bdd8-f0775b8513cc",
+        "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+        "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
+        "role": "test",
+        "timestamp": "2026-04-02T18:03:56.942528+00:00"
+      }
+    ],
+    "transforms": [
+      {
+        "event_id": "a0208536-7e04-4b9a-8147-7befd62d4e86",
+        "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+        "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+        "timestamp": "2026-04-02T18:02:29.458327+00:00",
+        "transform_chain_id": "9b1fefc4cfb72d7eef53bdfa8515f6e165210f88a0520144d4f0d48e4b546f48",
+        "transform_list_json": "[{\"name\": \"ImageClassification\", \"module\": \"torchvision.transforms._presets\", \"params\": {\"training\": true, \"crop_size\": [224], \"resize_size\": [256], \"mean\": [0.485, 0.456, 0.406], \"std\": [0.229, 0.224, 0.225], \"interpolation\": {\"type\": \"InterpolationMode\", \"repr\": \"<InterpolationMode.BILINEAR: 'bilinear'>\"}, \"antialias\": true}}]",
+        "params_hash": "9b1fefc4cfb72d7eef53bdfa8515f6e165210f88a0520144d4f0d48e4b546f48",
+        "introspection_level": "partial",
+        "transform_list": [
+          {
+            "name": "ImageClassification",
+            "module": "torchvision.transforms._presets",
+            "params": {
+              "training": true,
+              "crop_size": [
+                224
+              ],
+              "resize_size": [
+                256
+              ],
+              "mean": [
+                0.485,
+                0.456,
+                0.406
+              ],
+              "std": [
+                0.229,
+                0.224,
+                0.225
+              ],
+              "interpolation": {
+                "type": "InterpolationMode",
+                "repr": "<InterpolationMode.BILINEAR: 'bilinear'>"
+              },
+              "antialias": true
+            }
+          }
+        ]
+      },
+      {
+        "event_id": "c6fd5419-5d5c-40f7-834f-4202f9c2348b",
+        "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+        "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
+        "timestamp": "2026-04-02T18:03:56.942805+00:00",
+        "transform_chain_id": "9b1fefc4cfb72d7eef53bdfa8515f6e165210f88a0520144d4f0d48e4b546f48",
+        "transform_list_json": "[{\"name\": \"ImageClassification\", \"module\": \"torchvision.transforms._presets\", \"params\": {\"training\": true, \"crop_size\": [224], \"resize_size\": [256], \"mean\": [0.485, 0.456, 0.406], \"std\": [0.229, 0.224, 0.225], \"interpolation\": {\"type\": \"InterpolationMode\", \"repr\": \"<InterpolationMode.BILINEAR: 'bilinear'>\"}, \"antialias\": true}}]",
+        "params_hash": "9b1fefc4cfb72d7eef53bdfa8515f6e165210f88a0520144d4f0d48e4b546f48",
+        "introspection_level": "partial",
+        "transform_list": [
+          {
+            "name": "ImageClassification",
+            "module": "torchvision.transforms._presets",
+            "params": {
+              "training": true,
+              "crop_size": [
+                224
+              ],
+              "resize_size": [
+                256
+              ],
+              "mean": [
+                0.485,
+                0.456,
+                0.406
+              ],
+              "std": [
+                0.229,
+                0.224,
+                0.225
+              ],
+              "interpolation": {
+                "type": "InterpolationMode",
+                "repr": "<InterpolationMode.BILINEAR: 'bilinear'>"
+              },
+              "antialias": true
+            }
+          }
+        ]
+      }
+    ],
+    "environment": [
+      {
+        "event_id": "8e8625fc-e325-4e01-8b48-7640e4400213",
+        "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+        "timestamp": "2026-04-02T18:02:29.050272+00:00",
+        "python_version": "3.11.6",
+        "library_versions_hash": "24e6a9977f63fa8529a8e8987e537b5e7992fa351b2a813b2ed5c480a8ec5301",
+        "hardware_summary": "{\"machine\":\"x86_64\",\"processor\":\"i386\",\"python_implementation\":\"CPython\",\"release\":\"25.3.0\",\"system\":\"Darwin\"}",
+        "cuda_version": null
+      }
+    ],
+    "batch_count": 522,
+    "batches_by_role": {
+      "train": 417,
+      "test": 105
+    }
+  },
+  "supporting_checks": {
+    "batch_step_0": {
+      "run_a": {
+        "event_id": "3d652328-8e05-4df1-98f7-2c09548f4b2c",
+        "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+        "loader_id": "4c3d4d75-66b5-49e5-b5d5-5f617512fc01",
+        "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+        "global_step": 0,
+        "global_sequence": 0,
+        "timestamp": "2026-04-02T17:57:17.212338+00:00",
+        "batch_size": 32,
+        "batch_fingerprint": "49982bf9ebec3bba93563099ac13b858db763d98fdc7a61163b144ea3392c961",
+        "rng_state_hash": null,
+        "role": "train",
+        "sample_ids": [
+          "filepath:Cleavers/253.png",
+          "filepath:Fat Hen/42.png",
+          "filepath:Sugar beet/305.png",
+          "filepath:Common wheat/148.png",
+          "filepath:Small-flowered Cranesbill/265.png",
+          "filepath:Common Chickweed/52.png",
+          "filepath:Small-flowered Cranesbill/477.png",
+          "filepath:Common wheat/74.png",
+          "filepath:Sugar beet/252.png",
+          "filepath:Small-flowered Cranesbill/53.png",
+          "filepath:Shepherd\u2019s Purse/177.png",
+          "filepath:Scentless Mayweed/245.png",
+          "filepath:Common Chickweed/493.png",
+          "filepath:Loose Silky-bent/143.png",
+          "filepath:Fat Hen/404.png",
+          "filepath:Cleavers/207.png",
+          "filepath:Small-flowered Cranesbill/407.png",
+          "filepath:Small-flowered Cranesbill/68.png",
+          "filepath:Sugar beet/188.png",
+          "filepath:Common Chickweed/141.png",
+          "filepath:Charlock/208.png",
+          "filepath:Shepherd\u2019s Purse/212.png",
+          "filepath:Scentless Mayweed/119.png",
+          "filepath:Scentless Mayweed/73.png",
+          "filepath:Charlock/65.png",
+          "filepath:Cleavers/141.png",
+          "filepath:Cleavers/210.png",
+          "filepath:Scentless Mayweed/521.png",
+          "filepath:Loose Silky-bent/112.png",
+          "filepath:Scentless Mayweed/415.png",
+          "filepath:Cleavers/317.png",
+          "filepath:Common wheat/225.png"
+        ]
+      },
+      "run_b": {
+        "event_id": "ea500dcd-5d2d-4b48-a2ac-f5df91f41264",
+        "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+        "loader_id": "9c21d0b3-f5a4-495a-bc6b-b35bbc5c36b8",
+        "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+        "global_step": 0,
+        "global_sequence": 0,
+        "timestamp": "2026-04-02T18:02:38.983500+00:00",
+        "batch_size": 32,
+        "batch_fingerprint": "49982bf9ebec3bba93563099ac13b858db763d98fdc7a61163b144ea3392c961",
+        "rng_state_hash": null,
+        "role": "train",
+        "sample_ids": [
+          "filepath:Cleavers/253.png",
+          "filepath:Fat Hen/42.png",
+          "filepath:Sugar beet/305.png",
+          "filepath:Common wheat/148.png",
+          "filepath:Small-flowered Cranesbill/265.png",
+          "filepath:Common Chickweed/52.png",
+          "filepath:Small-flowered Cranesbill/477.png",
+          "filepath:Common wheat/74.png",
+          "filepath:Sugar beet/252.png",
+          "filepath:Small-flowered Cranesbill/53.png",
+          "filepath:Shepherd\u2019s Purse/177.png",
+          "filepath:Scentless Mayweed/245.png",
+          "filepath:Common Chickweed/493.png",
+          "filepath:Loose Silky-bent/143.png",
+          "filepath:Fat Hen/404.png",
+          "filepath:Cleavers/207.png",
+          "filepath:Small-flowered Cranesbill/407.png",
+          "filepath:Small-flowered Cranesbill/68.png",
+          "filepath:Sugar beet/188.png",
+          "filepath:Common Chickweed/141.png",
+          "filepath:Charlock/208.png",
+          "filepath:Shepherd\u2019s Purse/212.png",
+          "filepath:Scentless Mayweed/119.png",
+          "filepath:Scentless Mayweed/73.png",
+          "filepath:Charlock/65.png",
+          "filepath:Cleavers/141.png",
+          "filepath:Cleavers/210.png",
+          "filepath:Scentless Mayweed/521.png",
+          "filepath:Loose Silky-bent/112.png",
+          "filepath:Scentless Mayweed/415.png",
+          "filepath:Cleavers/317.png",
+          "filepath:Common wheat/225.png"
+        ]
+      }
+    },
+    "sample_lookup": {
+      "relative_file_path": "Black-grass/1.png",
+      "run_a": {
+        "resolved_query": {
+          "sample_id": "filepath:Black-grass/1.png",
+          "sample_id_scheme": "filepath",
+          "sample_id_resolver": "file_collection",
+          "query_scope": "dataset",
+          "dataset_fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
+          "dataset_fingerprint_method": "local_sampled_manifest_v1",
+          "matching_dataset_ids": [
+            "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2"
+          ],
+          "matching_datasets": [
+            {
+              "event_id": "8acc4675-7408-413d-8b8d-61552043756a",
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "name": "DatasetWrapper",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+              "version_hint": null,
+              "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
+              "fingerprint_method": "local_sampled_manifest_v1",
+              "sample_id_scheme": "filepath",
+              "sample_id_resolver": "file_collection",
+              "timestamp": "2026-04-02T17:57:10.049551+00:00",
+              "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+              "role": "train"
+            }
+          ]
+        },
+        "occurrences": {
+          "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+          "sample_id": "filepath:Black-grass/1.png",
+          "sample_id_scheme": "filepath",
+          "query_scope": "dataset",
+          "scoped_dataset_ids": [
+            "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2"
+          ],
+          "found": true,
+          "occurrence_count": 3,
+          "first_occurrence": {
+            "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+            "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+            "loader_id": "4c3d4d75-66b5-49e5-b5d5-5f617512fc01",
+            "role": "train",
+            "global_step": 3,
+            "global_sequence": 3,
+            "timestamp": "2026-04-02T17:57:18.673191+00:00",
+            "batch_fingerprint": "d78890a85ac940a9e39e4c6fee4106986313ae01eee2f14d634c76949bab01b6"
+          },
+          "last_occurrence": {
+            "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+            "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+            "loader_id": "4c3d4d75-66b5-49e5-b5d5-5f617512fc01",
+            "role": "train",
+            "global_step": 368,
+            "global_sequence": 438,
+            "timestamp": "2026-04-02T18:01:25.591409+00:00",
+            "batch_fingerprint": "2679b813f451f3e1735f1ff68f2dbd919934ded5af4b13de4cc189563ff425e1"
+          },
+          "matching_steps": [
+            3,
+            184,
+            438
+          ],
+          "matching_roles": [
+            "train"
+          ],
+          "matching_loader_ids": [
+            "4c3d4d75-66b5-49e5-b5d5-5f617512fc01"
+          ],
+          "matching_dataset_ids": [
+            "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2"
+          ],
+          "occurrences": [
+            {
+              "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "loader_id": "4c3d4d75-66b5-49e5-b5d5-5f617512fc01",
+              "role": "train",
+              "global_step": 3,
+              "global_sequence": 3,
+              "timestamp": "2026-04-02T17:57:18.673191+00:00",
+              "batch_fingerprint": "d78890a85ac940a9e39e4c6fee4106986313ae01eee2f14d634c76949bab01b6"
+            },
+            {
+              "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "loader_id": "4c3d4d75-66b5-49e5-b5d5-5f617512fc01",
+              "role": "train",
+              "global_step": 149,
+              "global_sequence": 184,
+              "timestamp": "2026-04-02T17:59:07.163476+00:00",
+              "batch_fingerprint": "9280fdc129fbfd4ec320729957e8555cfe08f1c90a260af3e93deb3446bbcdcb"
+            },
+            {
+              "run_id": "160d1c8d-17ee-4dae-939d-6a2e4b80f791",
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "loader_id": "4c3d4d75-66b5-49e5-b5d5-5f617512fc01",
+              "role": "train",
+              "global_step": 368,
+              "global_sequence": 438,
+              "timestamp": "2026-04-02T18:01:25.591409+00:00",
+              "batch_fingerprint": "2679b813f451f3e1735f1ff68f2dbd919934ded5af4b13de4cc189563ff425e1"
+            }
+          ]
+        }
+      },
+      "run_b": {
+        "resolved_query": {
+          "sample_id": "filepath:Black-grass/1.png",
+          "sample_id_scheme": "filepath",
+          "sample_id_resolver": "file_collection",
+          "query_scope": "dataset",
+          "dataset_fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
+          "dataset_fingerprint_method": "local_sampled_manifest_v1",
+          "matching_dataset_ids": [
+            "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2"
+          ],
+          "matching_datasets": [
+            {
+              "event_id": "8acc4675-7408-413d-8b8d-61552043756a",
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "name": "DatasetWrapper",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+              "version_hint": null,
+              "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
+              "fingerprint_method": "local_sampled_manifest_v1",
+              "sample_id_scheme": "filepath",
+              "sample_id_resolver": "file_collection",
+              "timestamp": "2026-04-02T17:57:10.049551+00:00",
+              "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+              "role": "train"
+            }
+          ]
+        },
+        "occurrences": {
+          "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+          "sample_id": "filepath:Black-grass/1.png",
+          "sample_id_scheme": "filepath",
+          "query_scope": "dataset",
+          "scoped_dataset_ids": [
+            "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2"
+          ],
+          "found": true,
+          "occurrence_count": 3,
+          "first_occurrence": {
+            "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+            "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+            "loader_id": "9c21d0b3-f5a4-495a-bc6b-b35bbc5c36b8",
+            "role": "train",
+            "global_step": 3,
+            "global_sequence": 3,
+            "timestamp": "2026-04-02T18:02:41.679944+00:00",
+            "batch_fingerprint": "d78890a85ac940a9e39e4c6fee4106986313ae01eee2f14d634c76949bab01b6"
+          },
+          "last_occurrence": {
+            "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+            "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+            "loader_id": "9c21d0b3-f5a4-495a-bc6b-b35bbc5c36b8",
+            "role": "train",
+            "global_step": 368,
+            "global_sequence": 438,
+            "timestamp": "2026-04-02T18:07:03.032599+00:00",
+            "batch_fingerprint": "2679b813f451f3e1735f1ff68f2dbd919934ded5af4b13de4cc189563ff425e1"
+          },
+          "matching_steps": [
+            3,
+            184,
+            438
+          ],
+          "matching_roles": [
+            "train"
+          ],
+          "matching_loader_ids": [
+            "9c21d0b3-f5a4-495a-bc6b-b35bbc5c36b8"
+          ],
+          "matching_dataset_ids": [
+            "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2"
+          ],
+          "occurrences": [
+            {
+              "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "loader_id": "9c21d0b3-f5a4-495a-bc6b-b35bbc5c36b8",
+              "role": "train",
+              "global_step": 3,
+              "global_sequence": 3,
+              "timestamp": "2026-04-02T18:02:41.679944+00:00",
+              "batch_fingerprint": "d78890a85ac940a9e39e4c6fee4106986313ae01eee2f14d634c76949bab01b6"
+            },
+            {
+              "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "loader_id": "9c21d0b3-f5a4-495a-bc6b-b35bbc5c36b8",
+              "role": "train",
+              "global_step": 149,
+              "global_sequence": 184,
+              "timestamp": "2026-04-02T18:04:42.284469+00:00",
+              "batch_fingerprint": "9280fdc129fbfd4ec320729957e8555cfe08f1c90a260af3e93deb3446bbcdcb"
+            },
+            {
+              "run_id": "a3aac7da-f962-4028-b581-bdbba3c5a2b4",
+              "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
+              "loader_id": "9c21d0b3-f5a4-495a-bc6b-b35bbc5c36b8",
+              "role": "train",
+              "global_step": 368,
+              "global_sequence": 438,
+              "timestamp": "2026-04-02T18:07:03.032599+00:00",
+              "batch_fingerprint": "2679b813f451f3e1735f1ff68f2dbd919934ded5af4b13de4cc189563ff425e1"
+            }
+          ]
+        }
+      }
+    }
+  }
+}

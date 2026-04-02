@@ -109,3 +109,6 @@ Be aware of current environment caveats seen in this repo:
 - some local `torch` runtime paths may fail with OpenMP shared-memory issues
 - installed package copies may diverge from the repo checkout if the environment is stale
 - schema files for SQLite must be packaged with `pypyrus.storage`
+
+## Project plan
+Use the `pypyrys_project_plan.pdf` file for a high-level of what we want this repo to be and why. Both regarding motivation and also for the research question.
