@@ -1,0 +1,371 @@
+Host: n-62-18-5
+Working directory: /zhome/e3/b/212140/git/pypyrus
+Model name:                              Intel(R) Xeon(R) Gold 6326 CPU @ 2.90GHz
+GPU Model(s):
+NVIDIA A10
+Defaulting to user installation because normal site-packages is not writeable
+Requirement already satisfied: pip in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (26.0.1)
+Defaulting to user installation because normal site-packages is not writeable
+Obtaining file:///zhome/e3/b/212140/git/pypyrus
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Requirement already satisfied: torch in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from pypyrus==0.1.0) (2.11.0)
+Requirement already satisfied: torchvision in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from pypyrus==0.1.0) (0.26.0)
+Requirement already satisfied: filelock in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (3.29.0)
+Requirement already satisfied: typing-extensions>=4.10.0 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (4.15.0)
+Requirement already satisfied: setuptools<82 in /dtu/projects/02613_2025/conda/miniconda3/envs/02613/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (68.0.0)
+Requirement already satisfied: sympy>=1.13.3 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (1.14.0)
+Requirement already satisfied: networkx>=2.5.1 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (3.6.1)
+Requirement already satisfied: jinja2 in /dtu/projects/02613_2025/conda/miniconda3/envs/02613/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (3.1.2)
+Requirement already satisfied: fsspec>=0.8.5 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (2026.3.0)
+Requirement already satisfied: cuda-toolkit==13.0.2 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (13.0.2)
+Requirement already satisfied: cuda-bindings<14,>=13.0.3 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (13.2.0)
+Requirement already satisfied: nvidia-cudnn-cu13==9.19.0.56 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (9.19.0.56)
+Requirement already satisfied: nvidia-cusparselt-cu13==0.8.0 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (0.8.0)
+Requirement already satisfied: nvidia-nccl-cu13==2.28.9 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (2.28.9)
+Requirement already satisfied: nvidia-nvshmem-cu13==3.4.5 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (3.4.5)
+Requirement already satisfied: triton==3.6.0 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from torch->pypyrus==0.1.0) (3.6.0)
+Requirement already satisfied: nvidia-cublas==13.1.0.3.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (13.1.0.3)
+Requirement already satisfied: nvidia-cuda-runtime==13.0.96.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (13.0.96)
+Requirement already satisfied: nvidia-cufft==12.0.0.61.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (12.0.0.61)
+Requirement already satisfied: nvidia-cufile==1.15.1.6.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (1.15.1.6)
+Requirement already satisfied: nvidia-cuda-cupti==13.0.85.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (13.0.85)
+Requirement already satisfied: nvidia-curand==10.4.0.35.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (10.4.0.35)
+Requirement already satisfied: nvidia-cusolver==12.0.4.66.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (12.0.4.66)
+Requirement already satisfied: nvidia-cusparse==12.6.3.3.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (12.6.3.3)
+Requirement already satisfied: nvidia-nvjitlink==13.0.88.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (13.0.88)
+Requirement already satisfied: nvidia-cuda-nvrtc==13.0.88.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (13.0.88)
+Requirement already satisfied: nvidia-nvtx==13.0.85.* in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-toolkit[cublas,cudart,cufft,cufile,cupti,curand,cusolver,cusparse,nvjitlink,nvrtc,nvtx]==13.0.2; platform_system == "Linux"->torch->pypyrus==0.1.0) (13.0.85)
+Requirement already satisfied: cuda-pathfinder~=1.1 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from cuda-bindings<14,>=13.0.3->torch->pypyrus==0.1.0) (1.5.3)
+Requirement already satisfied: mpmath<1.4,>=1.1.0 in /zhome/e3/b/212140/.local/lib/python3.11/site-packages (from sympy>=1.13.3->torch->pypyrus==0.1.0) (1.3.0)
+Requirement already satisfied: MarkupSafe>=2.0 in /dtu/projects/02613_2025/conda/miniconda3/envs/02613/lib/python3.11/site-packages (from jinja2->torch->pypyrus==0.1.0) (2.1.1)
+Requirement already satisfied: numpy in /dtu/projects/02613_2025/conda/miniconda3/envs/02613/lib/python3.11/site-packages (from torchvision->pypyrus==0.1.0) (1.26.2)
+Requirement already satisfied: pillow!=8.3.*,>=5.3.0 in /dtu/projects/02613_2025/conda/miniconda3/envs/02613/lib/python3.11/site-packages (from torchvision->pypyrus==0.1.0) (10.0.1)
+Building wheels for collected packages: pypyrus
+  Building editable for pypyrus (pyproject.toml): started
+  Building editable for pypyrus (pyproject.toml): finished with status 'done'
+  Created wheel for pypyrus: filename=pypyrus-0.1.0-0.editable-py3-none-any.whl size=3049 sha256=3703533c4ee181be2ba0ca2b672e1371422857ec90924c7e2e2229ec739e9391
+  Stored in directory: /tmp/pip-ephem-wheel-cache-svipemus/wheels/39/e3/38/36c97324553eb373193a81a0e3dc06c8a95b090c9404a78c8e
+Successfully built pypyrus
+Installing collected packages: pypyrus
+  Attempting uninstall: pypyrus
+    Found existing installation: pypyrus 0.1.0
+    Uninstalling pypyrus-0.1.0:
+      Successfully uninstalled pypyrus-0.1.0
+Successfully installed pypyrus-0.1.0
+Running 10 alternating trials per mode...
+
+Trial 1/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=97.527957
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 1/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.919274
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 2/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=76.732942
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 2/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.553955
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 3/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=76.070360
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 3/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=69.077893
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 4/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=72.842663
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 4/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.386003
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 5/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=80.574548
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 5/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=73.432260
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 6/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=77.215191
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 6/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=78.174205
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 7/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=79.631915
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 7/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.460930
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 8/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=86.338317
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 8/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=99.495590
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 9/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=80.606491
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 9/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=72.697220
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Trial 10/10: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=103.050568
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Trial 10/10: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3240 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9476 test_acc=0.7283
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=70.792851
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Done. Timings:
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=97.527957
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.919274
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=76.732942
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.553955
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=76.070360
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=69.077893
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=72.842663
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.386003
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=80.574548
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=73.432260
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=77.215191
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=78.174205
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=79.631915
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.460930
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=86.338317
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=99.495590
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=80.606491
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=72.697220
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=103.050568
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=70.792851
+
+Summary:
+timing_file=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+parsed_runs=20 skipped_lines=0
+
+Instrumentation = True
+  count  : 10
+  min    : 72.842663s
+  max    : 103.050568s
+  mean   : 83.059095s
+  median : 80.103231s
+  stddev : 9.838041s
+
+Instrumentation = False
+  count  : 10
+  min    : 67.919274s
+  max    : 99.495590s
+  mean   : 74.599018s
+  median : 71.507442s
+  stddev : 9.168979s
+
+Comparison (mean)
+  with - without : +8.460077s
+  percent change : +11.34%
+
+Raw runs
+  with    97.527957s
+  without 67.919274s
+  with    76.732942s
+  without 71.553955s
+  with    76.070360s
+  without 69.077893s
+  with    72.842663s
+  without 71.386003s
+  with    80.574548s
+  without 73.432260s
+  with    77.215191s
+  without 78.174205s
+  with    79.631915s
+  without 71.460930s
+  with    86.338317s
+  without 99.495590s
+  with    80.606491s
+  without 72.697220s
+  with    103.050568s
+  without 70.792851s
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 28241796: <pypyrus_instr_compare> in cluster <dcc> Done
+
+Job <pypyrus_instr_compare> was submitted from host <hpclogin1> by user <s241645> in cluster <dcc> at Mon Apr 20 14:04:40 2026
+Job was executed on host(s) <4*n-62-18-5>, in queue <gpua10>, as user <s241645> in cluster <dcc> at Mon Apr 20 14:04:42 2026
+</zhome/e3/b/212140> was used as the home directory.
+</zhome/e3/b/212140/git/pypyrus> was used as the working directory.
+Started at Mon Apr 20 14:04:42 2026
+Terminated at Mon Apr 20 14:33:47 2026
+Results reported at Mon Apr 20 14:33:47 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+
+#BSUB -J pypyrus_instr_compare
+#BSUB -q gpua10
+#BSUB -n 4
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=8GB]"
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -W 02:00
+#BSUB -o logs/pypyrus_instr_compare_%J.out
+#BSUB -e logs/pypyrus_instr_compare_%J.err
+
+set -euo pipefail
+
+# When submitted as "bsub < script.sh", BASH_SOURCE may not point to the repo.
+# LSB_SUBCWD is the submit directory and is the most reliable root anchor.
+REPO_ROOT="${LSB_SUBCWD:-$PWD}"
+cd "${REPO_ROOT}"
+
+if [[ ! -f pyproject.toml ]]; then
+  echo "ERROR: pyproject.toml not found in submit directory: ${REPO_ROOT}" >&2
+  echo "Submit from the pypyrus repo root, e.g. cd ~/git/pypyrus" >&2
+  exit 1
+fi
+
+mkdir -p logs
+
+# Some GPU queues preload nvhpc, which can conflict with cuda/11.8 in the conda init stack.
+module unload nvhpc >/dev/null 2>&1 || true
+
+# Initialize the DTU conda environment used on the course cluster.
+source /dtu/projects/02613_2025/conda/conda_init.sh
+conda activate 02613
+
+echo "Host: $(hostname)"
+echo "Working directory: $PWD"
+lscpu | grep "Model name" || true
+echo "GPU Model(s):"
+nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq
+
+# Prefer uv when available; otherwise fall back to pip.
+if command -v uv >/dev/null 2>&1; then
+  uv pip install --system -e .
+else
+  python -m pip install --upgrade pip
+  python -m pip install -e .
+fi
+
+bash examples/plant_seedlings/run_instrumentation_compare.sh
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   3339.00 sec.
+    Max Memory :                                 1057 MB
+    Average Memory :                             649.64 MB
+    Total Requested Memory :                     32768.00 MB
+    Delta Memory :                               31711.00 MB
+    Max Swap :                                   -
+    Max Processes :                              7
+    Max Threads :                                20
+    Run time :                                   1745 sec.
+    Turnaround time :                            1747 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/pypyrus_instr_compare_28241796.err> for stderr output of this job.
+
