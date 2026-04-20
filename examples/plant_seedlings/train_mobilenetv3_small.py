@@ -16,13 +16,21 @@ Expected dataset layout:
 Example:
 
     python examples/plant_seedlings/train_mobilenetv3_small.py \
-      --data-root examples/plant_seedlings/data/split \
-      --epochs 3
+    --data-root examples/plant_seedlings/data/split \
+    --epochs 3 \
+    --timing-file examples/plant_seedlings/timings.txt
+
+    python examples/plant_seedlings/train_mobilenetv3_small.py \
+    --data-root examples/plant_seedlings/data/split \
+    --epochs 3 \
+    --no-instrumentation \
+    --timing-file examples/plant_seedlings/timings.txt
 """
 
 from __future__ import annotations
 
 import argparse
+import time
 from pathlib import Path
 
 import torch
@@ -73,11 +81,23 @@ def build_parser() -> argparse.ArgumentParser:
         default=7,
         help="Random seed for model init and train-loader shuffle. Default: 7",
     )
+    parser.add_argument(
+        "--no-instrumentation",
+        action="store_true",
+        help="Skip pypyrus DataLoader instrumentation attach().",
+    )
+    parser.add_argument(
+        "--timing-file",
+        type=Path,
+        default=Path("run_timing.txt"),
+        help="File where runtime timing is appended. Default: run_timing.txt",
+    )
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
+    timer_start = time.perf_counter()
 
     data_root = args.data_root.expanduser().resolve()
     train_root = data_root / "train"
@@ -122,11 +142,24 @@ def main() -> int:
     optimizer = torch.optim.Adam(model.classifier[-1].parameters(), lr=args.lr)
     loss_fn = nn.CrossEntropyLoss()
 
-    with Run() as run:
-        print(f"seed={args.seed}")
-        train_loader = attach(train_loader, run, role="train")
-        test_loader = attach(test_loader, run, role="test")
+    use_instrumentation = not args.no_instrumentation
+    if use_instrumentation:
+        with Run() as run:
+            print(f"seed={args.seed}")
+            train_loader = attach(train_loader, run, role="train")
+            test_loader = attach(test_loader, run, role="test")
 
+            for epoch in range(1, args.epochs + 1):
+                train_loss = train_one_epoch(model, train_loader, optimizer, loss_fn, device)
+                test_loss, test_accuracy = evaluate(model, test_loader, loss_fn, device)
+                print(
+                    f"epoch={epoch}/{args.epochs} "
+                    f"train_loss={train_loss:.4f} "
+                    f"test_loss={test_loss:.4f} "
+                    f"test_acc={test_accuracy:.4f}"
+                )
+    else:
+        print(f"seed={args.seed}")
         for epoch in range(1, args.epochs + 1):
             train_loss = train_one_epoch(model, train_loader, optimizer, loss_fn, device)
             test_loss, test_accuracy = evaluate(model, test_loader, loss_fn, device)
@@ -136,6 +169,23 @@ def main() -> int:
                 f"test_loss={test_loss:.4f} "
                 f"test_acc={test_accuracy:.4f}"
             )
+
+    timer_end = time.perf_counter()
+    elapsed_seconds = timer_end - timer_start
+    timing_line = (
+        f"instrumentation={use_instrumentation} "
+        f"epochs={args.epochs} "
+        f"batch_size={args.batch_size} "
+        f"num_workers={args.num_workers} "
+        f"elapsed_seconds={elapsed_seconds:.6f}\n"
+    )
+    timing_path = args.timing_file.expanduser().resolve()
+    timing_path.parent.mkdir(parents=True, exist_ok=True)
+    with timing_path.open("a", encoding="utf-8") as timing_file:
+        timing_file.write(timing_line)
+
+    print(f"timing: {timing_line.strip()}")
+    print(f"timing_written_to={timing_path}")
 
     return 0
 
