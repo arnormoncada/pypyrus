@@ -111,4 +111,4 @@ Be aware of current environment caveats seen in this repo:
 - schema files for SQLite must be packaged with `pypyrus.storage`
 
 ## Project plan
-Use the `pypyrys_project_plan.pdf` file for a high-level of what we want this repo to be and why. Both regarding motivation and also for the research question.
+Use the `pypyrys_project_plan.pdf` file for a high-level overview of what we want this repo to be and why, including motivation and research questions. For detailed experiment planning and execution tracking, see `experiments/experiment-plan.md`.
