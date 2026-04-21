@@ -55,6 +55,31 @@ When the run ends, PyPyrus records the final status and flushes the store.
 By default, `Run()` uses the local SQLite store backing `./pypyrus.db`, unless
 you override it with `PYPYRUS_DB` or pass a custom store instance.
 
+### Run Store Parameters
+
+`Run` also supports store-mode configuration:
+
+- `store_mode="sync"` (default)
+- `store_mode="buffered_strict"`
+- `buffered_queue_size=<int>` (used by `buffered_strict`)
+
+Example:
+
+```python
+with Run(store_mode="buffered_strict", buffered_queue_size=1024) as run:
+        train_loader = attach(train_loader, run, role="train")
+        for batch in train_loader:
+                ...
+```
+
+Behavior tradeoffs:
+
+- `sync` keeps persistence behavior simple and predictable.
+- `buffered_strict` moves durable writes to a writer thread, but event
+    preparation still occurs inline.
+- `buffered_strict` never drops events; when the queue is full it blocks
+    producer calls until capacity is available.
+
 ## What `attach(...)` Does
 
 `attach(...)` wraps a PyTorch DataLoader so PyPyrus can observe:

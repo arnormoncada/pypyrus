@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import Literal
 from typing import Iterable
 from uuid import uuid4
 
@@ -14,6 +15,7 @@ from pypyrus.provenance.events import (
 )
 
 from pypyrus.storage.store import Store
+from pypyrus.storage.buffered_store import BufferedStore
 from pypyrus.storage.sqlite_store import SQLiteStore
 
 
@@ -28,11 +30,27 @@ class Run:
         self,
         store: Store | None = None,
         run_id: str | None = None,
+        store_mode: Literal["sync", "buffered_strict"] = "sync",
+        buffered_queue_size: int = 1024,
         # run_name: str | None = None,
     ):
         self.run_id = run_id or str(uuid4())
         # self.run_name = run_name
-        self.store = store or SQLiteStore()
+        base_store: Store = store or SQLiteStore()
+        if store_mode == "sync":
+            self.store = base_store
+        elif store_mode == "buffered_strict":
+            if isinstance(base_store, BufferedStore):
+                self.store = base_store
+            else:
+                self.store = BufferedStore(
+                    base_store,
+                    queue_size=buffered_queue_size,
+                )
+        else:
+            raise ValueError(
+                "store_mode must be either 'sync' or 'buffered_strict'"
+            )
 
         self._started = False
         self._ended = False
