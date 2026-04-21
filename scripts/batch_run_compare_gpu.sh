@@ -1,13 +1,19 @@
 #!/bin/bash
-#BSUB -J pypyrus_instr_compare
-#BSUB -q gpua100
+#BSUB -J pypyrus_buffer_compare
+#BSUB -q gpuv100
 #BSUB -n 4
 #BSUB -R "span[hosts=1]"
 #BSUB -R "rusage[mem=4GB]"
 #BSUB -gpu "num=1:mode=exclusive_process"
 #BSUB -W 02:00
-#BSUB -o logs/pypyrus_instr_compare_%J.out
-#BSUB -e logs/pypyrus_instr_compare_%J.err
+#BSUB -o logs/pypyrus_buffer_compare_%J.out
+#BSUB -e logs/pypyrus_buffer_compare_%J.err
+# Send an email when the job starts
+#BSUB -B
+# Send an email when the job finishes
+#BSUB -N
+# Specify the email address to send notifications
+#BSUB -u s241645@dtu.dk
 
 set -euo pipefail
 
@@ -64,7 +70,7 @@ python -m pip install --no-deps -e .
 
 # Benchmark settings (override at submission time if needed).
 EPOCHS="${EPOCHS:-10}"
-PAIRS="${PAIRS:-20}"
+PAIRS="${PAIRS:-10}"
 WARMUP_PAIRS="${WARMUP_PAIRS:-1}"
 NUM_WORKERS="${NUM_WORKERS:-2}"
 BATCH_SIZE="${BATCH_SIZE:-32}"
@@ -79,4 +85,4 @@ BATCH_SIZE="${BATCH_SIZE}" \
 TIMING_FILE="${TIMING_FILE}" \
 PYTHON_BIN=python \
 RESET_TIMINGS=1 \
-bash examples/plant_seedlings/run_instrumentation_compare.sh
+bash examples/plant_seedlings/run_buffered_compare.sh
