@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import warnings
+from typing import Any
 from typing import Literal
 from typing import Iterable
 from uuid import uuid4
@@ -13,6 +14,7 @@ from pypyrus.provenance.events import (
     RunEndEvent,
     RunStartEvent,
 )
+from pypyrus.provenance.fingerprints import hash_json
 
 from pypyrus.storage.store import Store
 from pypyrus.storage.buffered_store import BufferedStore
@@ -56,6 +58,8 @@ class Run:
         self._ended = False
         self._batch_sequence: int = 0
         self._event_count: int = 0
+        self._store_mode = store_mode
+        self._buffered_queue_size = buffered_queue_size
 
     # ------------------------------------------------------------------
     # Lifecycle
@@ -65,6 +69,7 @@ class Run:
         self,
         code_ref: str | None = None,
         config_ref: str | None = None,
+        config_json: dict[str, Any] | None = None,
         environment_hash: str | None = None,
         seed_summary: dict | None = None,
     ) -> None:
@@ -78,10 +83,17 @@ class Run:
         if code_ref is None:
             code_ref = collect_code_ref()
 
+        if config_json is None:
+            config_json = self._build_run_config_payload()
+
+        if config_ref is None:
+            config_ref = hash_json(config_json)
+
         event = RunStartEvent(
             run_id=self.run_id,
             code_ref=code_ref,
             config_ref=config_ref,
+            config_json=config_json,
             environment_hash=environment_hash,
             seed_summary=seed_summary,
             # run_name=self.run_name,
@@ -108,6 +120,19 @@ class Run:
             )
 
         self._started = True
+
+    def _build_run_config_payload(self) -> dict[str, Any]:
+        """Build deterministic runtime config metadata for run reporting.
+
+        The payload is hashed into `config_ref` and also stored in `config_json`
+        for human-readable CLI inspection.
+        """
+        return {
+            "pypyrus": {
+                "store_mode": self._store_mode,
+                "buffered_queue_size": self._buffered_queue_size,
+            }
+        }
 
     def end(self, status: str = "success") -> None:
         """

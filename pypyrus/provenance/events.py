@@ -41,6 +41,7 @@ class ProvenanceEvent:
 class RunStartEvent(ProvenanceEvent):
     code_ref: str | None = None
     config_ref: str | None = None
+    config_json: dict[str, Any] | None = None
     environment_hash: str | None = None
     seed_summary: dict[str, Any] | None = None
 

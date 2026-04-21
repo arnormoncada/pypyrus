@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import threading
 import time
 
@@ -178,11 +179,18 @@ def test_run_can_switch_to_buffered_strict_mode(db_path) -> None:
 
     row = fetch_one(
         db_path,
-        "SELECT run_id, status FROM runs WHERE run_id = ?",
+        "SELECT run_id, status, config_ref, config_json FROM runs WHERE run_id = ?",
         (run.run_id,),
     )
     assert row["run_id"] == run.run_id
     assert row["status"] == "success"
+    assert row["config_ref"] is not None
+
+    raw_config_json = row["config_json"]
+    assert raw_config_json is not None
+    parsed = json.loads(raw_config_json)
+    assert parsed["pypyrus"]["store_mode"] == "buffered_strict"
+    assert parsed["pypyrus"]["buffered_queue_size"] == 16
 
 
 def test_run_rejects_unknown_store_mode(store) -> None:
