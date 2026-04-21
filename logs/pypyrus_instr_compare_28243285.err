@@ -1,0 +1,37 @@
+Loaded module: cuda/11.8
+Traceback (most recent call last):
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/sympy/__init__.py", line 22, in <module>
+    import mpmath
+ModuleNotFoundError: No module named 'mpmath'
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/train_mobilenetv3_small.py", line 39, in <module>
+    from torchvision import datasets, models, transforms
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torchvision/__init__.py", line 10, in <module>
+    from torchvision import _meta_registrations, datasets, io, models, ops, transforms, utils  # usort:skip
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torchvision/models/__init__.py", line 2, in <module>
+    from .convnext import *
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torchvision/models/convnext.py", line 8, in <module>
+    from ..ops.misc import Conv2dNormActivation, Permute
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torchvision/ops/__init__.py", line 23, in <module>
+    from .poolers import MultiScaleRoIAlign
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torchvision/ops/poolers.py", line 10, in <module>
+    from .roi_align import roi_align
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torchvision/ops/roi_align.py", line 7, in <module>
+    from torch._dynamo.utils import is_compile_supported
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torch/_dynamo/__init__.py", line 3, in <module>
+    from . import convert_frame, eval_frame, resume_execution
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torch/_dynamo/convert_frame.py", line 31, in <module>
+    from torch._dynamo.utils import CompileTimeInstructionCounter
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torch/_dynamo/utils.py", line 62, in <module>
+    import torch.fx.experimental.symbolic_shapes
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torch/fx/experimental/symbolic_shapes.py", line 65, in <module>
+    from torch.utils._sympy.functions import (
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torch/utils/_sympy/functions.py", line 7, in <module>
+    import sympy
+  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/sympy/__init__.py", line 24, in <module>
+    raise ImportError("SymPy now depends on mpmath as an external library. "
+ImportError: SymPy now depends on mpmath as an external library. See https://docs.sympy.org/latest/install.html#mpmath for more information.

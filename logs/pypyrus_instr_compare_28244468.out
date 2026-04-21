@@ -1,0 +1,255 @@
+Host: n-62-18-9
+Working directory: /zhome/e3/b/212140/git/pypyrus
+Model name:                              Intel(R) Xeon(R) Gold 6326 CPU @ 2.90GHz
+GPU Model(s):
+NVIDIA A100 80GB PCIe
+Python executable: /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+sys.executable = /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+torch.__version__ = 2.5.1+cu118
+torch.version.cuda = 11.8
+cuda.is_available = True
+device_name = NVIDIA A100 80GB PCIe
+device_cc   = (8, 0)
+Obtaining file:///zhome/e3/b/212140/git/pypyrus
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: pypyrus
+  Building editable for pypyrus (pyproject.toml): started
+  Building editable for pypyrus (pyproject.toml): finished with status 'done'
+  Created wheel for pypyrus: filename=pypyrus-0.1.0-0.editable-py3-none-any.whl size=3049 sha256=27590f97b0de32b990a1056d2a7d3335c191815bb220a68324e04836978375d3
+  Stored in directory: /tmp/pip-ephem-wheel-cache-dggdnp5d/wheels/39/e3/38/36c97324553eb373193a81a0e3dc06c8a95b090c9404a78c8e
+Successfully built pypyrus
+Installing collected packages: pypyrus
+  Attempting uninstall: pypyrus
+    Found existing installation: pypyrus 0.1.0
+    Uninstalling pypyrus-0.1.0:
+      Successfully uninstalled pypyrus-0.1.0
+Successfully installed pypyrus-0.1.0
+Configuration:
+  DATA_ROOT=examples/plant_seedlings/data/split
+  EPOCHS=3
+  BATCH_SIZE=32
+  NUM_WORKERS=2
+  PAIRS=3
+  WARMUP_PAIRS=1
+  TIMING_FILE=examples/plant_seedlings/timings.txt
+
+Running 1 warm-up pair(s) (excluded from summary)...
+
+Warm-up 1/1: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9477 test_acc=0.7265
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=134.668284
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt.warmup.tmp
+Warm-up 1/1: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9477 test_acc=0.7265
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.876059
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt.warmup.tmp
+
+Running 3 measured pair(s)...
+
+Pair 1/3: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9477 test_acc=0.7265
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=72.584297
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Pair 1/3: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9477 test_acc=0.7265
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.652501
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Pair 2/3: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9477 test_acc=0.7265
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.593000
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Pair 2/3: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9477 test_acc=0.7265
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.578351
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Pair 3/3: WITH instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9477 test_acc=0.7265
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=73.071970
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+Pair 3/3: WITHOUT instrumentation
+seed=7
+epoch=1/3 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/3 train_loss=0.9791 test_loss=0.9477 test_acc=0.7265
+epoch=3/3 train_loss=0.7946 test_loss=0.7821 test_acc=0.7662
+timing: instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.371757
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+
+Done. Timings:
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=72.584297
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.652501
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.593000
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.578351
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=73.071970
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.371757
+
+Summary:
+timing_file=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+parsed_runs=6 skipped_lines=0
+
+Instrumentation = True
+  count  : 3
+  min    : 71.593000s
+  max    : 73.071970s
+  mean   : 72.416422s
+  median : 72.584297s
+  stddev : 0.753641s
+
+Instrumentation = False
+  count  : 3
+  min    : 67.371757s
+  max    : 67.652501s
+  mean   : 67.534203s
+  median : 67.578351s
+  stddev : 0.145486s
+
+Comparison (mean)
+  with - without : +4.882219s
+  percent change : +7.23%
+
+Paired Deltas (with_i - without_i)
+  pairs  : 3
+  mean   : 4.882219s
+  median : 4.931796s
+  stddev : 0.843875s
+  min    : 4.014649s
+  max    : 5.700213s
+  mean % : +7.23%
+  95% CI (mean delta): [4.014649s, 5.700213s]
+  95% CI (mean %): [+5.94%, +8.46%]
+
+Pair Details
+  pair  1: with=72.584297s without=67.652501s delta=+4.931796s pct=+7.29%
+  pair  2: with=71.593000s without=67.578351s delta=+4.014649s pct=+5.94%
+  pair  3: with=73.071970s without=67.371757s delta=+5.700213s pct=+8.46%
+
+Raw runs
+  with    72.584297s
+  without 67.652501s
+  with    71.593000s
+  without 67.578351s
+  with    73.071970s
+  without 67.371757s
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 28244468: <pypyrus_instr_compare> in cluster <dcc> Done
+
+Job <pypyrus_instr_compare> was submitted from host <hpclogin1> by user <s241645> in cluster <dcc> at Tue Apr 21 01:49:39 2026
+Job was executed on host(s) <4*n-62-18-9>, in queue <gpua100>, as user <s241645> in cluster <dcc> at Tue Apr 21 01:49:41 2026
+</zhome/e3/b/212140> was used as the home directory.
+</zhome/e3/b/212140/git/pypyrus> was used as the working directory.
+Started at Tue Apr 21 01:49:41 2026
+Terminated at Tue Apr 21 02:01:58 2026
+Results reported at Tue Apr 21 02:01:58 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J pypyrus_instr_compare
+#BSUB -q gpua100
+#BSUB -n 4
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=4GB]"
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -W 02:00
+#BSUB -o logs/pypyrus_instr_compare_%J.out
+#BSUB -e logs/pypyrus_instr_compare_%J.err
+
+set -euo pipefail
+
+REPO_ROOT="${LSB_SUBCWD:-$PWD}"
+cd "${REPO_ROOT}"
+
+if [[ ! -f pyproject.toml ]]; then
+  echo "ERROR: pyproject.toml not found in submit directory: ${REPO_ROOT}" >&2
+  echo "Submit from repo root, e.g. cd ~/git/pypyrus" >&2
+  exit 1
+fi
+
+mkdir -p logs
+
+module unload nvhpc >/dev/null 2>&1 || true
+
+source /dtu/projects/02613_2025/conda/conda_init.sh
+conda activate pypyrus-v100
+
+# Prevent accidental ~/.local package leakage into this run.
+export PYTHONNOUSERSITE=1
+unset PYTHONPATH
+
+echo "Host: $(hostname)"
+echo "Working directory: $PWD"
+lscpu | grep "Model name" || true
+echo "GPU Model(s):"
+nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq
+
+GPU_NAME="$(nvidia-smi --query-gpu=name --format=csv,noheader | head -n1)"
+ALLOWED_GPU_REGEX="${ALLOWED_GPU_REGEX:-Tesla V100|A100|A40}"
+if ! echo "${GPU_NAME}" | grep -Eiq "${ALLOWED_GPU_REGEX}"; then
+  echo "ERROR: Unexpected GPU '${GPU_NAME}'. Allowed: ${ALLOWED_GPU_REGEX}" >&2
+  exit 1
+fi
+
+echo "Python executable: $(which python)"
+python -c "import sys; print('sys.executable =', sys.executable)"
+
+# Sanity-check torch and CUDA before starting the long benchmark.
+
+(... more ...)
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   1272.00 sec.
+    Max Memory :                                 765 MB
+    Average Memory :                             649.00 MB
+    Total Requested Memory :                     16384.00 MB
+    Delta Memory :                               15619.00 MB
+    Max Swap :                                   -
+    Max Processes :                              7
+    Max Threads :                                20
+    Run time :                                   737 sec.
+    Turnaround time :                            739 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/pypyrus_instr_compare_28244468.err> for stderr output of this job.
+

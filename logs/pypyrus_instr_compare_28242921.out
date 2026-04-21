@@ -1,0 +1,101 @@
+Host: n-62-20-2
+Working directory: /zhome/e3/b/212140/git/pypyrus
+Model name:                              Intel(R) Xeon(R) Gold 6126 CPU @ 2.60GHz
+GPU Model(s):
+Tesla V100-PCIE-16GB
+Python executable: /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+sys.executable = /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 28242921: <pypyrus_instr_compare> in cluster <dcc> Exited
+
+Job <pypyrus_instr_compare> was submitted from host <hpclogin1> by user <s241645> in cluster <dcc> at Mon Apr 20 18:25:08 2026
+Job was executed on host(s) <4*n-62-20-2>, in queue <gpuv100>, as user <s241645> in cluster <dcc> at Mon Apr 20 18:48:51 2026
+</zhome/e3/b/212140> was used as the home directory.
+</zhome/e3/b/212140/git/pypyrus> was used as the working directory.
+Started at Mon Apr 20 18:48:51 2026
+Terminated at Mon Apr 20 18:48:54 2026
+Results reported at Mon Apr 20 18:48:54 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J pypyrus_instr_compare
+#BSUB -q gpuv100
+#BSUB -n 4
+#BSUB -R "span[hosts=1]"
+#BSUB -R "rusage[mem=4GB]"
+#BSUB -gpu "num=1:mode=exclusive_process"
+#BSUB -W 02:00
+#BSUB -o logs/pypyrus_instr_compare_%J.out
+#BSUB -e logs/pypyrus_instr_compare_%J.err
+
+set -euo pipefail
+
+REPO_ROOT="${LSB_SUBCWD:-$PWD}"
+cd "${REPO_ROOT}"
+
+if [[ ! -f pyproject.toml ]]; then
+  echo "ERROR: pyproject.toml not found in submit directory: ${REPO_ROOT}" >&2
+  echo "Submit from repo root, e.g. cd ~/git/pypyrus" >&2
+  exit 1
+fi
+
+mkdir -p logs
+
+module unload nvhpc >/dev/null 2>&1 || true
+
+source /dtu/projects/02613_2025/conda/conda_init.sh
+conda activate pypyrus-v100
+
+# Prevent accidental ~/.local package leakage into this run.
+export PYTHONNOUSERSITE=1
+unset PYTHONPATH
+
+echo "Host: $(hostname)"
+echo "Working directory: $PWD"
+lscpu | grep "Model name" || true
+echo "GPU Model(s):"
+nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq
+
+GPU_NAME="$(nvidia-smi --query-gpu=name --format=csv,noheader | head -n1)"
+ALLOWED_GPU_REGEX="${ALLOWED_GPU_REGEX:-Tesla V100|A100|A40}"
+if ! echo "${GPU_NAME}" | grep -Eiq "${ALLOWED_GPU_REGEX}"; then
+  echo "ERROR: Unexpected GPU '${GPU_NAME}'. Allowed: ${ALLOWED_GPU_REGEX}" >&2
+  exit 1
+fi
+
+echo "Python executable: $(which python)"
+python -c "import sys; print('sys.executable =', sys.executable)"
+
+# Sanity-check torch and CUDA before starting the long benchmark.
+
+(... more ...)
+------------------------------------------------------------
+
+Exited with exit code 1.
+
+Resource usage summary:
+
+    CPU time :                                   1.10 sec.
+    Max Memory :                                 -
+    Average Memory :                             -
+    Total Requested Memory :                     16384.00 MB
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              -
+    Max Threads :                                -
+    Run time :                                   3 sec.
+    Turnaround time :                            1426 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/pypyrus_instr_compare_28242921.err> for stderr output of this job.
+
