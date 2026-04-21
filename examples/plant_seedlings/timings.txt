@@ -1,0 +1,6 @@
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=72.584297
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.652501
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=71.593000
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.578351
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=73.071970
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=67.371757
