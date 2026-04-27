@@ -23,6 +23,19 @@ def test_run_marks_failure_when_context_exits_with_exception(db_path, store) -> 
     assert run_row["end_time"] is not None
 
 
+def test_run_marks_success_when_using_buffered_store_mode(db_path, store) -> None:
+    with Run(store=store, store_mode="buffered_strict") as run:
+        pass
+
+    run_row = fetch_one(
+        db_path,
+        "SELECT status, end_time FROM runs WHERE run_id = ?",
+        (run.run_id,),
+    )
+    assert run_row["status"] == "success"
+    assert run_row["end_time"] is not None
+
+
 def test_run_auto_captures_code_ref_when_not_provided(db_path, monkeypatch, store) -> None:
     monkeypatch.setattr(
         run_module,

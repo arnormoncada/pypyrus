@@ -41,6 +41,31 @@ with Run() as run:
 PyPyrus records run metadata, dataset identity, loader registrations, and the
 batch stream delivered to your training loop.
 
+## Run Store Modes
+
+`Run` supports two store modes:
+
+- `sync` (default): events are written synchronously on the caller path.
+- `buffered_strict`: events are enqueued and written by a dedicated writer
+    thread with strict backpressure (no event dropping).
+
+Example:
+
+```python
+with Run(store_mode="buffered_strict", buffered_queue_size=1024) as run:
+        tracked_loader = attach(loader, run, role="train")
+        for batch in tracked_loader:
+                ...
+```
+
+Tradeoffs:
+
+- `sync` is simpler and often better for low-throughput or short runs.
+- `buffered_strict` can reduce write-path blocking, but still keeps event
+    preparation on the training path and may add queue/thread coordination cost.
+- In strict mode, if the queue is full, producer threads block until space is
+    available; PyPyrus does not drop events.
+
 ## Minimal CLI Workflow
 
 ```bash

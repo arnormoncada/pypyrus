@@ -23,6 +23,13 @@ Example:
     python examples/plant_seedlings/train_mobilenetv3_small.py \
     --data-root examples/plant_seedlings/data/split \
     --epochs 3 \
+    --timing-file examples/plant_seedlings/timings.txt \
+    --buffered-queue \
+    --buffered-queue-size 2
+
+    python examples/plant_seedlings/train_mobilenetv3_small.py \
+    --data-root examples/plant_seedlings/data/split \
+    --epochs 3 \
     --no-instrumentation \
     --timing-file examples/plant_seedlings/timings.txt
 """
@@ -92,12 +99,28 @@ def build_parser() -> argparse.ArgumentParser:
         default=Path("run_timing.txt"),
         help="File where runtime timing is appended. Default: run_timing.txt",
     )
+
+    parser.add_argument(
+        "--buffered-queue",
+        action="store_true",
+        help="Enable BufferedStore strict mode for the Run.",
+    )
+    parser.add_argument(
+        "--buffered-queue-size",
+        type=int,
+        default=1024,
+        help="Queue size for BufferedStore strict mode. Default: 1024",
+    )
+
     return parser
 
 
 def main() -> int:
     args = build_parser().parse_args()
     timer_start = time.perf_counter()
+
+    if args.buffered_queue_size <= 0:
+        raise ValueError("--buffered-queue-size must be > 0")
 
     data_root = args.data_root.expanduser().resolve()
     train_root = data_root / "train"
@@ -144,7 +167,11 @@ def main() -> int:
 
     use_instrumentation = not args.no_instrumentation
     if use_instrumentation:
-        with Run() as run:
+        store_mode = "buffered_strict" if args.buffered_queue else "sync"
+        with Run(
+            store_mode=store_mode,
+            buffered_queue_size=args.buffered_queue_size,
+        ) as run:
             print(f"seed={args.seed}")
             train_loader = attach(train_loader, run, role="train")
             test_loader = attach(test_loader, run, role="test")

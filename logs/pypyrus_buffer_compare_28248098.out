@@ -1,0 +1,457 @@
+Host: n-62-20-6
+Working directory: /zhome/e3/b/212140/git/pypyrus
+Model name:                              Intel(R) Xeon(R) Gold 6126 CPU @ 2.60GHz
+GPU Model(s):
+Tesla V100-PCIE-16GB
+Python executable: /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+sys.executable = /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+torch.__version__ = 2.5.1+cu118
+torch.version.cuda = 11.8
+cuda.is_available = True
+device_name = Tesla V100-PCIE-16GB
+device_cc   = (7, 0)
+Obtaining file:///zhome/e3/b/212140/git/pypyrus
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: pypyrus
+  Building editable for pypyrus (pyproject.toml): started
+  Building editable for pypyrus (pyproject.toml): finished with status 'done'
+  Created wheel for pypyrus: filename=pypyrus-0.1.0-0.editable-py3-none-any.whl size=3049 sha256=f485107428469c4df637905690c0592eda57121ba0fc3157f4cb123031d8ae43
+  Stored in directory: /tmp/pip-ephem-wheel-cache-ifu16jfa/wheels/39/e3/38/36c97324553eb373193a81a0e3dc06c8a95b090c9404a78c8e
+Successfully built pypyrus
+Installing collected packages: pypyrus
+  Attempting uninstall: pypyrus
+    Found existing installation: pypyrus 0.1.0
+    Uninstalling pypyrus-0.1.0:
+      Successfully uninstalled pypyrus-0.1.0
+Successfully installed pypyrus-0.1.0
+Configuration:
+  DATA_ROOT=examples/plant_seedlings/data/split
+  EPOCHS=10
+  BATCH_SIZE=32
+  NUM_WORKERS=2
+  PAIRS=10
+  WARMUP_PAIRS=1
+  BUFFERED_QUEUE_SIZE=1024
+  TIMING_FILE=examples/plant_seedlings/timings.txt
+  BUFFERED_TIMING_FILE=examples/plant_seedlings/timings.txt.buffered
+
+Running 1 warm-up pair(s) (excluded from summary)...
+
+Warm-up 1/1: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=327.109589
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt.warmup.tmp
+mode=buffered elapsed_seconds=327.109589
+Warm-up 1/1: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=264.769670
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt.warmup.tmp
+mode=sync elapsed_seconds=264.769670
+
+Running 10 measured pair(s)...
+
+Pair 1/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=264.435202
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=264.435202
+Pair 1/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.259687
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=265.259687
+
+Pair 2/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.526894
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=266.526894
+Pair 2/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.918570
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=265.918570
+
+Pair 3/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.303056
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=266.303056
+Pair 3/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.501330
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=266.501330
+
+Pair 4/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.101025
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=266.101025
+Pair 4/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.411858
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=265.411858
+
+Pair 5/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=264.742744
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=264.742744
+Pair 5/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.929350
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=265.929350
+
+Pair 6/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.000038
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=266.000038
+Pair 6/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=268.085680
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=268.085680
+
+Pair 7/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.453445
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=266.453445
+Pair 7/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.799773
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=265.799773
+
+Pair 8/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=264.802511
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=264.802511
+Pair 8/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.867524
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=265.867524
+
+Pair 9/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.081469
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=266.081469
+Pair 9/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.130156
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=265.130156
+
+Pair 10/10: BUFFERED
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.583087
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=buffered elapsed_seconds=265.583087
+Pair 10/10: SYNC
+seed=7
+epoch=1/10 train_loss=1.5769 test_loss=1.3241 test_acc=0.6047
+epoch=2/10 train_loss=0.9791 test_loss=0.9476 test_acc=0.7265
+epoch=3/10 train_loss=0.7946 test_loss=0.7822 test_acc=0.7662
+epoch=4/10 train_loss=0.7143 test_loss=0.7191 test_acc=0.7825
+epoch=5/10 train_loss=0.6519 test_loss=0.6890 test_acc=0.7798
+epoch=6/10 train_loss=0.6103 test_loss=0.6578 test_acc=0.7906
+epoch=7/10 train_loss=0.5600 test_loss=0.6358 test_acc=0.7960
+epoch=8/10 train_loss=0.5457 test_loss=0.6290 test_acc=0.8005
+epoch=9/10 train_loss=0.5185 test_loss=0.6186 test_acc=0.7969
+epoch=10/10 train_loss=0.4907 test_loss=0.6045 test_acc=0.7996
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.490066
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt
+mode=sync elapsed_seconds=265.490066
+
+Done. Buffered-vs-sync timings:
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=264.435202
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.259687
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.526894
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.918570
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.303056
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.501330
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.101025
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.411858
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=264.742744
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.929350
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.000038
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=268.085680
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.453445
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.799773
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=264.802511
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.867524
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.081469
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.130156
+buffered=true epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.583087
+buffered=false epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.490066
+
+Summary:
+timing_file=/zhome/e3/b/212140/git/pypyrus/examples/plant_seedlings/timings.txt.buffered
+parsed_runs=20 skipped_lines=0
+
+Buffered = True
+  count  : 10
+  min    : 264.435202s
+  max    : 266.526894s
+  mean   : 265.702947s
+  median : 266.040754s
+  stddev : 0.770757s
+
+Buffered = False (sync)
+  count  : 10
+  min    : 265.130156s
+  max    : 268.085680s
+  mean   : 265.939399s
+  median : 265.833648s
+  stddev : 0.852745s
+
+Comparison (mean)
+  buffered - sync : -0.236452s
+  percent change  : -0.09%
+
+Paired Deltas (buffered_i - sync_i)
+  pairs  : 10
+  mean   : -0.236452s
+  median : -0.052627s
+  stddev : 1.013143s
+  min    : -2.085642s
+  max    : 0.951313s
+  mean % : -0.09%
+  95% CI (mean delta): [-0.835036s, 0.338423s]
+  95% CI (mean %): [-0.31%, +0.13%]
+
+Pair Details
+  pair  1: buffered=264.435202s sync=265.259687s delta=-0.824485s (-0.31%)
+  pair  2: buffered=266.526894s sync=265.918570s delta=+0.608324s (+0.23%)
+  pair  3: buffered=266.303056s sync=266.501330s delta=-0.198274s (-0.07%)
+  pair  4: buffered=266.101025s sync=265.411858s delta=+0.689167s (+0.26%)
+  pair  5: buffered=264.742744s sync=265.929350s delta=-1.186606s (-0.45%)
+  pair  6: buffered=266.000038s sync=268.085680s delta=-2.085642s (-0.78%)
+  pair  7: buffered=266.453445s sync=265.799773s delta=+0.653672s (+0.25%)
+  pair  8: buffered=264.802511s sync=265.867524s delta=-1.065013s (-0.40%)
+  pair  9: buffered=266.081469s sync=265.130156s delta=+0.951313s (+0.36%)
+  pair 10: buffered=265.583087s sync=265.490066s delta=+0.093021s (+0.04%)

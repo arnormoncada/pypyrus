@@ -1,6 +1,0 @@
-Loaded module: cuda/11.8
-Traceback (most recent call last):
-  File "<stdin>", line 1, in <module>
-  File "/zhome/e3/b/212140/.conda/envs/pypyrus-v100/lib/python3.11/site-packages/torch/__init__.py", line 37, in <module>
-    from typing_extensions import ParamSpec as _ParamSpec, TypeGuard as _TypeGuard
-ModuleNotFoundError: No module named 'typing_extensions'

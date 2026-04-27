@@ -59,6 +59,7 @@ def render_run_overview(overview: dict[str, Any]) -> str:
         f"Duration: {_format_duration(run.get('duration_seconds'))}",
         f"Code ref: {run.get('code_ref') or '<none>'}",
         f"Config ref: {run.get('config_ref') or '<none>'}",
+        f"Config json: {_format_config_json(run.get('config_json'))}",
         f"Environment hash: {run.get('environment_hash') or '<none>'}",
         f"Seed summary: {_format_seed_summary(run.get('seed_summary_json'))}",
         "",
@@ -256,6 +257,20 @@ def _format_seed_summary(raw_seed_summary: Any) -> str:
         return json.dumps(parsed, sort_keys=True)
 
     return json.dumps(raw_seed_summary, sort_keys=True)
+
+
+def _format_config_json(raw_config_json: Any) -> str:
+    if raw_config_json in (None, ""):
+        return "<none>"
+
+    if isinstance(raw_config_json, str):
+        try:
+            parsed = json.loads(raw_config_json)
+        except json.JSONDecodeError:
+            return raw_config_json
+        return json.dumps(parsed, sort_keys=True)
+
+    return json.dumps(raw_config_json, sort_keys=True)
 
 
 def _json_default(value: Any) -> Any:

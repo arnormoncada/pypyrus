@@ -58,6 +58,7 @@ class SQLiteStore(Store):
         """Initialize schema."""
         conn = self._get_conn()
         load_schema(conn)
+        self._ensure_runs_metadata_columns(conn)
         self._ensure_dataset_metadata_columns(conn)
         # self._validate_schema_compatibility(conn)
 
@@ -80,6 +81,15 @@ class SQLiteStore(Store):
             conn.execute("ALTER TABLE datasets ADD COLUMN sample_id_scheme TEXT")
         if "sample_id_resolver" not in existing:
             conn.execute("ALTER TABLE datasets ADD COLUMN sample_id_resolver TEXT")
+        conn.commit()
+
+    def _ensure_runs_metadata_columns(self, conn: sqlite3.Connection) -> None:
+        existing = {
+            row["name"]
+            for row in conn.execute("PRAGMA table_info(runs)").fetchall()
+        }
+        if "config_json" not in existing:
+            conn.execute("ALTER TABLE runs ADD COLUMN config_json TEXT")
         conn.commit()
 
     # ------------------------------------------------------------------
@@ -128,16 +138,18 @@ class SQLiteStore(Store):
                 start_time,
                 code_ref,
                 config_ref,
+                config_json,
                 environment_hash,
                 seed_summary_json
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.run_id,
                 event.timestamp,
                 event.code_ref,
                 event.config_ref,
+                json.dumps(event.config_json) if event.config_json is not None else None,
                 event.environment_hash,
                 json.dumps(event.seed_summary) if event.seed_summary is not None else None,
             ),
