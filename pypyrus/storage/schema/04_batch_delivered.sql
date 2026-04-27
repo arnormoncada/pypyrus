@@ -17,7 +17,6 @@ CREATE TABLE IF NOT EXISTS batch_delivered (
   batch_size INTEGER NOT NULL,    -- BatchDeliveredEvent.batch_size
   batch_fingerprint TEXT NOT NULL, -- BatchDeliveredEvent.batch_fingerprint
   sample_ids_blob BLOB,           -- BatchDeliveredEvent.sample_ids_blob (gzip-compressed bytes)
-  rng_state_hash TEXT,            -- BatchDeliveredEvent.rng_state_hash
 
   FOREIGN KEY (run_id)     REFERENCES runs(run_id)              ON DELETE CASCADE,
   FOREIGN KEY (loader_id)  REFERENCES loaders(loader_id)        ON DELETE CASCADE,

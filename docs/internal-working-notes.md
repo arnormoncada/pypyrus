@@ -244,7 +244,6 @@ This defines the **global training order**.
 * `batch_size`
 * `batch_fingerprint` (ordered hash of sample IDs)
 * `sample_ids` (optional; stored in debug/full mode)
-* `rng_state_hash` (optional)
 
 Purpose:
 
