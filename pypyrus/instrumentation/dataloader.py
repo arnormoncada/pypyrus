@@ -267,7 +267,6 @@ class DataLoaderProxy:
                     batch_size=batch_size,
                     batch_fingerprint=batch_fingerprint,
                     sample_ids_blob=sample_ids_blob,
-                    rng_state_hash=None,
                 )
             )
 

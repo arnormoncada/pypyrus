@@ -100,7 +100,6 @@ class BatchDeliveredEvent(ProvenanceEvent):
     batch_size: int
     batch_fingerprint: str
     sample_ids_blob: bytes | None = None
-    rng_state_hash: str | None = None
 
     event_type: EventType = field(default="batch_delivered", init=False)
 

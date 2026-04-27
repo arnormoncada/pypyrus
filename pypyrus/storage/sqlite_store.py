@@ -301,10 +301,9 @@ class SQLiteStore(Store):
                 timestamp,
                 batch_size,
                 batch_fingerprint,
-                sample_ids_blob,
-                rng_state_hash
+                sample_ids_blob
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
@@ -317,7 +316,6 @@ class SQLiteStore(Store):
                 event.batch_size,
                 event.batch_fingerprint,
                 event.sample_ids_blob,
-                event.rng_state_hash,
             ),
         )
 
