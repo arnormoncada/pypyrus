@@ -1,131 +1,133 @@
 system_requirements:
-  # Disclaimer!!! - the ai act articles mappings were done by an llm. Will need to be reviewd
-  functional_requirements:
+  notes:
+    - Scope marks what is implemented now versus planned extension.
 
+  functional_requirements:
     - id: FR1
-      name: Run-Level Traceability
+      name: Run Lifecycle Traceability
       description: >
-        PyPyrus shall uniquely identify each training run and record associated
-        configuration, code reference, and environment metadata.
-      ai_act_articles:
-        - Article 11   # Technical documentation
-        - Article 12   # Logging and traceability
+        PyPyrus shall create a unique run identifier and persist run start/end,
+        code reference, configuration reference, and environment snapshot metadata.
+      scope: implemented
+      verification: integration_test
 
     - id: FR2
-      name: Dataset Identity Tracking
+      name: Dataset Identity Registration
       description: >
-        PyPyrus shall register datasets used during training and compute a
-        stable dataset fingerprint to detect changes across runs.
-      ai_act_articles:
-        - Article 10   # Data governance
-        - Article 11   # Technical documentation
-        - Article 13   # Transparency regarding training data
+        PyPyrus shall register each dataset used in a run with role metadata and
+        a stable fingerprint, enabling cross-run identity checks.
+      scope: implemented
+      verification: integration_test
 
     - id: FR3
-      name: Dataset Usage Logging
+      name: Loader and Batch Stream Logging
       description: >
-        PyPyrus shall record dataset access events during training to enable
-        reconstruction of which data was accessed and how frequently.
-      ai_act_articles:
-        - Article 10   # Data governance
-        - Article 12   # Logging requirements
+        PyPyrus shall log loader registrations and batch-delivery events,
+        including per-loader step and run-global batch sequence.
+      scope: implemented
+      verification: integration_test
 
     - id: FR4
-      name: Batch-Level Data Stream Tracking
+      name: Sample Identity and Batch Fingerprinting
       description: >
-        PyPyrus shall record batch-level consumption events to enable comparison
-        of training data streams across runs and detect divergence.
-      ai_act_articles:
-        - Article 12   # Logging requirements
-        - Article 11   # Documentation
+        PyPyrus shall assign normalized sample identifiers and compute an ordered
+        batch fingerprint to support deterministic stream comparison.
+      scope: implemented
+      verification: integration_test
 
     - id: FR5
-      name: Transform and Preprocessing Declaration
+      name: Transform Declaration Capture
       description: >
-        PyPyrus shall record declared preprocessing and transformation pipelines
-        applied to training data.
-        For pytorch, we could capture the transform objects
-      ai_act_articles:
-        - Article 10   # Data preparation governance
-        - Article 13   # Transparency obligations
+        PyPyrus shall record declared preprocessing/transform pipeline metadata
+        when introspection is available at attachment time.
+      scope: implemented_best_effort
+      verification: integration_test
 
     - id: FR6
-      name: Query and Reporting Interface
+      name: Query and Inspection Interface
       description: >
-        PyPyrus shall provide programmatic interfaces to query provenance records
-        and generate human-readable summaries.
-      ai_act_articles:
-        - Article 11   # Technical documentation
-        - Article 23   # Access to logs by authorities
+        PyPyrus shall expose programmatic query helpers and CLI commands for run
+        overview, batch inspection, and sample occurrence lookup.
+      scope: implemented
+      verification: integration_test
 
     - id: FR7
-      name: Reproducibility Comparison
+      name: Cross-Run Dataset Comparison
       description: >
-        PyPyrus shall enable comparison between runs to detect divergence in
-        dataset identity, usage patterns, or batch composition.
-        Dataset identity match
-        Transform pipeline match,
-        Batch stream match (fingerprint comparison at each step), could report which steps diverge.
-        Usage-level similarity e.g. compare dataset access patterns across runs (e.g. which samples accessed, how frequently)
-        usage some similarity measure like jaccard similarity or distributional similarity of access patterns.
-      ai_act_articles:
-        - Article 12   # Traceability
-        - Article 61   # Post-market monitoring (supporting evidence)
+        PyPyrus shall compare runs by role and report whether dataset identities
+        match for each role.
+      scope: implemented
+      verification: integration_test
+
+    - id: FR8
+      name: Cross-Run Batch Stream Comparison
+      description: >
+        PyPyrus shall compare role-aligned batch streams and report first
+        divergence step when stream mismatch occurs.
+      scope: implemented
+      verification: integration_test
 
   non_functional_requirements:
-
     - id: NFR1
-      name: Low Runtime Overhead
+      name: Runtime Overhead Budget
       description: >
-        Instrumentation shall introduce minimal performance degradation during training.
-      ai_act_articles:
-        - Article 8    # Risk management system (proportionate measures)
+        Instrumentation overhead shall remain within an evaluation-defined budget
+        on representative workloads.
+      scope: implemented
+      verification: benchmark
 
     - id: NFR2
-      name: Bounded Storage Growth
+      name: Storage Efficiency
       description: >
-        Provenance logging shall remain storage-efficient through event coalescing
-        and compact representations.
-      ai_act_articles:
-        - Article 12   # Logging appropriate to intended purpose
-        - Article 20   # Log retention
+        Provenance storage shall use compact encodings for high-cardinality data
+        and avoid unbounded per-batch metadata expansion.
+      scope: implemented
+      verification: benchmark
 
     - id: NFR3
-      name: Single-Machine Scalability
+      name: Single-Node Reliability
       description: >
-        The system shall operate reliably on single-machine training pipelines
-        with multiprocessing data loaders.
-      ai_act_articles:
-        - Article 17   # Quality management system (procedural reliability)
+        The system shall operate reliably for single-node training with standard
+        multiprocessing data-loading settings.
+      scope: implemented
+      verification: integration_test
 
     - id: NFR4
-      name: Extensibility to Distributed Systems
+      name: Modular Storage Backends
       description: >
-        The architecture shall allow future extension to multi-node distributed
-        training environments.
-      ai_act_articles:
-        - Article 17   # Quality management
-        - Article 61   # Lifecycle monitoring
+        Persistence shall be defined behind a storage interface so concrete
+        backends can be swapped without changing event semantics.
+      scope: implemented
+      verification: architecture_review
 
     - id: NFR5
-      name: Framework Extensibility
+      name: Framework Adaptability
       description: >
-        Instrumentation shall be modular and extensible to additional ML frameworks.
-      ai_act_articles:
-        - Article 17   # Quality management system
+        Instrumentation architecture shall support framework-specific adapters,
+        with PyTorch as the current concrete adapter.
+      scope: partial
+      verification: architecture_review
 
     - id: NFR6
-      name: Deterministic Event Semantics
+      name: Stable Event Semantics
       description: >
-        Event definitions shall be stable and versioned to ensure long-term
-        interpretability of provenance logs.
-      ai_act_articles:
-        - Article 11   # Documentation
-        - Article 12   # Traceability
+        Event field meanings shall remain deterministic across versions, and
+        schema evolution shall preserve interpretability of historical runs.
+      scope: partial
+      verification: architecture_review
 
     - id: NFR7
-      name: Usability
+      name: Integration Usability
       description: >
-        Integration into existing training pipelines shall require minimal code changes.
-      ai_act_articles:
-        - Article 13   # Transparency and information provision
+        Integrating PyPyrus into existing training code shall require only local
+        DataLoader wrapping and run scoping, without invasive pipeline rewrites.
+      scope: implemented
+      verification: usability_demo
+
+    - id: NFR8
+      name: Distributed Extensibility
+      description: >
+        The design shall admit future extension to multi-process or multi-node
+        training.
+      scope: planned
+      verification: design_validation
