@@ -46,6 +46,7 @@ def _clone_dataloader_with_wrapped_dataset(
     loader: DataLoader,
     *,
     sample_id_resolver: SampleIdResolver | None = None,
+    id_aware_collate: bool = False,
 ) -> DataLoader:
     """
     Create a new DataLoader with the same configuration, but using:
@@ -66,7 +67,10 @@ def _clone_dataloader_with_wrapped_dataset(
         loader.dataset,
         sample_id_resolver=sample_id_resolver,
     )
-    wrapped_collate_fn = wrap_collate(loader.collate_fn)
+    wrapped_collate_fn = wrap_collate(
+        loader.collate_fn,
+        id_aware_collate=id_aware_collate,
+    )
 
     kwargs: dict[str, Any] = {
         "dataset": wrapped_dataset,
@@ -161,6 +165,7 @@ class DataLoaderProxy:
         run: Run,
         role: str,
         sample_id_resolver: SampleIdResolver | None = None,
+        id_aware_collate: bool = False,
     ):
         self.run = run
         self.role = role
@@ -172,6 +177,7 @@ class DataLoaderProxy:
         self.loader = _clone_dataloader_with_wrapped_dataset(
             loader,
             sample_id_resolver=sample_id_resolver,
+            id_aware_collate=id_aware_collate,
         )
 
     def _emit_registration_events_once(self) -> None:
@@ -285,10 +291,12 @@ def wrap_dataloader(
     run: Run,
     role: str,
     sample_id_resolver: SampleIdResolver | None = None,
+    id_aware_collate: bool = False,
 ) -> DataLoaderProxy:
     return DataLoaderProxy(
         loader,
         run,
         role=role,
         sample_id_resolver=sample_id_resolver,
+        id_aware_collate=id_aware_collate,
     )

@@ -13,6 +13,7 @@ def attach(
     *,
     role: str,
     sample_id_resolver: SampleIdResolver | None = None,
+    id_aware_collate: bool = False,
 ) -> Any:
     """
     Attach PyPyrus instrumentation to a DataLoader.
@@ -32,6 +33,10 @@ def attach(
         (e.g. ``'train'``, ``'val'``, ``'test'``).  Required so that
         multiple loaders in the same run can be distinguished unambiguously.
 
+    id_aware_collate:
+        Set to True when your custom collate function reorders or filters
+        samples and returns (batch, remapped_ids).
+
     Returns
     -------
     Wrapped DataLoader proxy.
@@ -48,4 +53,5 @@ def attach(
         run,
         role=role,
         sample_id_resolver=sample_id_resolver,
+        id_aware_collate=id_aware_collate,
     )

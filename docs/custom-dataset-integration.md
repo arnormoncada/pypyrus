@@ -134,6 +134,64 @@ def sample_id_resolver(dataset, index, sample):
     )
 ```
 
+## Custom Collate That Reorders or Drops Samples
+
+If your collate function reorders or filters samples, PyPyrus cannot infer the
+new ID order unless you pass IDs through collate explicitly. Use
+`id_aware_collate=True` and make your collate function accept
+`(samples, sample_ids)` and return `(batch, remapped_ids)`.
+
+If your collate only shuffles within the batch (no drop/dup), this is fine: the
+batch still contains the same samples, and batch membership stays correct. The
+only mismatch is ordering: IDs remain in the original order, so they no longer
+align with the shuffled payload positions.
+
+Example (reorder and filter in collate):
+
+```python
+from torch.utils.data import DataLoader
+from pypyrus import Run, attach
+
+
+def id_aware_collate(samples, sample_ids):
+    # Example: keep even-indexed samples and reverse their order.
+    kept = [(s, sid) for s, sid in zip(samples, sample_ids) if sid.endswith(":0") or sid.endswith(":2")]
+    kept = list(reversed(kept))
+
+    remapped_samples = [s for s, _ in kept]
+    remapped_ids = [sid for _, sid in kept]
+
+    # Build your batch from the remapped samples.
+    batch = remapped_samples
+    return batch, remapped_ids
+
+
+with Run() as run:
+    tracked_loader = attach(
+        loader,
+        run,
+        role="train",
+        id_aware_collate=True,
+    )
+```
+
+Why this matters:
+
+- PyPyrus stores `remapped_ids` for each delivered batch.
+- If you reorder or drop samples, returning `(batch, remapped_ids)` is the only
+  way to guarantee correct sample-to-ID mapping in provenance events.
+
+If you need exact per-sample alignment (e.g., to map a specific payload slot to
+its ID), enable `id_aware_collate=True` even for shuffle-only collates.
+
+## What If Collate Changes Batch Size
+
+If your collate drops or duplicates items, PyPyrus has no safe, generic way to
+reconstruct the correct ID list after the fact. Length mismatches alone do not
+tell us how items were filtered or duplicated. In those cases, the best and
+explicit approach is `id_aware_collate=True`, where your collate function
+returns the remapped IDs alongside the batch.
+
 ## Recommended Guidance
 
 Use the built-in contracts when they fit naturally:

@@ -37,6 +37,8 @@ def _split_wrapped_samples(samples: list[Any]) -> tuple[list[Any], list[Any]] | 
 def collate_with_ids(
     samples: list[Any],
     user_collate_fn: Callable[[list[Any]], Any] | None = None,
+    *,
+    id_aware_collate: bool = False,
 ) -> tuple[Any, list[Any]]:
     """
     Collate samples while preserving ordered PyPyrus sample IDs.
@@ -44,13 +46,21 @@ def collate_with_ids(
     Returns:
         (batch_payload, sample_ids)
 
-    Behavior:
-    - If samples are wrapped by PyPyrus, IDs are extracted first.
-    - The payloads are then collated using the user's collate function
-      or PyTorch's default_collate.
-    - If samples are not wrapped, the full samples are collated and IDs
-      are returned as an empty list.
+        Behavior:
+        - If samples are wrapped by PyPyrus, IDs are extracted first.
+        - By default, the payloads are collated and IDs are returned in
+            original order.
+        - If id_aware_collate is enabled, the collate function is called
+            with (payloads, sample_ids) and must return (batch, remapped_ids).
+        - If samples are not wrapped, the full samples are collated and IDs
+            are returned as an empty list.
     """
+    if id_aware_collate and user_collate_fn is None:
+        raise ValueError(
+            "id_aware_collate=True requires a user-provided collate_fn "
+            "that accepts (payloads, sample_ids)."
+        )
+
     collate_fn = user_collate_fn or default_collate
 
     split = _split_wrapped_samples(samples)
@@ -58,6 +68,21 @@ def collate_with_ids(
         return collate_fn(samples), []
 
     payloads, sample_ids = split
+
+    if id_aware_collate:
+        result = collate_fn(payloads, sample_ids)
+        if not isinstance(result, tuple) or len(result) != 2:
+            raise TypeError(
+                "id_aware_collate=True requires collate_fn to return "
+                "(batch, remapped_ids)."
+            )
+        batch, remapped_ids = result
+        if not isinstance(remapped_ids, (list, tuple)):
+            raise TypeError(
+                "id_aware_collate=True requires remapped_ids to be a list or tuple."
+            )
+        return batch, list(remapped_ids)
+
     batch = collate_fn(payloads)
     return batch, sample_ids
 
@@ -65,20 +90,38 @@ def collate_with_ids(
 class CollateWithIdsWrapper:
     """Pickle-safe callable wrapper for DataLoader collate instrumentation."""
 
-    def __init__(self, collate_fn: Callable[[list[Any]], Any] | None):
+    def __init__(
+        self,
+        collate_fn: Callable[[list[Any]], Any] | None,
+        *,
+        id_aware_collate: bool = False,
+    ):
         self.collate_fn = collate_fn
+        self.id_aware_collate = id_aware_collate
 
     def __call__(self, samples: list[Any]) -> tuple[Any, list[Any]]:
-        return collate_with_ids(samples, user_collate_fn=self.collate_fn)
+        return collate_with_ids(
+            samples,
+            user_collate_fn=self.collate_fn,
+            id_aware_collate=self.id_aware_collate,
+        )
 
 
 def wrap_collate(
     collate_fn: Callable[[list[Any]], Any] | None,
+    *,
+    id_aware_collate: bool = False,
 ) -> Callable[[list[Any]], tuple[Any, list[Any]]]:
     """
     Wrap a collate function so that PyPyrus sample IDs survive collation.
 
     The returned function always returns:
         (batch_payload, sample_ids)
+
+    If id_aware_collate is enabled, the collate function must accept
+    (payloads, sample_ids) and return (batch, remapped_ids).
     """
-    return CollateWithIdsWrapper(collate_fn)
+    return CollateWithIdsWrapper(
+        collate_fn,
+        id_aware_collate=id_aware_collate,
+    )
