@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import inspect
 from typing import Any, Callable
 
 from torch.utils.data._utils.collate import default_collate
@@ -32,6 +33,27 @@ def _split_wrapped_samples(samples: list[Any]) -> tuple[list[Any], list[Any]] | 
     payloads = [sample[PYPYRUS_PAYLOAD_KEY] for sample in samples]
     sample_ids = [sample[PYPYRUS_ID_KEY] for sample in samples]
     return payloads, sample_ids
+
+
+def _accepts_sample_ids(collate_fn: Callable[..., Any]) -> bool:
+    """Return True if collate_fn can be called with (payloads, sample_ids)."""
+    try:
+        signature = inspect.signature(collate_fn)
+    except (TypeError, ValueError):
+        return False
+
+    params = list(signature.parameters.values())
+    if any(param.kind == inspect.Parameter.VAR_POSITIONAL for param in params):
+        return True
+
+    positional_count = sum(
+        param.kind in (
+            inspect.Parameter.POSITIONAL_ONLY,
+            inspect.Parameter.POSITIONAL_OR_KEYWORD,
+        )
+        for param in params
+    )
+    return positional_count >= 2
 
 
 def collate_with_ids(
@@ -83,7 +105,12 @@ def collate_with_ids(
             )
         return batch, list(remapped_ids)
 
-    batch = collate_fn(payloads)
+    if _accepts_sample_ids(collate_fn):
+        # In non-id-aware mode, allow flexible signatures but keep original IDs.
+        result = collate_fn(payloads, sample_ids)
+        batch = result[0] if isinstance(result, tuple) and len(result) == 2 else result
+    else:
+        batch = collate_fn(payloads)
     return batch, sample_ids
 
 

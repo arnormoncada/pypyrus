@@ -184,6 +184,28 @@ Why this matters:
 If you need exact per-sample alignment (e.g., to map a specific payload slot to
 its ID), enable `id_aware_collate=True` even for shuffle-only collates.
 
+If your collate needs additional parameters, pre-bind them before constructing
+the DataLoader collate function (for example with `functools.partial`).
+
+```python
+from functools import partial
+
+
+def custom_collate(samples, sample_ids, threshold, mode):
+    # build batch using samples (+ sample_ids when id_aware_collate=True)
+    ...
+
+
+collate_fn = partial(custom_collate, threshold=0.3, mode="fast")
+loader = DataLoader(dataset, batch_size=32, collate_fn=collate_fn)
+
+tracked_loader = attach(loader, run, role="train", id_aware_collate=True)
+```
+
+When `id_aware_collate=False`, PyPyrus may still call a collate that accepts
+`sample_ids`, but it always stores the original ordered IDs unless
+`id_aware_collate=True`.
+
 ## What If Collate Changes Batch Size
 
 If your collate drops or duplicates items, PyPyrus has no safe, generic way to

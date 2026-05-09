@@ -111,5 +111,5 @@ def test_id_aware_collate_false_returns_unmapped_ids(db_path, store) -> None:
         list(attached)
 
     decoded = _fetch_batch_ids(db_path, run.run_id)
-    # 
+    
     assert decoded == [["index:0", "index:1", "index:2", "index:3"]] 
