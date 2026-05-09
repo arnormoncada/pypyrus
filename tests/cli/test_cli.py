@@ -552,7 +552,6 @@ def _seed_run(
         TransformDeclaredEvent(
             run_id=run_id,
             dataset_id=dataset_id,
-            transform_chain_id=hash_json(transform_list),
             transform_list=transform_list,
             params_hash=hash_json(transform_list),
             introspection_level="full",

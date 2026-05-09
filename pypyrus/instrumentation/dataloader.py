@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader, IterableDataset
 from pypyrus.core.run import Run
 from pypyrus.core.dataset_identity import resolve_dataset_identity
 from pypyrus.core.sample_id import SampleIdResolver
-from pypyrus.core.transform_identity import extract_transform_declaration, transform_chain_id
+from pypyrus.core.transform_identity import extract_transform_declaration
 from pypyrus.instrumentation.collate import wrap_collate
 from pypyrus.instrumentation.dataset import DatasetWrapper, wrap_dataset
 from pypyrus.provenance.events import (
@@ -234,7 +234,6 @@ class DataLoaderProxy:
                 TransformDeclaredEvent(
                     run_id=self.run.run_id,
                     dataset_id=descriptor.dataset_id,
-                    transform_chain_id=transform_chain_id(transform_decl),
                     transform_list=transform_decl["transform_list"],
                     params_hash=transform_decl["params_hash"],
                     introspection_level=transform_decl["introspection_level"],

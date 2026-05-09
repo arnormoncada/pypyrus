@@ -83,7 +83,6 @@ class LoaderRegisteredEvent(ProvenanceEvent):
 @dataclass(slots=True, kw_only=True)
 class TransformDeclaredEvent(ProvenanceEvent):
     dataset_id: str
-    transform_chain_id: str
     transform_list: list[dict[str, Any]]
     params_hash: str
     introspection_level: Literal["full", "partial"]

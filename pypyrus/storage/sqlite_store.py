@@ -242,19 +242,17 @@ class SQLiteStore(Store):
                 run_id,
                 dataset_id,
                 timestamp,
-                transform_chain_id,
                 transform_list_json,
                 params_hash,
                 introspection_level
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
                 event.run_id,
                 event.dataset_id,
                 event.timestamp,
-                event.transform_chain_id,
                 json.dumps(event.transform_list),
                 event.params_hash,
                 event.introspection_level,
