@@ -10,7 +10,6 @@ CREATE TABLE IF NOT EXISTS transform_declared (
   dataset_id TEXT NOT NULL,       -- TransformDeclaredEvent.dataset_id
   timestamp TEXT NOT NULL,        -- ISO 8601; TransformDeclaredEvent.timestamp
 
-  transform_chain_id TEXT NOT NULL, -- TransformDeclaredEvent.transform_chain_id
   transform_list_json TEXT NOT NULL, -- TransformDeclaredEvent.transform_list serialised as JSON array
   params_hash TEXT NOT NULL,        -- TransformDeclaredEvent.params_hash
   introspection_level TEXT NOT NULL, -- TransformDeclaredEvent.introspection_level (full/partial)
@@ -21,4 +20,3 @@ CREATE TABLE IF NOT EXISTS transform_declared (
 
 CREATE INDEX IF NOT EXISTS idx_transform_declared_run     ON transform_declared(run_id);
 CREATE INDEX IF NOT EXISTS idx_transform_declared_dataset ON transform_declared(dataset_id);
-CREATE INDEX IF NOT EXISTS idx_transform_chain            ON transform_declared(transform_chain_id);

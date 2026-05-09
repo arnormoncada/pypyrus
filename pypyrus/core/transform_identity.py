@@ -155,10 +155,3 @@ def _to_json_safe(value: Any) -> tuple[Any, bool]:
         }, True
 
     return repr(value), True
-
-
-def transform_chain_id(transform_decl: dict[str, Any]) -> str:
-    """
-    Compute a stable chain identifier from a transform declaration.
-    """
-    return hash_json(transform_decl["transform_list"])

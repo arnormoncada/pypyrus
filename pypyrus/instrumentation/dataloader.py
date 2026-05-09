@@ -11,7 +11,7 @@ from torch.utils.data import DataLoader, IterableDataset
 from pypyrus.core.run import Run
 from pypyrus.core.dataset_identity import resolve_dataset_identity
 from pypyrus.core.sample_id import SampleIdResolver
-from pypyrus.core.transform_identity import extract_transform_declaration, transform_chain_id
+from pypyrus.core.transform_identity import extract_transform_declaration
 from pypyrus.instrumentation.collate import wrap_collate
 from pypyrus.instrumentation.dataset import DatasetWrapper, wrap_dataset
 from pypyrus.provenance.events import (
@@ -46,6 +46,7 @@ def _clone_dataloader_with_wrapped_dataset(
     loader: DataLoader,
     *,
     sample_id_resolver: SampleIdResolver | None = None,
+    id_aware_collate: bool = False,
 ) -> DataLoader:
     """
     Create a new DataLoader with the same configuration, but using:
@@ -66,7 +67,10 @@ def _clone_dataloader_with_wrapped_dataset(
         loader.dataset,
         sample_id_resolver=sample_id_resolver,
     )
-    wrapped_collate_fn = wrap_collate(loader.collate_fn)
+    wrapped_collate_fn = wrap_collate(
+        loader.collate_fn,
+        id_aware_collate=id_aware_collate,
+    )
 
     kwargs: dict[str, Any] = {
         "dataset": wrapped_dataset,
@@ -161,6 +165,7 @@ class DataLoaderProxy:
         run: Run,
         role: str,
         sample_id_resolver: SampleIdResolver | None = None,
+        id_aware_collate: bool = False,
     ):
         self.run = run
         self.role = role
@@ -172,6 +177,7 @@ class DataLoaderProxy:
         self.loader = _clone_dataloader_with_wrapped_dataset(
             loader,
             sample_id_resolver=sample_id_resolver,
+            id_aware_collate=id_aware_collate,
         )
 
     def _emit_registration_events_once(self) -> None:
@@ -228,7 +234,6 @@ class DataLoaderProxy:
                 TransformDeclaredEvent(
                     run_id=self.run.run_id,
                     dataset_id=descriptor.dataset_id,
-                    transform_chain_id=transform_chain_id(transform_decl),
                     transform_list=transform_decl["transform_list"],
                     params_hash=transform_decl["params_hash"],
                     introspection_level=transform_decl["introspection_level"],
@@ -285,10 +290,12 @@ def wrap_dataloader(
     run: Run,
     role: str,
     sample_id_resolver: SampleIdResolver | None = None,
+    id_aware_collate: bool = False,
 ) -> DataLoaderProxy:
     return DataLoaderProxy(
         loader,
         run,
         role=role,
         sample_id_resolver=sample_id_resolver,
+        id_aware_collate=id_aware_collate,
     )

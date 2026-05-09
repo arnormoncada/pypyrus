@@ -188,7 +188,7 @@ Emitted when transform pipelines are defined or attached.
 
 * `run_id`
 * `dataset_id`
-* `transform_chain_id`
+
 * `transform_list` (ordered names)
 * `params_hash`
 * `deterministic_flag`
