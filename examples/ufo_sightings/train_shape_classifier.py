@@ -103,6 +103,7 @@ def main() -> int:
     learning_rate = args.lr if args.lr is not None else default_learning_rate(args.model)
 
     records, label_names = load_ufo_records(data_path)
+    
     train_records, test_records = split_records(records, seed=args.seed)
 
     label_to_id = {label: index for index, label in enumerate(label_names)}
@@ -118,12 +119,14 @@ def main() -> int:
         tokenizer=tokenizer,
         label_to_id=label_to_id,
         max_length=args.max_length,
+        root=str(data_path),
     )
     test_dataset = UFOCommentsDataset(
         test_records,
         tokenizer=tokenizer,
         label_to_id=label_to_id,
         max_length=args.max_length,
+        root=str(data_path),
     )
 
     train_generator = torch.Generator().manual_seed(args.seed)
@@ -281,11 +284,13 @@ class UFOCommentsDataset(Dataset):
         tokenizer: Any,
         label_to_id: dict[str, int],
         max_length: int,
+        root: str | None = None,
     ):
         self.records = records
         self.tokenizer = tokenizer
         self.label_to_id = label_to_id
         self.max_length = max_length
+        self.root = root
 
     def __len__(self) -> int:
         return len(self.records)

@@ -57,8 +57,7 @@ def main() -> int:
 
     required_tables = {
         "runs",
-        "datasets",
-        "run_datasets",
+        "dataset_registrations",
         "batch_delivered",
         "transform_declared",
         "environment_snapshot",

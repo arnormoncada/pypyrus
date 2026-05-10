@@ -18,3 +18,4 @@ instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=266.0
 instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.130156
 instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.583087
 instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.490066
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=296.964395

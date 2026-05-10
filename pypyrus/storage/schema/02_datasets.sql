@@ -1,26 +1,30 @@
 PRAGMA foreign_keys = ON;
 
 -- ----------------------------
--- Datasets: identity + fingerprint
--- One row per DatasetRegisteredEvent.  If the same logical dataset
--- is re-registered across runs the first write wins (INSERT OR IGNORE).
+-- Dataset registrations: one row per DatasetRegisteredEvent.
+-- Canonical dataset identity is the fingerprint method + fingerprint pair.
 -- ----------------------------
-CREATE TABLE IF NOT EXISTS datasets (
-  event_id TEXT PRIMARY KEY,      -- UUID; DatasetRegisteredEvent.event_id
-  dataset_id TEXT NOT NULL UNIQUE, -- stable dataset identity; DatasetRegisteredEvent.dataset_id
+CREATE TABLE IF NOT EXISTS dataset_registrations (
+  event_id TEXT PRIMARY KEY,       -- UUID; DatasetRegisteredEvent.event_id
+  run_id TEXT NOT NULL,            -- DatasetRegisteredEvent.run_id
+  dataset_id TEXT NOT NULL,        -- derived canonical identity (fingerprint_method:fingerprint)
 
-  name TEXT NOT NULL,             -- DatasetRegisteredEvent.name
-  uri TEXT,                       -- DatasetRegisteredEvent.uri (nullable)
-  version_hint TEXT,              -- DatasetRegisteredEvent.version_hint
+  name TEXT NOT NULL,              -- DatasetRegisteredEvent.name
+  uri TEXT,                        -- DatasetRegisteredEvent.uri (nullable)
+  version_hint TEXT,               -- DatasetRegisteredEvent.version_hint
+  role TEXT,                       -- DatasetRegisteredEvent.role (nullable)
 
-  fingerprint TEXT,               -- DatasetRegisteredEvent.fingerprint (nullable)
-  fingerprint_method TEXT,        -- DatasetRegisteredEvent.fingerprint_method
-  sample_id_scheme TEXT,          -- DatasetRegisteredEvent.sample_id_scheme
-  sample_id_resolver TEXT,        -- DatasetRegisteredEvent.sample_id_resolver
+  fingerprint TEXT NOT NULL,       -- DatasetRegisteredEvent.fingerprint
+  fingerprint_method TEXT NOT NULL,-- DatasetRegisteredEvent.fingerprint_method
+  sample_id_scheme TEXT,           -- DatasetRegisteredEvent.sample_id_scheme
+  sample_id_resolver TEXT,         -- DatasetRegisteredEvent.sample_id_resolver
 
-  registered_at TEXT NOT NULL     -- ISO 8601; DatasetRegisteredEvent.timestamp
+  registered_at TEXT NOT NULL,     -- ISO 8601; DatasetRegisteredEvent.timestamp
+
+  FOREIGN KEY (run_id) REFERENCES runs(run_id) ON DELETE CASCADE
 );
 
-CREATE INDEX IF NOT EXISTS idx_datasets_dataset_id  ON datasets(dataset_id);
-CREATE INDEX IF NOT EXISTS idx_datasets_name        ON datasets(name);
-CREATE INDEX IF NOT EXISTS idx_datasets_fingerprint ON datasets(fingerprint);
+CREATE INDEX IF NOT EXISTS idx_dataset_registrations_run ON dataset_registrations(run_id);
+CREATE INDEX IF NOT EXISTS idx_dataset_registrations_dataset_id ON dataset_registrations(dataset_id);
+CREATE INDEX IF NOT EXISTS idx_dataset_registrations_role ON dataset_registrations(run_id, role);
+CREATE INDEX IF NOT EXISTS idx_dataset_registrations_fingerprint ON dataset_registrations(fingerprint_method, fingerprint);

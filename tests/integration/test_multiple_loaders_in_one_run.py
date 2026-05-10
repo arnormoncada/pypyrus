@@ -29,7 +29,7 @@ def test_multiple_loaders_share_run_sequence_and_keep_roles_distinct(
         db_path,
         """
         SELECT role
-        FROM run_datasets
+        FROM dataset_registrations
         WHERE run_id = ?
         ORDER BY role
         """,
@@ -40,9 +40,11 @@ def test_multiple_loaders_share_run_sequence_and_keep_roles_distinct(
     batch_rows = fetch_all(
         db_path,
         """
-        SELECT loader_id, dataset_id, global_step, global_sequence
-        FROM batch_delivered
-        WHERE run_id = ?
+        SELECT b.loader_id, dr.dataset_id, b.global_step, b.global_sequence
+        FROM batch_delivered b
+        JOIN loaders l ON l.loader_id = b.loader_id
+        JOIN dataset_registrations dr ON dr.event_id = l.dataset_registration_event_id
+        WHERE b.run_id = ?
         ORDER BY global_sequence
         """,
         (run.run_id,),
@@ -77,10 +79,11 @@ def test_multiple_loaders_can_share_one_dataset_identity_without_batch_collision
     loader_rows = fetch_all(
         db_path,
         """
-        SELECT loader_id, dataset_id, role
-        FROM loaders
-        WHERE run_id = ?
-        ORDER BY role
+        SELECT l.loader_id, dr.dataset_id, l.role
+        FROM loaders l
+        JOIN dataset_registrations dr ON dr.event_id = l.dataset_registration_event_id
+        WHERE l.run_id = ?
+        ORDER BY l.role
         """,
         (run.run_id,),
     )

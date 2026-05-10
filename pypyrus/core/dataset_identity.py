@@ -87,6 +87,37 @@ def infer_dataset_descriptor(dataset: Any) -> DatasetDescriptor:
 	)
 
 
+def infer_dataset_descriptor_with_overrides(
+	dataset: Any,
+	*,
+	name_override: str | None = None,
+	uri_override: str | None = None,
+	version_hint_override: str | None = None,
+) -> DatasetDescriptor:
+	dataset = _identity_target(dataset)
+	descriptor_payload = {
+		"class_name": dataset.__class__.__name__,
+		"name": name_override if name_override is not None else _best_effort_dataset_name(dataset),
+		"uri": uri_override if uri_override is not None else _best_effort_dataset_uri(dataset),
+		"version_hint": (
+			version_hint_override
+			if version_hint_override is not None
+			else _best_effort_version_hint(dataset)
+		),
+		"length": len(dataset) if hasattr(dataset, "__len__") else None,
+	}
+	return DatasetDescriptor(
+		dataset_id=hash_json(descriptor_payload),
+		name=descriptor_payload["name"],
+		uri=descriptor_payload["uri"],
+		version_hint=descriptor_payload["version_hint"],
+	)
+
+
+def dataset_id_from_fingerprint(fingerprint: DatasetFingerprint) -> str:
+	return f"{fingerprint.fingerprint_method}:{fingerprint.fingerprint}"
+
+
 def _hf_builtin_fingerprint(dataset: Any) -> DatasetFingerprint | None:
 	for attr in ("_fingerprint", "fingerprint"):
 		if hasattr(dataset, attr):
@@ -223,6 +254,10 @@ def _fallback_descriptor_fingerprint(
 
 def resolve_dataset_identity(
 	dataset: Any,
+	*,
+	name_override: str | None = None,
+	uri_override: str | None = None,
+	version_hint_override: str | None = None,
 ) -> tuple[DatasetDescriptor, DatasetFingerprint, str | None]:
 	"""
 	Resolve descriptor and fingerprint for a dataset.
@@ -237,10 +272,16 @@ def resolve_dataset_identity(
 	warning_message is set only when fallback is used after a strategy failure.
 	"""
 	dataset = _identity_target(dataset)
-	descriptor = infer_dataset_descriptor(dataset)
+	descriptor = infer_dataset_descriptor_with_overrides(
+		dataset,
+		name_override=name_override,
+		uri_override=uri_override,
+		version_hint_override=version_hint_override,
+	)
 
 	hf = _hf_builtin_fingerprint(dataset)
 	if hf is not None:
+		descriptor.dataset_id = dataset_id_from_fingerprint(hf)
 		return descriptor, hf, None
 
 	uri = descriptor.uri
@@ -248,13 +289,20 @@ def resolve_dataset_identity(
 		path = Path(uri).expanduser()
 		if path.exists() and (path.is_file() or path.is_dir()):
 			try:
-				return descriptor, _local_sampled_manifest_fingerprint(path), None
+				fingerprint = _local_sampled_manifest_fingerprint(path)
+				descriptor.dataset_id = dataset_id_from_fingerprint(fingerprint)
+				return descriptor, fingerprint, None
 			except Exception as exc:  # pragma: no cover - defensive fallback
 				warning = f"local fingerprinting failed: {exc.__class__.__name__}"
-				return descriptor, _fallback_descriptor_fingerprint(descriptor, reason=warning), warning
+				fingerprint = _fallback_descriptor_fingerprint(descriptor, reason=warning)
+				descriptor.dataset_id = dataset_id_from_fingerprint(fingerprint)
+				return descriptor, fingerprint, warning
 
 	in_memory = _in_memory_deterministic_fingerprint(dataset)
 	if in_memory is not None:
+		descriptor.dataset_id = dataset_id_from_fingerprint(in_memory)
 		return descriptor, in_memory, None
 
-	return descriptor, _fallback_descriptor_fingerprint(descriptor, reason="unsupported_source"), None
+	fingerprint = _fallback_descriptor_fingerprint(descriptor, reason="unsupported_source")
+	descriptor.dataset_id = dataset_id_from_fingerprint(fingerprint)
+	return descriptor, fingerprint, None

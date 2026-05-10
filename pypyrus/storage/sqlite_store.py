@@ -59,7 +59,6 @@ class SQLiteStore(Store):
         conn = self._get_conn()
         load_schema(conn)
         self._ensure_runs_metadata_columns(conn)
-        self._ensure_dataset_metadata_columns(conn)
         # self._validate_schema_compatibility(conn)
 
     def close(self) -> None:
@@ -71,17 +70,6 @@ class SQLiteStore(Store):
     def flush(self) -> None:
         """Commit current transaction."""
         self._get_conn().commit()
-
-    def _ensure_dataset_metadata_columns(self, conn: sqlite3.Connection) -> None:
-        existing = {
-            row["name"]
-            for row in conn.execute("PRAGMA table_info(datasets)").fetchall()
-        }
-        if "sample_id_scheme" not in existing:
-            conn.execute("ALTER TABLE datasets ADD COLUMN sample_id_scheme TEXT")
-        if "sample_id_resolver" not in existing:
-            conn.execute("ALTER TABLE datasets ADD COLUMN sample_id_resolver TEXT")
-        conn.commit()
 
     def _ensure_runs_metadata_columns(self, conn: sqlite3.Connection) -> None:
         existing = {
@@ -171,64 +159,35 @@ class SQLiteStore(Store):
 
         conn.execute(
             """
-            INSERT OR IGNORE INTO datasets (
+            INSERT INTO dataset_registrations (
                 event_id,
+                run_id,
                 dataset_id,
                 name,
                 uri,
                 version_hint,
+                role,
                 fingerprint,
                 fingerprint_method,
                 sample_id_scheme,
                 sample_id_resolver,
                 registered_at
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
+                event.run_id,
                 event.dataset_id,
                 event.name,
                 event.uri,
                 event.version_hint,
+                event.role,
                 event.fingerprint,
                 event.fingerprint_method,
                 event.sample_id_scheme,
                 event.sample_id_resolver,
                 event.timestamp,
-            ),
-        )
-
-        conn.execute(
-            """
-            UPDATE datasets
-            SET
-                sample_id_scheme = COALESCE(sample_id_scheme, ?),
-                sample_id_resolver = COALESCE(sample_id_resolver, ?)
-            WHERE dataset_id = ?
-            """,
-            (
-                event.sample_id_scheme,
-                event.sample_id_resolver,
-                event.dataset_id,
-            ),
-        )
-
-        conn.execute(
-            """
-            INSERT OR IGNORE INTO run_datasets (
-                run_id,
-                dataset_id,
-                registered_at,
-                role
-            )
-            VALUES (?, ?, ?, ?)
-            """,
-            (
-                event.run_id,
-                event.dataset_id,
-                event.timestamp,
-                event.role,
             ),
         )
 
@@ -240,7 +199,7 @@ class SQLiteStore(Store):
             INSERT INTO transform_declared (
                 event_id,
                 run_id,
-                dataset_id,
+                dataset_registration_event_id,
                 timestamp,
                 transform_list_json,
                 params_hash,
@@ -251,7 +210,7 @@ class SQLiteStore(Store):
             (
                 event.event_id,
                 event.run_id,
-                event.dataset_id,
+                event.dataset_registration_event_id,
                 event.timestamp,
                 json.dumps(event.transform_list),
                 event.params_hash,
@@ -268,7 +227,7 @@ class SQLiteStore(Store):
                 event_id,
                 loader_id,
                 run_id,
-                dataset_id,
+                dataset_registration_event_id,
                 role,
                 registered_at
             )
@@ -278,7 +237,7 @@ class SQLiteStore(Store):
                 event.event_id,
                 event.loader_id,
                 event.run_id,
-                event.dataset_id,
+                event.dataset_registration_event_id,
                 event.role,
                 event.timestamp,
             ),
@@ -293,7 +252,6 @@ class SQLiteStore(Store):
                 event_id,
                 run_id,
                 loader_id,
-                dataset_id,
                 global_step,
                 global_sequence,
                 timestamp,
@@ -301,13 +259,12 @@ class SQLiteStore(Store):
                 batch_fingerprint,
                 sample_ids_blob
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
                 event.run_id,
                 event.loader_id,
-                event.dataset_id,
                 event.global_step,
                 event.global_sequence,
                 event.timestamp,
@@ -364,9 +321,12 @@ class SQLiteStore(Store):
                 """
                 SELECT
                     b.*,
-                    l.role
+                    l.role,
+                    dr.dataset_id,
+                    dr.event_id AS dataset_registration_event_id
                 FROM batch_delivered b
                 JOIN loaders l ON l.loader_id = b.loader_id
+                JOIN dataset_registrations dr ON dr.event_id = l.dataset_registration_event_id
                 WHERE b.run_id = ?
                 ORDER BY b.global_sequence
                 """,
@@ -377,15 +337,21 @@ class SQLiteStore(Store):
             rows = conn.execute(
                 """
                 SELECT
-                    d.event_id, d.dataset_id, d.name, d.uri,
-                    d.version_hint, d.fingerprint, d.fingerprint_method,
-                    d.sample_id_scheme, d.sample_id_resolver,
-                    d.registered_at AS timestamp,
-                    rd.run_id, rd.role
-                FROM datasets d
-                JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
-                WHERE rd.run_id = ?
-                ORDER BY rd.registered_at
+                    event_id,
+                    dataset_id,
+                    name,
+                    uri,
+                    version_hint,
+                    fingerprint,
+                    fingerprint_method,
+                    sample_id_scheme,
+                    sample_id_resolver,
+                    registered_at AS timestamp,
+                    run_id,
+                    role
+                FROM dataset_registrations
+                WHERE run_id = ?
+                ORDER BY registered_at
                 """,
                 (run_id,),
             ).fetchall()
@@ -394,15 +360,17 @@ class SQLiteStore(Store):
             rows = conn.execute(
                 """
                 SELECT
-                    event_id,
-                    loader_id,
-                    run_id,
-                    dataset_id,
-                    role,
-                    registered_at AS timestamp
-                FROM loaders
-                WHERE run_id = ?
-                ORDER BY registered_at
+                    l.event_id,
+                    l.loader_id,
+                    l.run_id,
+                    dr.dataset_id,
+                    l.dataset_registration_event_id,
+                    l.role,
+                    l.registered_at AS timestamp
+                FROM loaders l
+                JOIN dataset_registrations dr ON dr.event_id = l.dataset_registration_event_id
+                WHERE l.run_id = ?
+                ORDER BY l.registered_at
                 """,
                 (run_id,),
             ).fetchall()
@@ -410,9 +378,14 @@ class SQLiteStore(Store):
         elif event_type == "transform_declared":
             rows = conn.execute(
                 """
-                SELECT * FROM transform_declared
-                WHERE run_id = ?
-                ORDER BY timestamp
+                SELECT
+                    t.*,
+                    dr.dataset_id,
+                    dr.role
+                FROM transform_declared t
+                JOIN dataset_registrations dr ON dr.event_id = t.dataset_registration_event_id
+                WHERE t.run_id = ?
+                ORDER BY t.timestamp
                 """,
                 (run_id,),
             ).fetchall()

@@ -74,7 +74,7 @@ class DatasetRegisteredEvent(ProvenanceEvent):
 @dataclass(slots=True, kw_only=True)
 class LoaderRegisteredEvent(ProvenanceEvent):
     loader_id: str
-    dataset_id: str
+    dataset_registration_event_id: str
     role: str
 
     event_type: EventType = field(default="loader_registered", init=False)
@@ -82,7 +82,7 @@ class LoaderRegisteredEvent(ProvenanceEvent):
 
 @dataclass(slots=True, kw_only=True)
 class TransformDeclaredEvent(ProvenanceEvent):
-    dataset_id: str
+    dataset_registration_event_id: str
     transform_list: list[dict[str, Any]]
     params_hash: str
     introspection_level: Literal["full", "partial"]
@@ -93,7 +93,6 @@ class TransformDeclaredEvent(ProvenanceEvent):
 @dataclass(slots=True, kw_only=True)
 class BatchDeliveredEvent(ProvenanceEvent):
     loader_id: str
-    dataset_id: str
     global_step: int
     global_sequence: int
     batch_size: int

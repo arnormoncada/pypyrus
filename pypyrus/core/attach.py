@@ -14,6 +14,9 @@ def attach(
     role: str,
     sample_id_resolver: SampleIdResolver | None = None,
     id_aware_collate: bool = False,
+    dataset_name: str | None = None,
+    dataset_uri: str | None = None,
+    dataset_version_hint: str | None = None,
 ) -> Any:
     """
     Attach PyPyrus instrumentation to a DataLoader.
@@ -37,6 +40,10 @@ def attach(
         Set to True when your custom collate function reorders or filters
         samples and returns (batch, remapped_ids).
 
+    dataset_name, dataset_uri, dataset_version_hint:
+        Optional explicit dataset provenance metadata. Use these when PyPyrus
+        cannot infer a meaningful source name/path from your dataset object.
+
     Returns
     -------
     Wrapped DataLoader proxy.
@@ -54,4 +61,7 @@ def attach(
         role=role,
         sample_id_resolver=sample_id_resolver,
         id_aware_collate=id_aware_collate,
+        dataset_name=dataset_name,
+        dataset_uri=dataset_uri,
+        dataset_version_hint=dataset_version_hint,
     )

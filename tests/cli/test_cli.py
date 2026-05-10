@@ -507,7 +507,7 @@ def _seed_run(
     sample_ids: list[int],
     fingerprint: str,
 ) -> None:
-    dataset_id = f"dataset-{run_id}"
+    dataset_id = f"in_memory_deterministic_v1:fingerprint-{run_id}"
     loader_id = f"loader-{run_id}-{role}"
     transform_list = [
         {
@@ -548,10 +548,11 @@ def _seed_run(
             sample_id_resolver="fallback_index",
         )
     )
+    dataset_registration_event_id = store.get_events(run_id, event_type="dataset_registered")[0]["event_id"]
     store.append_event(
         TransformDeclaredEvent(
             run_id=run_id,
-            dataset_id=dataset_id,
+            dataset_registration_event_id=dataset_registration_event_id,
             transform_list=transform_list,
             params_hash=hash_json(transform_list),
             introspection_level="full",
@@ -561,7 +562,7 @@ def _seed_run(
         LoaderRegisteredEvent(
             run_id=run_id,
             loader_id=loader_id,
-            dataset_id=dataset_id,
+            dataset_registration_event_id=dataset_registration_event_id,
             role=role,
         )
     )
@@ -569,7 +570,6 @@ def _seed_run(
         BatchDeliveredEvent(
             run_id=run_id,
             loader_id=loader_id,
-            dataset_id=dataset_id,
             global_step=0,
             global_sequence=0,
             batch_size=len(sample_ids),
@@ -597,7 +597,7 @@ def _append_loader_batch(
     sample_ids: list[int],
     fingerprint: str,
 ) -> None:
-    dataset_id = f"dataset-{run_id}-{role}"
+    dataset_id = f"in_memory_deterministic_v1:fingerprint-{run_id}-{role}"
     loader_id = f"loader-{run_id}-{role}"
 
     store.append_event(
@@ -612,11 +612,12 @@ def _append_loader_batch(
             sample_id_resolver="fallback_index",
         )
     )
+    dataset_registration_event_id = store.get_events(run_id, event_type="dataset_registered")[-1]["event_id"]
     store.append_event(
         LoaderRegisteredEvent(
             run_id=run_id,
             loader_id=loader_id,
-            dataset_id=dataset_id,
+            dataset_registration_event_id=dataset_registration_event_id,
             role=role,
         )
     )
@@ -624,7 +625,6 @@ def _append_loader_batch(
         BatchDeliveredEvent(
             run_id=run_id,
             loader_id=loader_id,
-            dataset_id=dataset_id,
             global_step=0,
             global_sequence=1,
             batch_size=len(sample_ids),

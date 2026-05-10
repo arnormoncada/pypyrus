@@ -41,6 +41,21 @@ with Run() as run:
 PyPyrus records run metadata, dataset identity, loader registrations, and the
 batch stream delivered to your training loop.
 
+If your dataset comes from a source file that PyPyrus cannot infer from the
+dataset object, pass explicit provenance metadata at attach time:
+
+```python
+with Run() as run:
+    tracked_loader = attach(
+        loader,
+        run,
+        role="train",
+        dataset_uri="/data/scrubbed.csv",
+        dataset_name="PokemonCSVDataset",
+        dataset_version_hint="preprocessed-v1",
+    )
+```
+
 ## Run Store Modes
 
 `Run` supports two store modes:

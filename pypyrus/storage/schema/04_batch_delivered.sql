@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS batch_delivered (
   event_id TEXT PRIMARY KEY,      -- UUID; BatchDeliveredEvent.event_id
   run_id TEXT NOT NULL,           -- BatchDeliveredEvent.run_id
   loader_id TEXT NOT NULL,        -- BatchDeliveredEvent.loader_id
-  dataset_id TEXT NOT NULL,       -- BatchDeliveredEvent.dataset_id
 
   global_step INTEGER NOT NULL,     -- BatchDeliveredEvent.global_step (per-loader counter)
   global_sequence INTEGER NOT NULL, -- BatchDeliveredEvent.global_sequence (run-wide counter)
@@ -20,7 +19,6 @@ CREATE TABLE IF NOT EXISTS batch_delivered (
 
   FOREIGN KEY (run_id)     REFERENCES runs(run_id)              ON DELETE CASCADE,
   FOREIGN KEY (loader_id)  REFERENCES loaders(loader_id)        ON DELETE CASCADE,
-  FOREIGN KEY (dataset_id) REFERENCES datasets(dataset_id)      ON DELETE CASCADE,
 
   UNIQUE (loader_id, global_step),
   UNIQUE (run_id, global_sequence)

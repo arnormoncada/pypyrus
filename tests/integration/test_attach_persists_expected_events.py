@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import json
+from pathlib import Path
 
 from torch.utils.data import DataLoader
 
@@ -49,11 +50,10 @@ def test_attached_loader_persists_run_dataset_transform_and_batch_events(
     dataset_row = fetch_one(
         db_path,
         """
-        SELECT d.dataset_id, d.fingerprint, d.fingerprint_method,
-               d.sample_id_scheme, d.sample_id_resolver, rd.role
-        FROM datasets d
-        JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
-        WHERE rd.run_id = ?
+        SELECT event_id, dataset_id, fingerprint, fingerprint_method,
+               sample_id_scheme, sample_id_resolver, role
+        FROM dataset_registrations
+        WHERE run_id = ?
         """,
         (run.run_id,),
     )
@@ -82,13 +82,13 @@ def test_attached_loader_persists_run_dataset_transform_and_batch_events(
     loader_row = fetch_one(
         db_path,
         """
-        SELECT loader_id, dataset_id, role
+        SELECT loader_id, dataset_registration_event_id, role
         FROM loaders
         WHERE run_id = ?
         """,
         (run.run_id,),
     )
-    assert loader_row["dataset_id"] == dataset_row["dataset_id"]
+    assert loader_row["dataset_registration_event_id"] == dataset_row["event_id"]
     assert loader_row["role"] == "train"
     assert loader_row["loader_id"]
 
@@ -108,3 +108,41 @@ def test_attached_loader_persists_run_dataset_transform_and_batch_events(
     assert [row["global_sequence"] for row in batch_rows] == [0, 1, 2, 3]
     assert [row["batch_size"] for row in batch_rows] == [3, 3, 3, 1]
     assert all(row["sample_ids_blob"] is not None for row in batch_rows)
+
+
+def test_attach_persists_explicit_dataset_provenance_override(
+    db_path,
+    store,
+    tmp_path: Path,
+) -> None:
+    dataset = TinyMapDataset(n=4)
+    loader = DataLoader(dataset, batch_size=2, shuffle=False, num_workers=0)
+    source_file = tmp_path / "scrubbed.csv"
+    source_file.write_text("id,label\n1,a\n2,b\n")
+
+    with Run(store=store) as run:
+        attached_loader = attach(
+            loader,
+            run,
+            role="train",
+            dataset_name="PokemonCSVDataset",
+            dataset_uri=str(source_file),
+            dataset_version_hint="preprocessed-v1",
+        )
+        list(attached_loader)
+
+    dataset_row = fetch_one(
+        db_path,
+        """
+        SELECT name, uri, version_hint, fingerprint_method, sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
+        """,
+        (run.run_id,),
+    )
+    assert dataset_row["name"] == "PokemonCSVDataset"
+    assert dataset_row["uri"] == str(source_file)
+    assert dataset_row["version_hint"] == "preprocessed-v1"
+    assert dataset_row["fingerprint_method"] == "local_sampled_manifest_v1"
+    assert dataset_row["sample_id_scheme"] == "index"
+    assert dataset_row["sample_id_resolver"] == "fallback_index"
