@@ -36,10 +36,9 @@ def test_file_collection_dataset_persists_filepath_sample_ids(db_path, store, tm
     dataset_row = fetch_one(
         db_path,
         """
-        SELECT d.sample_id_scheme, d.sample_id_resolver
-        FROM datasets d
-        JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
-        WHERE rd.run_id = ?
+        SELECT sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
         """,
         (run.run_id,),
     )
@@ -78,10 +77,9 @@ def test_custom_sample_id_resolver_override_wins(db_path, store) -> None:
     dataset_row = fetch_one(
         db_path,
         """
-        SELECT d.sample_id_scheme, d.sample_id_resolver
-        FROM datasets d
-        JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
-        WHERE rd.run_id = ?
+        SELECT sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
         """,
         (run.run_id,),
     )
@@ -123,10 +121,9 @@ def test_custom_sample_id_resolver_override_wins_over_structured_record_builtin(
     dataset_row = fetch_one(
         db_path,
         """
-        SELECT d.sample_id_scheme, d.sample_id_resolver
-        FROM datasets d
-        JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
-        WHERE rd.run_id = ?
+        SELECT sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
         """,
         (run.run_id,),
     )
@@ -159,10 +156,9 @@ def test_structured_record_dataset_uses_record_ids(db_path, store) -> None:
     dataset_row = fetch_one(
         db_path,
         """
-        SELECT d.sample_id_scheme, d.sample_id_resolver
-        FROM datasets d
-        JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
-        WHERE rd.run_id = ?
+        SELECT sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
         """,
         (run.run_id,),
     )
@@ -195,10 +191,9 @@ def test_structured_record_dataset_uses_record_object_keys(db_path, store) -> No
     dataset_row = fetch_one(
         db_path,
         """
-        SELECT d.sample_id_scheme, d.sample_id_resolver
-        FROM datasets d
-        JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
-        WHERE rd.run_id = ?
+        SELECT sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
         """,
         (run.run_id,),
     )
@@ -231,10 +226,9 @@ def test_structured_record_dataset_without_keys_falls_back_to_row_ids(db_path, s
     dataset_row = fetch_one(
         db_path,
         """
-        SELECT d.sample_id_scheme, d.sample_id_resolver
-        FROM datasets d
-        JOIN run_datasets rd ON rd.dataset_id = d.dataset_id
-        WHERE rd.run_id = ?
+        SELECT sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
         """,
         (run.run_id,),
     )
@@ -413,6 +407,52 @@ def test_structured_record_payload_ids_match_persisted_ids_when_shuffled(db_path
 
     assert persisted_ids == [f"record_id:{record_id}" for record_id in emitted_record_ids]
     assert emitted_record_ids != ["cust_001", "cust_002", "cust_003", "cust_004"]
+
+
+def test_same_dataset_can_use_different_sample_id_resolvers_across_runs(db_path, store) -> None:
+    loader_a = DataLoader(TinyRecordsDataset(), batch_size=2, shuffle=False, num_workers=0)
+    loader_b = DataLoader(TinyRecordsDataset(), batch_size=2, shuffle=False, num_workers=0)
+
+    with Run(store=store) as run_a:
+        list(attach(loader_a, run_a, role="train"))
+
+    with Run(store=store) as run_b:
+        list(
+            attach(
+                loader_b,
+                run_b,
+                role="train",
+                sample_id_resolver=custom_sample_id_resolver,
+            )
+        )
+
+    dataset_rows = fetch_all(
+        db_path,
+        """
+        SELECT run_id, dataset_id, sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id IN (?, ?)
+        ORDER BY run_id
+        """,
+        (run_a.run_id, run_b.run_id),
+    )
+    assert len(dataset_rows) == 2
+    by_run_id = {row["run_id"]: row for row in dataset_rows}
+    assert by_run_id[run_a.run_id]["dataset_id"] == by_run_id[run_b.run_id]["dataset_id"]
+    assert (
+        by_run_id[run_a.run_id]["sample_id_scheme"],
+        by_run_id[run_a.run_id]["sample_id_resolver"],
+    ) == (
+        "record_id",
+        "structured_record",
+    )
+    assert (
+        by_run_id[run_b.run_id]["sample_id_scheme"],
+        by_run_id[run_b.run_id]["sample_id_resolver"],
+    ) == (
+        "record_id",
+        "user_override",
+    )
 
 
 def test_wrapped_structured_record_datasets_use_underlying_identity_contract() -> None:

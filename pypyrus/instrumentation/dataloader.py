@@ -166,13 +166,20 @@ class DataLoaderProxy:
         role: str,
         sample_id_resolver: SampleIdResolver | None = None,
         id_aware_collate: bool = False,
+        dataset_name: str | None = None,
+        dataset_uri: str | None = None,
+        dataset_version_hint: str | None = None,
     ):
         self.run = run
         self.role = role
         self.loader_id = str(uuid4())
         self._registered = False
         self._dataset_id: str | None = None
+        self._dataset_registration_event_id: str | None = None
         self._global_step = 0
+        self._dataset_name_override = dataset_name
+        self._dataset_uri_override = dataset_uri
+        self._dataset_version_hint_override = dataset_version_hint
         self._source_loader = loader
         self.loader = _clone_dataloader_with_wrapped_dataset(
             loader,
@@ -185,7 +192,12 @@ class DataLoaderProxy:
             return
 
         dataset = self.loader.dataset
-        descriptor, dataset_fingerprint, warning = resolve_dataset_identity(dataset)
+        descriptor, dataset_fingerprint, warning = resolve_dataset_identity(
+            dataset,
+            name_override=self._dataset_name_override,
+            uri_override=self._dataset_uri_override,
+            version_hint_override=self._dataset_version_hint_override,
+        )
 
         if warning is not None:
             warnings.warn(
@@ -203,26 +215,26 @@ class DataLoaderProxy:
         if isinstance(dataset, DatasetWrapper):
             sample_id_scheme, sample_id_resolver_name = dataset.sample_id_metadata()
 
-        self.run.emit(
-            DatasetRegisteredEvent(
-                run_id=self.run.run_id,
-                dataset_id=descriptor.dataset_id,
-                name=descriptor.name,
-                role=self.role,
-                uri=descriptor.uri,
-                version_hint=descriptor.version_hint,
-                fingerprint=dataset_fingerprint.fingerprint,
-                fingerprint_method=dataset_fingerprint.fingerprint_method,
-                sample_id_scheme=sample_id_scheme,
-                sample_id_resolver=sample_id_resolver_name,
-            )
+        dataset_registration = DatasetRegisteredEvent(
+            run_id=self.run.run_id,
+            dataset_id=descriptor.dataset_id,
+            name=descriptor.name,
+            role=self.role,
+            uri=descriptor.uri,
+            version_hint=descriptor.version_hint,
+            fingerprint=dataset_fingerprint.fingerprint,
+            fingerprint_method=dataset_fingerprint.fingerprint_method,
+            sample_id_scheme=sample_id_scheme,
+            sample_id_resolver=sample_id_resolver_name,
         )
+        self.run.emit(dataset_registration)
+        self._dataset_registration_event_id = dataset_registration.event_id
 
         self.run.emit(
             LoaderRegisteredEvent(
                 run_id=self.run.run_id,
                 loader_id=self.loader_id,
-                dataset_id=descriptor.dataset_id,
+                dataset_registration_event_id=dataset_registration.event_id,
                 role=self.role,
             )
         )
@@ -233,7 +245,7 @@ class DataLoaderProxy:
             self.run.emit(
                 TransformDeclaredEvent(
                     run_id=self.run.run_id,
-                    dataset_id=descriptor.dataset_id,
+                    dataset_registration_event_id=dataset_registration.event_id,
                     transform_list=transform_decl["transform_list"],
                     params_hash=transform_decl["params_hash"],
                     introspection_level=transform_decl["introspection_level"],
@@ -244,12 +256,6 @@ class DataLoaderProxy:
 
     def __iter__(self) -> Iterator[Any]:
         self._emit_registration_events_once()
-
-        dataset_id = self._dataset_id
-        if dataset_id is None:
-            descriptor, _, _ = resolve_dataset_identity(self.loader.dataset)
-            dataset_id = descriptor.dataset_id
-            self._dataset_id = dataset_id
 
         for batch_payload, sample_ids in self.loader:
             batch_size = len(sample_ids) if sample_ids else _infer_batch_size(batch_payload)
@@ -266,7 +272,6 @@ class DataLoaderProxy:
                 BatchDeliveredEvent(
                     run_id=self.run.run_id,
                     loader_id=self.loader_id,
-                    dataset_id=dataset_id,
                     global_step=self._global_step,
                     global_sequence=self.run.next_batch_sequence(),
                     batch_size=batch_size,
@@ -291,6 +296,9 @@ def wrap_dataloader(
     role: str,
     sample_id_resolver: SampleIdResolver | None = None,
     id_aware_collate: bool = False,
+    dataset_name: str | None = None,
+    dataset_uri: str | None = None,
+    dataset_version_hint: str | None = None,
 ) -> DataLoaderProxy:
     return DataLoaderProxy(
         loader,
@@ -298,4 +306,7 @@ def wrap_dataloader(
         role=role,
         sample_id_resolver=sample_id_resolver,
         id_aware_collate=id_aware_collate,
+        dataset_name=dataset_name,
+        dataset_uri=dataset_uri,
+        dataset_version_hint=dataset_version_hint,
     )

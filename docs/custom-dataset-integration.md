@@ -134,6 +134,137 @@ def sample_id_resolver(dataset, index, sample):
     )
 ```
 
+## Dataset Source Provenance
+
+Sample identity and dataset source provenance are different.
+
+Examples:
+
+- dataset source provenance:
+  where the dataset came from
+  Example: `/data/scrubbed.csv`
+- sample identity:
+  how one row/sample is identified inside that dataset
+  Example: `record_id:customer_84291` or `row:57`
+
+For a file-collection dataset, PyPyrus can often infer both naturally from:
+
+- `.samples`
+- `.root`
+
+For a tabular dataset backed by one file, such as CSV or Parquet, the usual
+pattern is different:
+
+- dataset source provenance should point to the file path
+- sample identity should come from record IDs, row IDs, or a custom resolver
+
+Example:
+
+```python
+tracked_loader = attach(
+    loader,
+    run,
+    role="train",
+    dataset_uri="/data/scrubbed.csv",
+    dataset_name="CustomerCSVDataset",
+)
+```
+
+That tells PyPyrus:
+
+- the dataset came from `/data/scrubbed.csv`
+- but rows should still be identified separately using built-in structured-record
+  logic or `sample_id_resolver=...`
+
+### Best Practice
+
+For image-folder or per-file datasets:
+
+- expose `.samples` + `.root`
+
+For CSV / Parquet / single-file tabular datasets:
+
+- expose a path-like attribute such as `.path` when that fits your dataset class
+- or pass `dataset_uri=...` explicitly to `attach(...)`
+- use `.records`, `.record_ids`, or `sample_id_resolver=...` for row identity
+
+### Best Practice For Row-Based Datasets
+
+For tabular or row-based datasets, prefer identity that survives splitting,
+filtering, and reordering.
+
+Best to worst:
+
+1. stable record key from the source data
+   Example: `id`, `uuid`, `record_id`, `key`
+2. explicit `sample_id_resolver=...`
+   when your stable key exists but is not exposed through a built-in contract
+3. fallback `row:<index>`
+   only when no better row identity exists
+
+Example with stable row IDs:
+
+```python
+class CustomerDataset(Dataset):
+    def __init__(self, records, *, path):
+        self.records = records
+        self.path = path
+
+    def __getitem__(self, index):
+        row = self.records[index]
+        return features_from_row(row), label_from_row(row)
+```
+
+With records like:
+
+```python
+{"record_id": "cust_84291", "age": 42, "label": 1}
+```
+
+PyPyrus can identify samples as:
+
+- `record_id:cust_84291`
+
+This is the recommended shape for train/test splits derived from one source
+file, because the same logical row keeps the same identity even after the split.
+
+### Split Caveat For `row:<index>`
+
+Be careful with `row:<index>` when you split one source dataset into train/test
+in code.
+
+Example:
+
+- source file: `/data/scrubbed.csv`
+- train split uses some subset of rows
+- test split uses a different subset of rows
+
+If PyPyrus falls back to `row:<index>`, then:
+
+- `row:0` in the train dataset means "first row in the train dataset view"
+- `row:0` in the test dataset means "first row in the test dataset view"
+
+Those are not necessarily the same original source row.
+
+So:
+
+- dataset source provenance may still correctly show `/data/scrubbed.csv`
+- but fallback row IDs are only reliable inside that specific dataset view
+
+If you care about exact source-row provenance across splits, do not rely on
+`row:<index>` alone. Provide:
+
+- stable row keys in `.records`
+- or `.record_ids`
+- or `sample_id_resolver=...`
+
+Use the explicit attach-time override when:
+
+- your dataset wraps a source file but does not expose its path
+- the dataset class name alone is not descriptive enough in run reports
+- you want to include a preprocessing/version label with
+  `dataset_version_hint=...`
+
 ## Custom Collate That Reorders or Drops Samples
 
 If your collate function reorders or filters samples, PyPyrus cannot infer the
@@ -226,6 +357,7 @@ Use `sample_id_resolver=` when:
 - your internal dataset shape differs
 - your logical sample key is domain-specific
 - you want to guarantee a stronger stable identity than path or index
+- you want row/sample identity to stay separate from dataset source provenance
 
 ## Examples in This Repo
 

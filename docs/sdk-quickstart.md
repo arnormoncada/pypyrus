@@ -101,6 +101,40 @@ Use roles like:
 
 Roles let PyPyrus distinguish multiple loaders in one run.
 
+## Optional Dataset Provenance Override
+
+If your dataset is backed by a source file or directory but does not expose a
+useful path on the dataset object, pass explicit provenance metadata to
+`attach(...)`.
+
+Example:
+
+```python
+with Run() as run:
+    train_loader = attach(
+        train_loader,
+        run,
+        role="train",
+        dataset_uri="/data/scrubbed.csv",
+        dataset_name="PokemonCSVDataset",
+        dataset_version_hint="preprocessed-v1",
+    )
+```
+
+This is especially useful for:
+
+- CSV / Parquet / Arrow-backed datasets wrapped in custom `Dataset` classes
+- datasets that load from one file but do not expose `.path` or `.root`
+- cases where you want a clearer run report than the dataset class name alone
+
+Best practice:
+
+- use built-in dataset attributes like `.root` / `.path` when they are natural
+- use `dataset_uri=` when the source path exists but PyPyrus cannot infer it
+- keep sample identity separate from dataset provenance
+  For tabular data, use `record_id:*`, `row:*`, or `sample_id_resolver=...`
+  for rows; use `dataset_uri=` to say where the dataset came from
+
 ## Optional `sample_id_resolver`
 
 If PyPyrus cannot infer the right sample identity from your dataset shape, pass
