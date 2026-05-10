@@ -117,6 +117,23 @@ class TinyRecordsDataset(Dataset):
         return sample, idx % 2
 
 
+class TinyRecordsPayloadIdDataset(Dataset):
+    def __init__(self):
+        self.records = [
+            {"id": "cust_001", "value": 1},
+            {"id": "cust_002", "value": 2},
+            {"id": "cust_003", "value": 3},
+            {"id": "cust_004", "value": 4},
+        ]
+
+    def __len__(self) -> int:
+        return len(self.records)
+
+    def __getitem__(self, idx: int) -> tuple[str, int]:
+        record = self.records[idx]
+        return record["id"], record["value"]
+
+
 class TinyRowsDataset(Dataset):
     def __init__(self):
         self.rows = [

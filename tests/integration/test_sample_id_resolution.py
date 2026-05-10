@@ -14,6 +14,7 @@ from pypyrus.reporting.queries import decode_sample_ids_blob
 from tests.helpers import (
     TinyFileCollectionDataset,
     TinyMapDataset,
+    TinyRecordsPayloadIdDataset,
     TinyRecordIdsDataset,
     TinyRecordsDataset,
     TinyRowsDataset,
@@ -346,9 +347,7 @@ def test_structured_record_object_keys_stay_attached_to_their_samples_when_shuff
 
     with Run(store=store) as run:
         attached = attach(loader, run, role="train")
-        print("attached loader:", attached)
         consumed_batches = list(attached)
-        print("consumed batches:", consumed_batches)
 
     batch_rows = fetch_all(
         db_path,
@@ -363,17 +362,57 @@ def test_structured_record_object_keys_stay_attached_to_their_samples_when_shuff
     decoded_ids = [decode_sample_ids_blob(row["sample_ids_blob"]) for row in batch_rows]
 
     persisted_ids: list[str] = [sample_id for batch in decoded_ids for sample_id in batch]
-    print("Persisted IDs:", persisted_ids)
     payload_row_indices: list[int] = []
     for batch in consumed_batches:
         features, _labels = batch
         payload_row_indices.extend(int(value) for value in features[:, 0].tolist())
 
     expected_ids = [f"record_id:{dataset.records[row_index]['id']}" for row_index in payload_row_indices]
-    print("Expected IDs based on payload:", expected_ids)
     assert persisted_ids == expected_ids
     assert payload_row_indices != [0, 1, 2, 3]
-    print("Payload row indices:", payload_row_indices)
+
+
+def test_structured_record_payload_ids_match_persisted_ids_when_shuffled(db_path, store) -> None:
+    dataset = TinyRecordsPayloadIdDataset()
+    generator = torch.Generator().manual_seed(1234)
+    loader = DataLoader(
+        dataset,
+        batch_size=2,
+        shuffle=True,
+        num_workers=0,
+        generator=generator,
+    )
+
+    with Run(store=store) as run:
+        attached = attach(loader, run, role="train")
+        consumed_batches = list(attached)
+
+    batch_rows = fetch_all(
+        db_path,
+        """
+        SELECT sample_ids_blob
+        FROM batch_delivered
+        WHERE run_id = ?
+        ORDER BY global_sequence
+        """,
+        (run.run_id,),
+    )
+    decoded_ids = [decode_sample_ids_blob(row["sample_ids_blob"]) for row in batch_rows]
+
+    persisted_ids: list[str] = [sample_id for batch in decoded_ids for sample_id in batch]
+    emitted_records: list[tuple[str, int]] = []
+    for batch in consumed_batches:
+        record_ids, values = batch
+        batch_record_ids = [str(record_id) for record_id in record_ids]
+        batch_values = [int(value) for value in values.tolist()]
+        emitted_records.extend(list(zip(batch_record_ids, batch_values)))
+    emitted_record_ids = [record_id for record_id, _value in emitted_records]
+    print("Emitted Records:", emitted_records)
+    print("Emitted Record IDs:", emitted_record_ids)
+    print("Persisted IDs:", persisted_ids)
+
+    assert persisted_ids == [f"record_id:{record_id}" for record_id in emitted_record_ids]
+    assert emitted_record_ids != ["cust_001", "cust_002", "cust_003", "cust_004"]
 
 
 def test_wrapped_structured_record_datasets_use_underlying_identity_contract() -> None:
