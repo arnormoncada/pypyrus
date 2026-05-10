@@ -563,7 +563,6 @@ def _seed_run(
             run_id=run_id,
             loader_id=loader_id,
             dataset_registration_event_id=dataset_registration_event_id,
-            role=role,
         )
     )
     store.append_event(
@@ -618,7 +617,6 @@ def _append_loader_batch(
             run_id=run_id,
             loader_id=loader_id,
             dataset_registration_event_id=dataset_registration_event_id,
-            role=role,
         )
     )
     store.append_event(

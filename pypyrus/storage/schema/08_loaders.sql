@@ -8,7 +8,6 @@ CREATE TABLE IF NOT EXISTS loaders (
   loader_id TEXT NOT NULL UNIQUE, -- stable ID for one attached loader within a run
   run_id TEXT NOT NULL,
   dataset_registration_event_id TEXT NOT NULL,
-  role TEXT NOT NULL,
   registered_at TEXT NOT NULL,
 
   FOREIGN KEY (run_id) REFERENCES runs(run_id) ON DELETE CASCADE,
@@ -16,5 +15,4 @@ CREATE TABLE IF NOT EXISTS loaders (
 );
 
 CREATE INDEX IF NOT EXISTS idx_loaders_run ON loaders(run_id);
-CREATE INDEX IF NOT EXISTS idx_loaders_role ON loaders(run_id, role);
 CREATE INDEX IF NOT EXISTS idx_loaders_registration ON loaders(run_id, dataset_registration_event_id);

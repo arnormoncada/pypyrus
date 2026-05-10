@@ -228,17 +228,15 @@ class SQLiteStore(Store):
                 loader_id,
                 run_id,
                 dataset_registration_event_id,
-                role,
                 registered_at
             )
-            VALUES (?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?)
             """,
             (
                 event.event_id,
                 event.loader_id,
                 event.run_id,
                 event.dataset_registration_event_id,
-                event.role,
                 event.timestamp,
             ),
         )
@@ -321,7 +319,7 @@ class SQLiteStore(Store):
                 """
                 SELECT
                     b.*,
-                    l.role,
+                    dr.role,
                     dr.dataset_id,
                     dr.event_id AS dataset_registration_event_id
                 FROM batch_delivered b
@@ -365,7 +363,7 @@ class SQLiteStore(Store):
                     l.run_id,
                     dr.dataset_id,
                     l.dataset_registration_event_id,
-                    l.role,
+                    dr.role,
                     l.registered_at AS timestamp
                 FROM loaders l
                 JOIN dataset_registrations dr ON dr.event_id = l.dataset_registration_event_id

@@ -235,7 +235,6 @@ class DataLoaderProxy:
                 run_id=self.run.run_id,
                 loader_id=self.loader_id,
                 dataset_registration_event_id=dataset_registration.event_id,
-                role=self.role,
             )
         )
 
