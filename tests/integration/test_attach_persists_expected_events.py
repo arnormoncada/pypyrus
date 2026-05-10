@@ -82,14 +82,13 @@ def test_attached_loader_persists_run_dataset_transform_and_batch_events(
     loader_row = fetch_one(
         db_path,
         """
-        SELECT loader_id, dataset_registration_event_id, role
+        SELECT loader_id, dataset_registration_event_id
         FROM loaders
         WHERE run_id = ?
         """,
         (run.run_id,),
     )
     assert loader_row["dataset_registration_event_id"] == dataset_row["event_id"]
-    assert loader_row["role"] == "train"
     assert loader_row["loader_id"]
 
     batch_rows = fetch_all(

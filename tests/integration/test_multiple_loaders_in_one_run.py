@@ -79,11 +79,11 @@ def test_multiple_loaders_can_share_one_dataset_identity_without_batch_collision
     loader_rows = fetch_all(
         db_path,
         """
-        SELECT l.loader_id, dr.dataset_id, l.role
+        SELECT l.loader_id, dr.dataset_id, dr.role AS role
         FROM loaders l
         JOIN dataset_registrations dr ON dr.event_id = l.dataset_registration_event_id
         WHERE l.run_id = ?
-        ORDER BY l.role
+        ORDER BY dr.role
         """,
         (run.run_id,),
     )

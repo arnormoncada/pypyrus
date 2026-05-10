@@ -75,7 +75,6 @@ class DatasetRegisteredEvent(ProvenanceEvent):
 class LoaderRegisteredEvent(ProvenanceEvent):
     loader_id: str
     dataset_registration_event_id: str
-    role: str
 
     event_type: EventType = field(default="loader_registered", init=False)
 
