@@ -101,13 +101,16 @@ system_requirements:
       verification: architecture_review
 
     - id: NFR5
-      name: Framework Adaptability
+      name: Modular Instrumentation Architecture
       description: >
-        Instrumentation architecture shall support framework-specific adapters,
-        with PyTorch as the current concrete adapter.
+        The architecture shall separate framework-independent provenance
+        semantics from framework-specific instrumentation logic, allowing
+        additional adapters to be introduced for frameworks exposing an
+        observable batch delivery boundary. PyTorch is the current concrete
+        adapter implementation.
       scope: partial
       verification: architecture_review
-
+      
     - id: NFR6
       name: Stable Event Semantics
       description: >
@@ -120,7 +123,7 @@ system_requirements:
       name: Integration Usability
       description: >
         Integrating PyPyrus into existing training code shall require only local
-        DataLoader wrapping and run scoping, without invasive pipeline rewrites.
+        loader and dataset wrapping and run scoping, without invasive pipeline rewrites.
       scope: implemented
       verification: usability_demo
 

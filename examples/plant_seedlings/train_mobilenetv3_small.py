@@ -108,7 +108,7 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--buffered-queue-size",
         type=int,
-        default=1024,
+        default=2048,
         help="Queue size for BufferedStore strict mode. Default: 1024",
     )
 
