@@ -19,3 +19,7 @@ instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.1
 instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.583087
 instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=265.490066
 instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=296.964395
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=306.972452
+instrumentation=False epochs=3 batch_size=32 num_workers=2 elapsed_seconds=259.886163
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=248.751722
+instrumentation=True epochs=3 batch_size=32 num_workers=2 elapsed_seconds=254.105185
