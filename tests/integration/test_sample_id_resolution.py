@@ -8,7 +8,7 @@ from torch.utils.data import DataLoader
 from pypyrus.core.attach import attach
 from pypyrus.core.dataset_identity import resolve_dataset_identity
 from pypyrus.core.run import Run
-from pypyrus.instrumentation.dataset import wrap_dataset
+from pypyrus.instrumentation.pytorch.dataset import wrap_dataset
 from pypyrus.reporting.queries import decode_sample_ids_blob
 
 from tests.helpers import (

@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 
 from pypyrus.core.attach import attach
 from pypyrus.core.run import Run
-from pypyrus.instrumentation import dataloader as dataloader_module
+from pypyrus.instrumentation.pytorch import dataloader as dataloader_module
 from pypyrus.reporting.queries import decode_sample_ids_blob
 
 from tests.helpers import (

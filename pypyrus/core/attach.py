@@ -4,7 +4,7 @@ from typing import Any
 
 from pypyrus.core.run import Run
 from pypyrus.core.sample_id import SampleIdResolver
-from pypyrus.instrumentation.dataloader import wrap_dataloader
+from pypyrus.instrumentation.pytorch.dataloader import wrap_dataloader
 
 
 def attach(

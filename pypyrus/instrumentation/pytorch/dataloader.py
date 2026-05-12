@@ -12,8 +12,8 @@ from pypyrus.core.run import Run
 from pypyrus.core.dataset_identity import resolve_dataset_identity
 from pypyrus.core.sample_id import SampleIdResolver
 from pypyrus.core.transform_identity import extract_transform_declaration
-from pypyrus.instrumentation.collate import wrap_collate
-from pypyrus.instrumentation.dataset import DatasetWrapper, wrap_dataset
+from pypyrus.instrumentation.pytorch.collate import wrap_collate
+from pypyrus.instrumentation.pytorch.dataset import DatasetWrapper, wrap_dataset
 from pypyrus.provenance.events import (
     BatchDeliveredEvent,
     DatasetRegisteredEvent,

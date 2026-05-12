@@ -5,7 +5,7 @@ from typing import Any, Callable
 
 from torch.utils.data._utils.collate import default_collate
 
-from pypyrus.instrumentation.dataset import (
+from pypyrus.instrumentation.pytorch.dataset import (
     PYPYRUS_ID_KEY,
     PYPYRUS_PAYLOAD_KEY,
 )
