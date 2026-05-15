@@ -80,6 +80,26 @@ def resolve_sample_id(
     )
 
 
+def resolve_iterable_sample_id(
+    dataset: Any,
+    index: int,
+    sample: Any,
+    *,
+    user_resolver: SampleIdResolver | None = None,
+) -> SampleIdResolution:
+    """Resolve one iterable-dataset sample using an explicit user resolver."""
+    if user_resolver is None:
+        raise ValueError(
+            "PyPyrus requires sample_id_resolver=... for IterableDataset "
+            "instrumentation."
+        )
+
+    return _normalize_user_resolution(
+        user_resolver(dataset, index, sample),
+        default_resolver="user_override",
+    )
+
+
 def infer_sample_id_metadata(
     dataset: Any,
     *,

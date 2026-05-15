@@ -10,10 +10,11 @@ from __future__ import annotations
 
 from .collate import wrap_collate
 from .dataloader import wrap_dataloader
-from .dataset import wrap_dataset
+from .dataset import wrap_dataset, wrap_iterable_dataset
 
 __all__ = [
     "wrap_dataset",
+    "wrap_iterable_dataset",
     "wrap_dataloader",
     "wrap_collate",
 ]

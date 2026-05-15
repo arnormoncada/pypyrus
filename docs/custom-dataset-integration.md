@@ -5,6 +5,16 @@ PyPyrus can infer sample identity automatically for a few dataset shapes.
 If your dataset does not fit one of those shapes cleanly, use
 `sample_id_resolver=` when you call `attach(...)`.
 
+## Dataset Base Class Requirement
+
+PyPyrus expects your dataset to inherit the corresponding PyTorch base class:
+
+- map-style datasets: `torch.utils.data.Dataset`
+- iterable datasets: `torch.utils.data.IterableDataset`
+
+Custom objects that only implement `__getitem__`, `__len__`, or `__iter__`
+without inheriting these bases are rejected at `attach(...)`.
+
 ## Option 1: Fit a Built-In Contract
 
 ### File Collection Datasets
@@ -83,6 +93,7 @@ Use this when:
 
 - your dataset shape does not match a built-in contract
 - your real logical sample identity is better than the default one
+- your dataset inherits `IterableDataset`
 
 Example:
 
@@ -109,6 +120,12 @@ The resolver receives:
 - `dataset`
 - `index`
 - `sample`
+
+For map-style datasets, `index` is the dataset index.
+
+For iterable datasets, `index` is the stream position observed by the wrapped
+iterator. Because PyPyrus does not treat that position as a stable built-in
+identity, iterable datasets must provide `sample_id_resolver=...`.
 
 It can return:
 

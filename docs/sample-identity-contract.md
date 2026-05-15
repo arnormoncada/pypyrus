@@ -9,6 +9,17 @@ The goal is simple:
 
 These contracts are **PyPyrus conventions**, not PyTorch-wide standards.
 
+## Dataset Type Requirements
+
+PyPyrus expects the DataLoader dataset to follow the PyTorch dataset base
+classes explicitly:
+
+- map-style datasets should inherit `torch.utils.data.Dataset`
+- iterable datasets should inherit `torch.utils.data.IterableDataset`
+
+Datasets that only duck-type these interfaces without inheriting the PyTorch
+bases are rejected at `attach(...)`.
+
 ## Normalized Sample ID Schemes
 
 PyPyrus currently emits these normalized schemes:
@@ -28,6 +39,9 @@ PyPyrus resolves sample IDs in this order:
 3. structured record contract
 4. narrow logical/framework compatibility cases
 5. fallback positional identity
+
+For `IterableDataset`, PyPyrus does not use the built-in fallback path.
+Iterable datasets must provide `sample_id_resolver=...`.
 
 ## File Collection Contract
 
@@ -134,6 +148,7 @@ Use a custom resolver when:
 - your dataset does not expose the built-in contract attrs
 - your built-in sample identity should be stronger than the default one
 - your logical sample key matters more than path or index
+- you are attaching an `IterableDataset`
 
 Example:
 

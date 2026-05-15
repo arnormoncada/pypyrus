@@ -26,7 +26,9 @@ def attach(
     Parameters
     ----------
     loader:
-        A PyTorch DataLoader instance.
+        A PyTorch DataLoader instance whose dataset inherits
+        ``torch.utils.data.Dataset`` or
+        ``torch.utils.data.IterableDataset``.
 
     run:
         The active PyPyrus Run.
@@ -39,6 +41,10 @@ def attach(
     id_aware_collate:
         Set to True when your custom collate function reorders or filters
         samples and returns (batch, remapped_ids).
+
+    sample_id_resolver:
+        Optional for map-style datasets. Required for
+        ``torch.utils.data.IterableDataset``.
 
     dataset_name, dataset_uri, dataset_version_hint:
         Optional explicit dataset provenance metadata. Use these when PyPyrus
