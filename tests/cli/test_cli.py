@@ -176,7 +176,7 @@ def test_batches_show_uses_run_global_step(tmp_path, capsys) -> None:
     assert batch["role"] == "val"
 
 
-def test_samples_find_supports_direct_and_filepath_lookup(tmp_path, capsys) -> None:
+def test_samples_find_supports_direct_sample_id_lookup(tmp_path, capsys) -> None:
     db_path = tmp_path / "cli_samples.db"
     store = SQLiteStore(db_path)
     dataset_root = _build_tiny_file_dataset(tmp_path / "dataset")
@@ -201,29 +201,7 @@ def test_samples_find_supports_direct_and_filepath_lookup(tmp_path, capsys) -> N
     assert result["found"] is True
     assert result["sample_id"] == "filepath:class_a/item_0.txt"
     assert result["sample_id_scheme"] == "filepath"
-    assert result["query_scope"] == "run"
     assert result["occurrence_count"] == 1
-
-    exit_code = main(
-        [
-            "--db",
-            str(db_path),
-            "--json",
-            "samples",
-            "find",
-            run.run_id,
-            "--file",
-            "class_a/item_0.txt",
-            "--dataset-path",
-            str(dataset_root),
-        ]
-    )
-    captured = capsys.readouterr()
-    result = json.loads(captured.out)
-    assert exit_code == 0
-    assert result["found"] is True
-    assert result["query_scope"] == "dataset"
-    assert result["query_resolution"]["sample_id"] == "filepath:class_a/item_0.txt"
 
 
 def test_runs_show_and_samples_find_support_structured_record_sample_ids(
@@ -302,88 +280,7 @@ def test_runs_show_and_samples_find_support_structured_record_sample_ids(
     assert row_result["sample_id_scheme"] == "row"
     assert row_result["matching_roles"] == ["val"]
 
-
-def test_samples_find_filepath_lookup_requires_fingerprint_match(tmp_path, capsys) -> None:
-    db_path = tmp_path / "cli_samples_mismatch.db"
-    store = SQLiteStore(db_path)
-    dataset_root = _build_tiny_file_dataset(tmp_path / "dataset")
-    wrong_root = _build_tiny_file_dataset(tmp_path / "dataset_other", file_name="different.txt")
-    dataset = TinyFileCollectionDataset(dataset_root)
-
-    from torch.utils.data import DataLoader
-    from pypyrus.core.attach import attach
-    from pypyrus.core.run import Run
-
-    loader = DataLoader(dataset, batch_size=2, shuffle=False, num_workers=0)
-    with Run(store=store) as run:
-        attached = attach(loader, run, role="train")
-        list(attached)
-    store.close()
-
-    exit_code = main(
-        [
-            "--db",
-            str(db_path),
-            "samples",
-            "find",
-            run.run_id,
-            "--file",
-            f"class_a/{wrong_root.joinpath('class_a', 'different.txt').name}",
-            "--dataset-path",
-            str(wrong_root),
-        ]
-    )
-    captured = capsys.readouterr()
-    assert exit_code == 1
-    assert "matches the provided dataset path fingerprint" in captured.err
-
-
-def test_samples_find_filepath_lookup_supports_symlinked_split_paths(tmp_path, capsys) -> None:
-    db_path = tmp_path / "cli_samples_symlink.db"
-    store = SQLiteStore(db_path)
-
-    raw_root = _build_tiny_file_dataset(tmp_path / "raw_dataset")
-    split_root = tmp_path / "split_dataset"
-    (split_root / "class_a").mkdir(parents=True, exist_ok=True)
-    (split_root / "class_b").mkdir(parents=True, exist_ok=True)
-    (split_root / "class_a" / "item_0.txt").symlink_to(raw_root / "class_a" / "item_0.txt")
-    (split_root / "class_b" / "item_1.txt").symlink_to(raw_root / "class_b" / "item_1.txt")
-
-    dataset = TinyFileCollectionDataset(split_root)
-
-    from torch.utils.data import DataLoader
-    from pypyrus.core.attach import attach
-    from pypyrus.core.run import Run
-
-    loader = DataLoader(dataset, batch_size=2, shuffle=False, num_workers=0)
-    with Run(store=store) as run:
-        attached = attach(loader, run, role="train")
-        list(attached)
-    store.close()
-
-    exit_code = main(
-        [
-            "--db",
-            str(db_path),
-            "--json",
-            "samples",
-            "find",
-            run.run_id,
-            "--file",
-            "class_a/item_0.txt",
-            "--dataset-path",
-            str(split_root),
-        ]
-    )
-    captured = capsys.readouterr()
-    result = json.loads(captured.out)
-    assert exit_code == 0
-    assert result["found"] is True
-    assert result["sample_id"] == "filepath:class_a/item_0.txt"
-    assert result["query_scope"] == "dataset"
-
-
-def test_samples_find_distinguishes_duplicate_relative_paths_by_dataset_scope(
+def test_samples_find_reports_all_matching_datasets_for_duplicate_relative_paths(
     tmp_path, capsys
 ) -> None:
     db_path = tmp_path / "cli_samples_scoped.db"
@@ -431,61 +328,9 @@ def test_samples_find_distinguishes_duplicate_relative_paths_by_dataset_scope(
 
     assert exit_code == 0
     assert broad_result["found"] is True
-    assert broad_result["query_scope"] == "run"
     assert broad_result["occurrence_count"] == 2
     assert broad_result["matching_roles"] == ["test", "train"]
     assert len(broad_result["matching_dataset_ids"]) == 2
-
-    exit_code = main(
-        [
-            "--db",
-            str(db_path),
-            "--json",
-            "samples",
-            "find",
-            run.run_id,
-            "--file",
-            "class_a/item_0.txt",
-            "--dataset-path",
-            str(train_root),
-        ]
-    )
-    captured = capsys.readouterr()
-    train_result = json.loads(captured.out)
-
-    assert exit_code == 0
-    assert train_result["found"] is True
-    assert train_result["query_scope"] == "dataset"
-    assert train_result["matching_roles"] == ["train"]
-    assert len(train_result["matching_dataset_ids"]) == 1
-    assert train_result["matching_dataset_ids"] == train_result["scoped_dataset_ids"]
-
-    train_dataset_id = train_result["matching_dataset_ids"][0]
-    assert train_result["query_resolution"]["matching_dataset_ids"] == [train_dataset_id]
-
-    exit_code = main(
-        [
-            "--db",
-            str(db_path),
-            "--json",
-            "samples",
-            "find",
-            run.run_id,
-            "--sample-id",
-            "filepath:class_a/item_0.txt",
-            "--dataset-id",
-            train_dataset_id,
-        ]
-    )
-    captured = capsys.readouterr()
-    scoped_result = json.loads(captured.out)
-
-    assert exit_code == 0
-    assert scoped_result["found"] is True
-    assert scoped_result["query_scope"] == "dataset"
-    assert scoped_result["matching_roles"] == ["train"]
-    assert scoped_result["matching_dataset_ids"] == [train_dataset_id]
-    assert scoped_result["scoped_dataset_ids"] == [train_dataset_id]
 
 
 def test_missing_db_returns_nonzero(tmp_path, capsys) -> None:

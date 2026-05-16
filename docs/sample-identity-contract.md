@@ -138,8 +138,7 @@ That means:
 
 This is why:
 
-- `samples find --file ... --dataset-path ...` is dataset-scoped
-- bare `--sample-id` can match multiple datasets in one run
+- `samples find --sample-id ...` can match multiple datasets in one run
 
 ## When To Use `sample_id_resolver=...`
 

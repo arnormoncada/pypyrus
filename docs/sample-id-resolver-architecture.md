@@ -250,18 +250,15 @@ The important invariant is:
 
 The intended MVP query shape for `samples find` is:
 
-* `--sample-id` is the generic path
-* `--file` + `--dataset-path` is the first convenience path
+* `--sample-id` is the CLI lookup path
 
-For filepath lookup:
+For filepath-backed datasets:
 
-* the file query must resolve to the same normalized `sample_id` scheme used at
-  attach time
-* filepath lookup should require dataset fingerprint match before the result is
-  trusted
+* callers should query the stored normalized `filepath:<relative-path>` value
+  directly via `--sample-id`
 
-This means filepath lookup is a resolver convenience, not a separate provenance
-feature.
+This keeps the CLI centered on one stored identity rather than adding a second
+reverse-resolution path.
 
 ---
 

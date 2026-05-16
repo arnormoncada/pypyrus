@@ -160,15 +160,12 @@ def build_parser() -> argparse.ArgumentParser:
         "samples",
         help="Find sample usage within a run.",
         description=(
-            "Find whether a specific sample was used in a run.\n\n"
-            "Use --sample-id for direct lookup or --file with --dataset-path\n"
-            "for file-collection datasets. File lookup is dataset-scoped,\n"
-            "while bare --sample-id searches across all datasets in the run."
+            "Find whether a specific sample ID was used in a run.\n\n"
+            "This command searches across all datasets recorded in the run."
         ),
         epilog=(
             "Examples:\n"
             "  pypyrus samples find <run_id> --sample-id index:3\n"
-            "  pypyrus samples find <run_id> --file class_a/img_001.png --dataset-path /path/to/dataset\n"
             "  pypyrus --json samples find <run_id> --sample-id filepath:class_a/img_001.png"
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
@@ -179,29 +176,16 @@ def build_parser() -> argparse.ArgumentParser:
         "find",
         help="Find whether a sample was used in a run.",
         description=(
-            "Look up sample usage by direct sample ID or by resolving a file\n"
-            "path against a file-collection dataset.\n\n"
-            "File lookup stays scoped to the dataset matched by --dataset-path.\n"
-            "Bare --sample-id searches the whole run unless you also pass --dataset-id."
+            "Look up sample usage by normalized sample ID.\n\n"
+            "This searches the whole run across all recorded datasets."
         ),
         formatter_class=argparse.RawDescriptionHelpFormatter,
     )
     samples_find_parser.add_argument("run_id", help="Run identifier.")
     samples_find_parser.add_argument(
         "--sample-id",
+        required=True,
         help="Normalized sample ID to search for directly.",
-    )
-    samples_find_parser.add_argument(
-        "--dataset-id",
-        help="Optional dataset scope for direct --sample-id lookup.",
-    )
-    samples_find_parser.add_argument(
-        "--file",
-        help="File path to resolve for file-collection datasets.",
-    )
-    samples_find_parser.add_argument(
-        "--dataset-path",
-        help="Dataset root used to resolve --file and verify fingerprint match.",
     )
     samples_find_parser.set_defaults(handler=cmd_samples_find)
 
