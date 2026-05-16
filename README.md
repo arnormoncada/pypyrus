@@ -104,10 +104,10 @@ pypyrus samples find <run_id> --sample-id index:3
 - [CLI Usage](docs/cli-usage.md)
 - [Custom Dataset Integration](docs/custom-dataset-integration.md)
 
-## Examples
+## Experiments
 
-- [Plant seedlings image classification](examples/plant_seedlings/train_mobilenetv3_small.py)
-- [UFO sightings shape classification](examples/ufo_sightings/train_shape_classifier.py)
+- [Plant seedlings image classification](experiments/plant_seedlings/train_mobilenetv3_small.py)
+- [UFO sightings shape classification](experiments/ufo_sightings/train_shape_classifier.py)
 
 ## Internal Design Notes
 

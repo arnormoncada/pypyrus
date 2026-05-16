@@ -1,9 +1,9 @@
 {
   "experiment": "baseline_reproducibility_match",
   "config": {
-    "data_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split",
-    "train_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
-    "test_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+    "data_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split",
+    "train_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/train",
+    "test_root": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/test",
     "epochs": 3,
     "batch_size": 32,
     "lr": 0.001,
@@ -35,7 +35,7 @@
             {
               "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
               "name": "DatasetWrapper",
-              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/test",
               "fingerprint": "f1316f8c462a9961be3ef83b685e0b67b1c4ca8d5ccd67ca1a6394d2179ae163",
               "fingerprint_method": "local_sampled_manifest_v1"
             }
@@ -44,7 +44,7 @@
             {
               "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
               "name": "DatasetWrapper",
-              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/test",
               "fingerprint": "f1316f8c462a9961be3ef83b685e0b67b1c4ca8d5ccd67ca1a6394d2179ae163",
               "fingerprint_method": "local_sampled_manifest_v1"
             }
@@ -71,7 +71,7 @@
             {
               "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
               "name": "DatasetWrapper",
-              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/train",
               "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
               "fingerprint_method": "local_sampled_manifest_v1"
             }
@@ -80,7 +80,7 @@
             {
               "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
               "name": "DatasetWrapper",
-              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/train",
               "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
               "fingerprint_method": "local_sampled_manifest_v1"
             }
@@ -117,7 +117,7 @@
         "event_id": "8acc4675-7408-413d-8b8d-61552043756a",
         "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
         "name": "DatasetWrapper",
-        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/train",
         "version_hint": null,
         "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
         "fingerprint_method": "local_sampled_manifest_v1",
@@ -131,7 +131,7 @@
         "event_id": "c174b420-973e-48b3-bb5c-c1c5c062269c",
         "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
         "name": "DatasetWrapper",
-        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/test",
         "version_hint": null,
         "fingerprint": "f1316f8c462a9961be3ef83b685e0b67b1c4ca8d5ccd67ca1a6394d2179ae163",
         "fingerprint_method": "local_sampled_manifest_v1",
@@ -277,7 +277,7 @@
         "event_id": "8acc4675-7408-413d-8b8d-61552043756a",
         "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
         "name": "DatasetWrapper",
-        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/train",
         "version_hint": null,
         "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
         "fingerprint_method": "local_sampled_manifest_v1",
@@ -291,7 +291,7 @@
         "event_id": "c174b420-973e-48b3-bb5c-c1c5c062269c",
         "dataset_id": "cbcb4406b825ba33bb539b1c19746517846daab98ebd533016068dd2ecc57d15",
         "name": "DatasetWrapper",
-        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/test",
+        "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/test",
         "version_hint": null,
         "fingerprint": "f1316f8c462a9961be3ef83b685e0b67b1c4ca8d5ccd67ca1a6394d2179ae163",
         "fingerprint_method": "local_sampled_manifest_v1",
@@ -534,7 +534,7 @@
               "event_id": "8acc4675-7408-413d-8b8d-61552043756a",
               "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
               "name": "DatasetWrapper",
-              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/train",
               "version_hint": null,
               "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
               "fingerprint_method": "local_sampled_manifest_v1",
@@ -640,7 +640,7 @@
               "event_id": "8acc4675-7408-413d-8b8d-61552043756a",
               "dataset_id": "3b5d894b3a19960d3a24601d9bca520d31bbd04189de1ad94a0647ed4bf195b2",
               "name": "DatasetWrapper",
-              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/examples/plant_seedlings/data/split/train",
+              "uri": "/Users/arnormoncada/Documents/DTU/V26/pypyrus/experiments/plant_seedlings/data/split/train",
               "version_hint": null,
               "fingerprint": "9339be679a27083de1a86f0b2b3b68158c7a514daf279e9b77cb67e3840d03cd",
               "fingerprint_method": "local_sampled_manifest_v1",

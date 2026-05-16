@@ -8,7 +8,7 @@ and optionally writes a JSON evidence bundle.
 Example:
 
     python experiments/run_baseline_reproducibility_match.py \
-      --data-root examples/plant_seedlings/data/split \
+      --data-root experiments/plant_seedlings/data/split \
       --epochs 3 \
       --seed 42 \
       --reset-db
@@ -34,7 +34,6 @@ from pypyrus.reporting import (
     find_sample_occurrences,
     format_run_comparison,
     get_batch_for_run_step,
-    resolve_file_query_for_run,
 )
 from pypyrus.storage.sqlite_store import SQLiteStore
 
@@ -174,13 +173,11 @@ def main() -> int:
         sample_lookup_a = build_sample_lookup_evidence(
             store,
             run_id=run_id_a,
-            train_root=train_root,
             relative_file_path=sample_file,
         )
         sample_lookup_b = build_sample_lookup_evidence(
             store,
             run_id=run_id_b,
-            train_root=train_root,
             relative_file_path=sample_file,
         )
     finally:
@@ -340,22 +337,15 @@ def build_sample_lookup_evidence(
     store: SQLiteStore,
     *,
     run_id: str,
-    train_root: Path,
     relative_file_path: str,
 ) -> dict[str, Any]:
-    resolved = resolve_file_query_for_run(
-        store,
-        run_id,
-        dataset_path=train_root,
-        file_path=relative_file_path,
-    )
+    sample_id = f"filepath:{relative_file_path}"
     return {
-        "resolved_query": resolved,
+        "sample_id": sample_id,
         "occurrences": find_sample_occurrences(
             store,
             run_id,
-            resolved["sample_id"],
-            dataset_ids=resolved["matching_dataset_ids"],
+            sample_id,
         ),
     }
 

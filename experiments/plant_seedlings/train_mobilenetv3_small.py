@@ -15,23 +15,23 @@ Expected dataset layout:
 
 Example:
 
-    python examples/plant_seedlings/train_mobilenetv3_small.py \
-    --data-root examples/plant_seedlings/data/split \
+    python experiments/plant_seedlings/train_mobilenetv3_small.py \
+    --data-root experiments/plant_seedlings/data/split \
     --epochs 3 \
-    --timing-file examples/plant_seedlings/timings.txt
+    --timing-file experiments/plant_seedlings/timings.txt
 
-    python examples/plant_seedlings/train_mobilenetv3_small.py \
-    --data-root examples/plant_seedlings/data/split \
+    python experiments/plant_seedlings/train_mobilenetv3_small.py \
+    --data-root experiments/plant_seedlings/data/split \
     --epochs 3 \
-    --timing-file examples/plant_seedlings/timings.txt \
+    --timing-file experiments/plant_seedlings/timings.txt \
     --buffered-queue \
     --buffered-queue-size 2
 
-    python examples/plant_seedlings/train_mobilenetv3_small.py \
-    --data-root examples/plant_seedlings/data/split \
+    python experiments/plant_seedlings/train_mobilenetv3_small.py \
+    --data-root experiments/plant_seedlings/data/split \
     --epochs 3 \
     --no-instrumentation \
-    --timing-file examples/plant_seedlings/timings.txt
+    --timing-file experiments/plant_seedlings/timings.txt
 """
 
 from __future__ import annotations

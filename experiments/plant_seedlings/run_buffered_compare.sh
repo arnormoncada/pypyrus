@@ -3,12 +3,12 @@ set -euo pipefail
 
 # All settings can be overridden via environment variables, e.g.:
 # EPOCHS=10 PAIRS=20 WARMUP_PAIRS=1 BUFFERED_QUEUE_SIZE=64 \
-# bash examples/plant_seedlings/run_buffered_compare.sh
-DATA_ROOT="${DATA_ROOT:-examples/plant_seedlings/data/split}"
+# bash experiments/plant_seedlings/run_buffered_compare.sh
+DATA_ROOT="${DATA_ROOT:-experiments/plant_seedlings/data/split}"
 EPOCHS="${EPOCHS:-10}"
 BATCH_SIZE="${BATCH_SIZE:-32}"
 NUM_WORKERS="${NUM_WORKERS:-2}"
-TIMING_FILE="${TIMING_FILE:-examples/plant_seedlings/timings_buffered_compare.txt}"
+TIMING_FILE="${TIMING_FILE:-experiments/plant_seedlings/timings_buffered_compare.txt}"
 PAIRS="${PAIRS:-20}"
 WARMUP_PAIRS="${WARMUP_PAIRS:-1}"
 BUFFERED_QUEUE_SIZE="${BUFFERED_QUEUE_SIZE:-1024}"
@@ -23,7 +23,7 @@ run_once() {
 
   if [[ "$use_buffered" == "true" ]]; then
     mode_label="buffered"
-    "$PYTHON_BIN" examples/plant_seedlings/train_mobilenetv3_small.py \
+    "$PYTHON_BIN" experiments/plant_seedlings/train_mobilenetv3_small.py \
       --data-root "$DATA_ROOT" \
       --epochs "$EPOCHS" \
       --batch-size "$BATCH_SIZE" \
@@ -32,7 +32,7 @@ run_once() {
       --buffered-queue-size "$BUFFERED_QUEUE_SIZE" \
       --timing-file "$timing_file"
   else
-    "$PYTHON_BIN" examples/plant_seedlings/train_mobilenetv3_small.py \
+    "$PYTHON_BIN" experiments/plant_seedlings/train_mobilenetv3_small.py \
       --data-root "$DATA_ROOT" \
       --epochs "$EPOCHS" \
       --batch-size "$BATCH_SIZE" \
@@ -106,4 +106,4 @@ cat "$TIMING_FILE.buffered"
 
 echo
 echo "Summary:"
-"$PYTHON_BIN" examples/plant_seedlings/summarize_buffered_timings.py --timing-file "$TIMING_FILE.buffered"
+"$PYTHON_BIN" experiments/plant_seedlings/summarize_buffered_timings.py --timing-file "$TIMING_FILE.buffered"

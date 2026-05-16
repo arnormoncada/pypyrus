@@ -10,8 +10,8 @@ plus `other`. The script supports two model paths:
 
 Example:
 
-    python examples/ufo_sightings/train_shape_classifier.py \
-      --data-path examples/ufo_sightings/data/scrubbed.csv \
+    python experiments/ufo_sightings/train_shape_classifier.py \
+      --data-path experiments/ufo_sightings/data/scrubbed.csv \
       --epochs 2 \
       --model fast
 

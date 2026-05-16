@@ -36,7 +36,7 @@ PyPyrus report that the two runs match?
 
 Primary basis:
 
-- `examples/plant_seedlings/train_mobilenetv3_small.py`
+- `experiments/plant_seedlings/train_mobilenetv3_small.py`
 - runner: `experiments/run_baseline_reproducibility_match.py`
 
 Why this script:
@@ -90,7 +90,7 @@ Run the dedicated experiment script with a fixed configuration, for example:
 
 ```bash
 python experiments/run_baseline_reproducibility_match.py \
-  --data-root examples/plant_seedlings/data/split \
+  --data-root experiments/plant_seedlings/data/split \
   --epochs 3 \
   --seed 42 \
   --reset-db
@@ -140,16 +140,14 @@ pypyrus batches show <run_a> --step <n>
 pypyrus batches show <run_b> --step <n>
 ```
 
-Also capture one or two sample lookups using a known file path:
+Also capture one or two sample lookups using a known sample ID:
 
 ```bash
 pypyrus samples find <run_a> \
-  --file <class>/<filename> \
-  --dataset-path examples/plant_seedlings/data/split/train
+  --sample-id filepath:<class>/<filename>
 
 pypyrus samples find <run_b> \
-  --file <class>/<filename> \
-  --dataset-path examples/plant_seedlings/data/split/train
+  --sample-id filepath:<class>/<filename>
 ```
 
 These are supporting checks. The primary evidence is still the run-level
@@ -170,7 +168,7 @@ compare result.
 ### Supporting
 
 - selected `batches show` outputs at the same run-global step
-- selected `samples find` outputs for the same file-backed sample
+- selected `samples find` outputs for the same sample ID
 
 ## Expected Result
 

@@ -353,9 +353,9 @@ Use `sample_id_resolver=` when:
 
 ## Examples in This Repo
 
-- [Plant seedlings example](../examples/plant_seedlings/train_mobilenetv3_small.py)
+- [Plant seedlings example](../experiments/plant_seedlings/train_mobilenetv3_small.py)
   shows file-collection datasets
-- [UFO sightings example](../examples/ufo_sightings/train_shape_classifier.py)
+- [UFO sightings example](../experiments/ufo_sightings/train_shape_classifier.py)
   shows a structured-record dataset shape and defaults to the fast torch-native
   classifier path; the transformer path is optional
 

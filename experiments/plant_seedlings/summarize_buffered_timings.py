@@ -140,7 +140,7 @@ def main() -> int:
     parser.add_argument(
         "--timing-file",
         type=Path,
-        default=Path("examples/plant_seedlings/timings_buffered_compare.txt"),
+        default=Path("experiments/plant_seedlings/timings_buffered_compare.txt"),
         help="Path to buffered timing file.",
     )
     parser.add_argument(
