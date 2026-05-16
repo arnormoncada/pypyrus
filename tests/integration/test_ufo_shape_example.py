@@ -130,8 +130,16 @@ def test_ufo_comments_dataset_exposes_records_and_collates() -> None:
     )
 
     assert dataset.records[0]["record_id"] == "ufo_10"
+    first_sample = next(iter(dataset))
+    assert first_sample["record_id"] == "ufo_10"
+    assert module.ufo_sample_id_resolver(dataset, 0, first_sample) == "record_id:ufo_10"
 
-    loader = DataLoader(dataset, batch_size=2, shuffle=False)
+    loader = DataLoader(
+        dataset,
+        batch_size=2,
+        shuffle=False,
+        collate_fn=module.ufo_comments_collate,
+    )
     batch = next(iter(loader))
 
     assert set(batch.keys()) == {"input_ids", "attention_mask", "labels"}
