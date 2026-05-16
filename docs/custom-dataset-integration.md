@@ -2,8 +2,7 @@
 
 PyPyrus can infer sample identity automatically for a few dataset shapes.
 
-If your dataset does not fit one of those shapes cleanly, use
-`sample_id_resolver=` when you call `attach(...)`.
+If it cannot, use `sample_id_resolver=` in `attach(...)`.
 
 ## Dataset Base Class Requirement
 
@@ -123,9 +122,8 @@ The resolver receives:
 
 For map-style datasets, `index` is the dataset index.
 
-For iterable datasets, `index` is the stream position observed by the wrapped
-iterator. Because PyPyrus does not treat that position as a stable built-in
-identity, iterable datasets must provide `sample_id_resolver=...`.
+For iterable datasets, `index` is the stream position. Iterable datasets must
+provide `sample_id_resolver=...`.
 
 It can return:
 
@@ -153,27 +151,15 @@ def sample_id_resolver(dataset, index, sample):
 
 ## Dataset Source Provenance
 
-Sample identity and dataset source provenance are different.
+Dataset provenance and sample identity are separate:
 
-Examples:
+- dataset provenance: where the dataset came from
+- sample identity: how one sample is named inside that dataset
 
-- dataset source provenance:
-  where the dataset came from
-  Example: `/data/scrubbed.csv`
-- sample identity:
-  how one row/sample is identified inside that dataset
-  Example: `record_id:customer_84291` or `row:57`
+Example:
 
-For a file-collection dataset, PyPyrus can often infer both naturally from:
-
-- `.samples`
-- `.root`
-
-For a tabular dataset backed by one file, such as CSV or Parquet, the usual
-pattern is different:
-
-- dataset source provenance should point to the file path
-- sample identity should come from record IDs, row IDs, or a custom resolver
+- dataset URI: `/data/scrubbed.csv`
+- sample ID: `record_id:customer_84291`
 
 Example:
 
@@ -187,11 +173,8 @@ tracked_loader = attach(
 )
 ```
 
-That tells PyPyrus:
-
-- the dataset came from `/data/scrubbed.csv`
-- but rows should still be identified separately using built-in structured-record
-  logic or `sample_id_resolver=...`
+That records the source file. Sample IDs still come from `.records`,
+`.record_ids`, or `sample_id_resolver=...`.
 
 ### Best Practice
 
@@ -207,8 +190,7 @@ For CSV / Parquet / single-file tabular datasets:
 
 ### Best Practice For Row-Based Datasets
 
-For tabular or row-based datasets, prefer identity that survives splitting,
-filtering, and reordering.
+For row-based datasets, prefer IDs that survive splitting and reordering.
 
 Best to worst:
 
@@ -242,13 +224,11 @@ PyPyrus can identify samples as:
 
 - `record_id:cust_84291`
 
-This is the recommended shape for train/test splits derived from one source
-file, because the same logical row keeps the same identity even after the split.
+This is the recommended shape for train/test splits from one source file.
 
 ### Split Caveat For `row:<index>`
 
-Be careful with `row:<index>` when you split one source dataset into train/test
-in code.
+Be careful with `row:<index>` for train/test splits.
 
 Example:
 
@@ -256,20 +236,15 @@ Example:
 - train split uses some subset of rows
 - test split uses a different subset of rows
 
-If PyPyrus falls back to `row:<index>`, then:
+If PyPyrus uses `row:<index>`:
 
 - `row:0` in the train dataset means "first row in the train dataset view"
 - `row:0` in the test dataset means "first row in the test dataset view"
 
-Those are not necessarily the same original source row.
+Those are not necessarily the same source row.
 
-So:
-
-- dataset source provenance may still correctly show `/data/scrubbed.csv`
-- but fallback row IDs are only reliable inside that specific dataset view
-
-If you care about exact source-row provenance across splits, do not rely on
-`row:<index>` alone. Provide:
+If you need exact row identity across splits, do not rely on `row:<index>`.
+Provide:
 
 - stable row keys in `.records`
 - or `.record_ids`

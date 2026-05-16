@@ -128,17 +128,13 @@ Example:
 
 ## Dataset Scope Matters
 
-For file-based lookup, sample identity is interpreted together with dataset
-context.
+The same `sample_id` can appear in more than one dataset in a run.
 
-That means:
+Example:
 
-- `filepath:class_a/item_0.txt` is readable and stable
-- but exact lookup is effectively scoped by `dataset_id + sample_id`
+- `filepath:class_a/item_0.txt`
 
-This is why:
-
-- `samples find --sample-id ...` can match multiple datasets in one run
+So `samples find --sample-id ...` may return matches from multiple datasets.
 
 ## When To Use `sample_id_resolver=...`
 

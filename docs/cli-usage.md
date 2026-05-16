@@ -121,7 +121,7 @@ pypyrus samples find <run_id> --sample-id index:3
 Semantics:
 
 - `--sample-id` is required
-- lookup is run-wide across all datasets recorded in the run
+- lookup searches the whole run
 - if the same sample ID appears under multiple datasets, the result reports all
   matching dataset IDs and roles
 
