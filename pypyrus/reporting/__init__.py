@@ -18,7 +18,6 @@ from pypyrus.reporting.queries import (
     get_transforms_for_run,
     list_runs,
     list_run_summaries,
-    resolve_file_query_for_run,
 )
 
 __all__ = [
@@ -36,5 +35,4 @@ __all__ = [
     "get_transforms_for_run",
     "list_runs",
     "list_run_summaries",
-    "resolve_file_query_for_run",
 ]

@@ -13,6 +13,8 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Callable
 
+from torch.utils.data import IterableDataset
+
 
 KNOWN_SCHEMES = ("filepath", "record_id", "row", "logical", "index")
 
@@ -80,6 +82,26 @@ def resolve_sample_id(
     )
 
 
+def resolve_iterable_sample_id(
+    dataset: Any,
+    index: int,
+    sample: Any,
+    *,
+    user_resolver: SampleIdResolver | None = None,
+) -> SampleIdResolution:
+    """Resolve one iterable-dataset sample using an explicit user resolver."""
+    if user_resolver is None:
+        raise ValueError(
+            "PyPyrus requires sample_id_resolver=... for IterableDataset "
+            "instrumentation."
+        )
+
+    return _normalize_user_resolution(
+        user_resolver(dataset, index, sample),
+        default_resolver="user_override",
+    )
+
+
 def infer_sample_id_metadata(
     dataset: Any,
     *,
@@ -87,8 +109,16 @@ def infer_sample_id_metadata(
 ) -> tuple[str, str]:
     """Infer resolver metadata using the same contract order as runtime resolution."""
     if user_resolver is not None:
-        if hasattr(dataset, "__len__") and len(dataset) > 0 and hasattr(dataset, "__getitem__"):
-            sample = dataset[0]
+        if (
+            not isinstance(dataset, IterableDataset)
+            and hasattr(dataset, "__len__")
+            and len(dataset) > 0
+            and hasattr(dataset, "__getitem__")
+        ):
+            try:
+                sample = dataset[0]
+            except Exception:
+                return "custom", "user_override"
             resolution = _normalize_user_resolution(
                 user_resolver(dataset, 0, sample),
                 default_resolver="user_override",

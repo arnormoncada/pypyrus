@@ -31,7 +31,7 @@ from pathlib import Path
 from typing import Any
 
 import torch
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import DataLoader, IterableDataset, default_collate
 
 from pypyrus import Run, attach
 
@@ -129,17 +129,16 @@ def main() -> int:
         root=str(data_path),
     )
 
-    train_generator = torch.Generator().manual_seed(args.seed)
     train_loader = DataLoader(
         train_dataset,
         batch_size=args.batch_size,
-        shuffle=True,
-        generator=train_generator,
+        collate_fn=ufo_comments_collate,
     )
     test_loader = DataLoader(
         test_dataset,
         batch_size=args.batch_size,
         shuffle=False,
+        collate_fn=ufo_comments_collate,
     )
 
     model.to(device)
@@ -150,8 +149,18 @@ def main() -> int:
         print(f"seed={args.seed}")
         print(f"model={model_name}")
         print(f"labels={label_names}")
-        train_loader = attach(train_loader, run, role="train")
-        test_loader = attach(test_loader, run, role="test")
+        train_loader = attach(
+            train_loader,
+            run,
+            role="train",
+            sample_id_resolver=ufo_sample_id_resolver,
+        )
+        test_loader = attach(
+            test_loader,
+            run,
+            role="test",
+            sample_id_resolver=ufo_sample_id_resolver,
+        )
 
         for epoch in range(1, args.epochs + 1):
             train_loss = train_one_epoch(model, train_loader, optimizer, device)
@@ -276,7 +285,7 @@ def build_vocabulary(
     return vocab
 
 
-class UFOCommentsDataset(Dataset):
+class UFOCommentsDataset(IterableDataset):
     def __init__(
         self,
         records: list[dict[str, str]],
@@ -295,8 +304,11 @@ class UFOCommentsDataset(Dataset):
     def __len__(self) -> int:
         return len(self.records)
 
-    def __getitem__(self, index: int) -> dict[str, torch.Tensor]:
-        record = self.records[index]
+    def __iter__(self):
+        for record in self.records:
+            yield self._encode_record(record)
+
+    def _encode_record(self, record: dict[str, str]) -> dict[str, Any]:
         encoded = self.tokenizer(
             record["comments"],
             truncation=True,
@@ -305,10 +317,24 @@ class UFOCommentsDataset(Dataset):
             return_tensors="pt",
         )
         return {
+            "record_id": record["record_id"],
             "input_ids": encoded["input_ids"].squeeze(0),
             "attention_mask": encoded["attention_mask"].squeeze(0),
             "labels": torch.tensor(self.label_to_id[record["label"]], dtype=torch.long),
         }
+
+
+def ufo_sample_id_resolver(dataset: UFOCommentsDataset, index: int, sample: dict[str, Any]) -> str:
+    return f"record_id:{sample['record_id']}"
+
+
+def ufo_comments_collate(samples: list[dict[str, Any]]) -> dict[str, torch.Tensor]:
+    payloads = []
+    for sample in samples:
+        payload = dict(sample)
+        payload.pop("record_id", None)
+        payloads.append(payload)
+    return default_collate(payloads)
 
 
 class SimpleWhitespaceTokenizer:

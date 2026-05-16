@@ -6,14 +6,17 @@ import warnings
 from typing import Any, Iterator
 from uuid import uuid4
 
-from torch.utils.data import DataLoader, IterableDataset
+from torch.utils.data import DataLoader, Dataset, IterableDataset
 
 from pypyrus.core.run import Run
 from pypyrus.core.dataset_identity import resolve_dataset_identity
 from pypyrus.core.sample_id import SampleIdResolver
 from pypyrus.core.transform_identity import extract_transform_declaration
 from pypyrus.instrumentation.pytorch.collate import wrap_collate
-from pypyrus.instrumentation.pytorch.dataset import DatasetWrapper, wrap_dataset
+from pypyrus.instrumentation.pytorch.dataset import (
+    wrap_dataset,
+    wrap_iterable_dataset,
+)
 from pypyrus.provenance.events import (
     BatchDeliveredEvent,
     DatasetRegisteredEvent,
@@ -42,7 +45,18 @@ def _infer_batch_size(batch: Any) -> int:
     raise ValueError("Unable to infer batch size from batch payload")
 
 
-def _clone_dataloader_with_wrapped_dataset(
+def _classify_dataset(dataset: Any) -> str:
+    if isinstance(dataset, IterableDataset):
+        return "iterable"
+    if isinstance(dataset, Dataset):
+        return "map"
+    raise TypeError(
+        "PyPyrus attach requires loader.dataset to inherit "
+        "torch.utils.data.Dataset or torch.utils.data.IterableDataset."
+    )
+
+
+def _clone_dataloader_with_wrapped_map_dataset(
     loader: DataLoader,
     *,
     sample_id_resolver: SampleIdResolver | None = None,
@@ -54,15 +68,8 @@ def _clone_dataloader_with_wrapped_dataset(
     - wrapped collate_fn
 
     Note:
-    - This path currently supports map-style datasets only.
+    - This path supports map-style datasets only.
     """
-    if isinstance(loader.dataset, IterableDataset):
-        raise TypeError(
-            "PyPyrus attach currently supports map-style datasets only. "
-            "Received an IterableDataset, which is not yet supported by "
-            "the wrapper-based sample ID injection path."
-        )
-
     wrapped_dataset = wrap_dataset(
         loader.dataset,
         sample_id_resolver=sample_id_resolver,
@@ -123,6 +130,88 @@ def _clone_dataloader_with_wrapped_dataset(
             f"Used kwargs: {used_keys}. "
             f"Original error: {exc}"
         ) from exc
+
+
+def _clone_dataloader_with_wrapped_iterable_dataset(
+    loader: DataLoader,
+    *,
+    sample_id_resolver: SampleIdResolver | None = None,
+    id_aware_collate: bool = False,
+) -> DataLoader:
+    if sample_id_resolver is None:
+        raise ValueError(
+            "PyPyrus requires sample_id_resolver=... for IterableDataset "
+            "instrumentation."
+        )
+
+    wrapped_dataset = wrap_iterable_dataset(
+        loader.dataset,
+        sample_id_resolver=sample_id_resolver,
+    )
+    wrapped_collate_fn = wrap_collate(
+        loader.collate_fn,
+        id_aware_collate=id_aware_collate,
+    )
+
+    kwargs: dict[str, Any] = {
+        "dataset": wrapped_dataset,
+        "batch_size": loader.batch_size,
+        "num_workers": loader.num_workers,
+        "collate_fn": wrapped_collate_fn,
+        "pin_memory": loader.pin_memory,
+        "drop_last": loader.drop_last,
+        "timeout": loader.timeout,
+        "worker_init_fn": loader.worker_init_fn,
+        "multiprocessing_context": loader.multiprocessing_context,
+        "generator": loader.generator,
+        "prefetch_factor": getattr(loader, "prefetch_factor", None),
+        "persistent_workers": getattr(loader, "persistent_workers", False),
+        "pin_memory_device": getattr(loader, "pin_memory_device", ""),
+    }
+
+    if loader.num_workers == 0:
+        kwargs.pop("prefetch_factor", None)
+        kwargs.pop("persistent_workers", None)
+
+    kwargs = {k: v for k, v in kwargs.items() if v is not None}
+    safe_kwargs, dropped = _filter_supported_dataloader_kwargs(kwargs)
+    if dropped:
+        dropped_str = ", ".join(sorted(dropped))
+        raise TypeError(
+            "Failed to clone IterableDataset DataLoader for PyPyrus "
+            "instrumentation. Dropping DataLoader kwargs is not allowed "
+            f"because it may change training behavior. Unsupported kwargs: {dropped_str}"
+        )
+
+    try:
+        return DataLoader(**safe_kwargs)
+    except TypeError as exc:
+        used_keys = ", ".join(sorted(safe_kwargs.keys()))
+        raise TypeError(
+            "Failed to clone IterableDataset DataLoader for PyPyrus "
+            f"instrumentation. Used kwargs: {used_keys}. Original error: {exc}"
+        ) from exc
+
+
+def _clone_dataloader_with_wrapped_dataset(
+    loader: DataLoader,
+    *,
+    sample_id_resolver: SampleIdResolver | None = None,
+    id_aware_collate: bool = False,
+) -> DataLoader:
+    dataset_kind = _classify_dataset(loader.dataset)
+    if dataset_kind == "iterable":
+        return _clone_dataloader_with_wrapped_iterable_dataset(
+            loader,
+            sample_id_resolver=sample_id_resolver,
+            id_aware_collate=id_aware_collate,
+        )
+
+    return _clone_dataloader_with_wrapped_map_dataset(
+        loader,
+        sample_id_resolver=sample_id_resolver,
+        id_aware_collate=id_aware_collate,
+    )
 
 
 def _filter_supported_dataloader_kwargs(kwargs: dict[str, Any]) -> tuple[dict[str, Any], set[str]]:
@@ -212,7 +301,7 @@ class DataLoaderProxy:
         self._dataset_id = descriptor.dataset_id
 
         sample_id_scheme, sample_id_resolver_name = ("index", "fallback_index")
-        if isinstance(dataset, DatasetWrapper):
+        if hasattr(dataset, "sample_id_metadata"):
             sample_id_scheme, sample_id_resolver_name = dataset.sample_id_metadata()
 
         dataset_registration = DatasetRegisteredEvent(

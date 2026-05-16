@@ -240,28 +240,24 @@ The intended resolution order at attach time is:
 4. structured-record resolver when the dataset shape makes this straightforward
 5. fallback `index:<i>`
 
-The important invariant is:
+Rule:
 
 * PyPyrus stores one normalized `sample_id`
-* later CLI and reporting code should query that same identity, not invent a
-  second representation
+* the CLI should query that stored value directly
 
 ### CLI-time query resolution
 
-The intended MVP query shape for `samples find` is:
+`samples find` uses only one query format:
 
-* `--sample-id` is the generic path
-* `--file` + `--dataset-path` is the first convenience path
+* `--sample-id <value>`
 
-For filepath lookup:
+For file datasets, use the stored filepath form directly:
 
-* the file query must resolve to the same normalized `sample_id` scheme used at
-  attach time
-* filepath lookup should require dataset fingerprint match before the result is
-  trusted
+* `filepath:<relative-path>`
 
-This means filepath lookup is a resolver convenience, not a separate provenance
-feature.
+Example:
+
+* `pypyrus samples find <run_id> --sample-id filepath:class_a/item_0.txt`
 
 ---
 

@@ -1,15 +1,23 @@
 from __future__ import annotations
 
-from typing import Any
+from typing import Any, Iterator
 
-from pypyrus.core.sample_id import SampleIdResolution, SampleIdResolver, infer_sample_id_metadata, resolve_sample_id
+from torch.utils.data import Dataset, IterableDataset
+
+from pypyrus.core.sample_id import (
+    SampleIdResolution,
+    SampleIdResolver,
+    infer_sample_id_metadata,
+    resolve_iterable_sample_id,
+    resolve_sample_id,
+)
 
 
 PYPYRUS_ID_KEY = "__pypyrus_id__"
 PYPYRUS_PAYLOAD_KEY = "__pypyrus_payload__"
 
 
-class DatasetWrapper:
+class DatasetWrapper(Dataset):
     """
     Wrap a dataset so each returned sample carries a stable sample_id.
 
@@ -90,7 +98,7 @@ class DatasetWrapper:
 
 def is_wrapped_dataset(dataset: Any) -> bool:
     """Return True if the dataset is already wrapped by PyPyrus."""
-    return isinstance(dataset, DatasetWrapper)
+    return isinstance(dataset, (DatasetWrapper, IterableDatasetWrapper))
 
 
 def wrap_dataset(
@@ -104,3 +112,70 @@ def wrap_dataset(
     if is_wrapped_dataset(dataset):
         return dataset
     return DatasetWrapper(dataset, sample_id_resolver=sample_id_resolver)
+
+
+class IterableDatasetWrapper(IterableDataset):
+    """
+    Wrap an IterableDataset so each yielded sample carries a stable sample_id.
+
+    Iterable datasets do not expose a universal positional identity contract,
+    so PyPyrus requires an explicit ``sample_id_resolver`` for this path.
+    """
+
+    def __init__(
+        self,
+        dataset: Any,
+        *,
+        sample_id_resolver: SampleIdResolver,
+    ):
+        self.dataset = dataset
+        self._sample_id_resolver = sample_id_resolver
+        self._sample_id_scheme, self._sample_id_resolver_name = infer_sample_id_metadata(
+            dataset,
+            user_resolver=sample_id_resolver,
+        )
+
+    def __iter__(self) -> Iterator[dict[str, Any]]:
+        for index, sample in enumerate(self.dataset):
+            yield {
+                PYPYRUS_ID_KEY: self._make_sample_id(index, sample),
+                PYPYRUS_PAYLOAD_KEY: sample,
+            }
+
+    def __getattr__(self, name: str) -> Any:
+        try:
+            dataset = object.__getattribute__(self, "dataset")
+        except AttributeError as exc:
+            raise AttributeError(name) from exc
+        return getattr(dataset, name)
+
+    def sample_id_metadata(self) -> tuple[str, str]:
+        return self._sample_id_scheme, self._sample_id_resolver_name
+
+    def _make_sample_id(self, index: int, sample: Any) -> int | str:
+        resolution = self._resolve_sample_id(index, sample)
+        return resolution.sample_id
+
+    def _resolve_sample_id(self, index: int, sample: Any) -> SampleIdResolution:
+        resolution = resolve_iterable_sample_id(
+            self.dataset,
+            index,
+            sample,
+            user_resolver=self._sample_id_resolver,
+        )
+        self._sample_id_scheme = resolution.sample_id_scheme
+        self._sample_id_resolver_name = resolution.sample_id_resolver
+        return resolution
+
+
+def wrap_iterable_dataset(
+    dataset: Any,
+    *,
+    sample_id_resolver: SampleIdResolver,
+) -> IterableDatasetWrapper:
+    """
+    Wrap an IterableDataset with resolver-driven sample IDs.
+    """
+    if is_wrapped_dataset(dataset):
+        return dataset
+    return IterableDatasetWrapper(dataset, sample_id_resolver=sample_id_resolver)

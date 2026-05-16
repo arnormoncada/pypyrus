@@ -876,8 +876,6 @@ This should answer:
 MVP scope:
 
 * support direct lookup by stored `sample_id`
-* support filepath lookup via `--dataset-path` + file path for file-backed map-style datasets
-* require dataset fingerprint match before trusting filepath-based reverse lookup
 * return a practical answer rather than raw rows:
   found yes/no, occurrence count, first occurrence, and relevant roles/loaders/steps
 

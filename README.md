@@ -41,6 +41,12 @@ with Run() as run:
 PyPyrus records run metadata, dataset identity, loader registrations, and the
 batch stream delivered to your training loop.
 
+Dataset contract notes:
+
+- map-style datasets should inherit `torch.utils.data.Dataset`
+- iterable datasets should inherit `torch.utils.data.IterableDataset`
+- iterable datasets must provide `sample_id_resolver=...` at `attach(...)`
+
 If your dataset comes from a source file that PyPyrus cannot infer from the
 dataset object, pass explicit provenance metadata at attach time:
 

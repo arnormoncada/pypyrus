@@ -112,36 +112,18 @@ The output includes:
 
 Find whether a sample was used in a run.
 
-### Direct sample ID lookup
+### Sample ID lookup
 
 ```bash
 pypyrus samples find <run_id> --sample-id index:3
 ```
 
-Optional dataset scope:
-
-```bash
-pypyrus samples find <run_id> --sample-id filepath:class_a/item_0.txt --dataset-id <dataset_id>
-```
-
 Semantics:
 
-- bare `--sample-id` searches across all datasets in the run
-- `--dataset-id` scopes it to one dataset
-
-### File-based lookup
-
-```bash
-pypyrus samples find <run_id> \
-  --file class_a/item_0.txt \
-  --dataset-path /path/to/dataset
-```
-
-Semantics:
-
-- file lookup is dataset-scoped
-- the dataset path must fingerprint-match a file-collection dataset used in the run
-- the file path resolves to the same normalized `filepath:<relative-path>` sample ID used at attach time
+- `--sample-id` is required
+- lookup searches the whole run
+- if the same sample ID appears under multiple datasets, the result reports all
+  matching dataset IDs and roles
 
 ### Output
 

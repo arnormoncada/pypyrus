@@ -140,6 +140,8 @@ Best practice:
 If PyPyrus cannot infer the right sample identity from your dataset shape, pass
 `sample_id_resolver=` to `attach(...)`.
 
+`IterableDataset` always requires `sample_id_resolver=...`.
+
 Example:
 
 ```python

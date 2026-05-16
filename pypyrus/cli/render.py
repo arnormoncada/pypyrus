@@ -164,22 +164,16 @@ def render_batch(batch: dict[str, Any]) -> str:
 
 
 def render_sample_find(result: dict[str, Any]) -> str:
-    scoped_dataset_ids = result.get("scoped_dataset_ids") or []
-    query_scope = result.get("query_scope") or "run"
     lines = [
         "Sample lookup",
         "-" * 60,
         f"Run ID: {result.get('run_id')}",
         f"Sample ID: {result.get('sample_id')}",
         f"Sample ID scheme: {result.get('sample_id_scheme')}",
-        f"Query scope: {query_scope}",
         f"Found: {result.get('found')}",
         f"Occurrences: {result.get('occurrence_count')}",
         f"Matching steps: {result.get('matching_steps') or []}",
     ]
-
-    if scoped_dataset_ids:
-        lines.append(f"Scoped datasets: {', '.join(scoped_dataset_ids)}")
 
     if result.get("matching_roles"):
         lines.append(f"Roles: {', '.join(result['matching_roles'])}")
