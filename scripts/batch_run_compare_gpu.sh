@@ -74,9 +74,9 @@ PAIRS="${PAIRS:-10}"
 WARMUP_PAIRS="${WARMUP_PAIRS:-1}"
 NUM_WORKERS="${NUM_WORKERS:-2}"
 BATCH_SIZE="${BATCH_SIZE:-32}"
-TIMING_FILE="${TIMING_FILE:-examples/plant_seedlings/timings.txt}"
+TIMING_FILE="${TIMING_FILE:-experiments/plant_seedlings/timings.txt}"
 
-DATA_ROOT="examples/plant_seedlings/data/split" \
+DATA_ROOT="experiments/plant_seedlings/data/split" \
 EPOCHS="${EPOCHS}" \
 PAIRS="${PAIRS}" \
 WARMUP_PAIRS="${WARMUP_PAIRS}" \
@@ -85,4 +85,4 @@ BATCH_SIZE="${BATCH_SIZE}" \
 TIMING_FILE="${TIMING_FILE}" \
 PYTHON_BIN=python \
 RESET_TIMINGS=1 \
-bash examples/plant_seedlings/run_buffered_compare.sh
+bash experiments/plant_seedlings/run_buffered_compare.sh

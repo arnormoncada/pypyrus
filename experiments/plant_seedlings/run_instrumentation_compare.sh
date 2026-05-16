@@ -2,12 +2,12 @@
 set -euo pipefail
 
 # All settings can be overridden via environment variables, e.g.:
-# EPOCHS=10 PAIRS=20 WARMUP_PAIRS=1 bash examples/plant_seedlings/run_instrumentation_compare.sh
-DATA_ROOT="${DATA_ROOT:-examples/plant_seedlings/data/split}"
+# EPOCHS=10 PAIRS=20 WARMUP_PAIRS=1 bash experiments/plant_seedlings/run_instrumentation_compare.sh
+DATA_ROOT="${DATA_ROOT:-experiments/plant_seedlings/data/split}"
 EPOCHS="${EPOCHS:-10}"
 BATCH_SIZE="${BATCH_SIZE:-32}"
 NUM_WORKERS="${NUM_WORKERS:-2}"
-TIMING_FILE="${TIMING_FILE:-examples/plant_seedlings/timings.txt}"
+TIMING_FILE="${TIMING_FILE:-experiments/plant_seedlings/timings.txt}"
 PAIRS="${PAIRS:-20}"
 WARMUP_PAIRS="${WARMUP_PAIRS:-1}"
 PYTHON_BIN="${PYTHON_BIN:-python}"
@@ -19,14 +19,14 @@ run_once() {
   local timing_file="$2"
 
   if [[ "$use_instrumentation" == "true" ]]; then
-    "$PYTHON_BIN" examples/plant_seedlings/train_mobilenetv3_small.py \
+    "$PYTHON_BIN" experiments/plant_seedlings/train_mobilenetv3_small.py \
       --data-root "$DATA_ROOT" \
       --epochs "$EPOCHS" \
       --batch-size "$BATCH_SIZE" \
       --num-workers "$NUM_WORKERS" \
       --timing-file "$timing_file"
   else
-    "$PYTHON_BIN" examples/plant_seedlings/train_mobilenetv3_small.py \
+    "$PYTHON_BIN" experiments/plant_seedlings/train_mobilenetv3_small.py \
       --data-root "$DATA_ROOT" \
       --epochs "$EPOCHS" \
       --batch-size "$BATCH_SIZE" \
@@ -81,4 +81,4 @@ cat "$TIMING_FILE"
 
 echo
 echo "Summary:"
-"$PYTHON_BIN" examples/plant_seedlings/summarize_timings.py --timing-file "$TIMING_FILE"
+"$PYTHON_BIN" experiments/plant_seedlings/summarize_timings.py --timing-file "$TIMING_FILE"

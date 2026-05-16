@@ -10,7 +10,7 @@ from torch.utils.data import DataLoader
 def _load_example_module():
     script_path = (
         Path(__file__).resolve().parents[2]
-        / "examples"
+        / "experiments"
         / "ufo_sightings"
         / "train_shape_classifier.py"
     )

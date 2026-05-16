@@ -142,8 +142,8 @@ def main() -> int:
     parser.add_argument(
         "--timing-file",
         type=Path,
-        default=Path("examples/plant_seedlings/timings.txt"),
-        help="Path to timings file. Default: examples/plant_seedlings/timings.txt",
+        default=Path("experiments/plant_seedlings/timings.txt"),
+        help="Path to timings file. Default: experiments/plant_seedlings/timings.txt",
     )
     parser.add_argument(
         "--bootstrap-samples",

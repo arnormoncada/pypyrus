@@ -57,8 +57,8 @@ Important semantics:
 ## CLI Semantics To Preserve
 
 - `batches show --step` means run-global `global_sequence`
-- `samples find --file ... --dataset-path ...` is dataset-scoped
-- `samples find --sample-id ...` is run-wide unless `--dataset-id` is passed
+- `samples find --sample-id ...` is the only sample lookup path
+- `samples find --sample-id ...` searches across the whole run
 - `runs show` should expose `sample_id_scheme` and `sample_id_resolver`
 
 When changing reporting behavior, keep CLI help text and docs in sync.
@@ -80,12 +80,13 @@ Internal working docs:
 
 Do not mix internal planning material into user docs.
 
-## Examples
+## Reference Experiments
 
-Main examples currently cover:
+Main experiment references currently cover:
 
-- file collections: `examples/plant_seedlings/`
-- structured records: `examples/ufo_sightings/`
+- file collections: `experiments/plant_seedlings/`
+- structured records: `experiments/ufo_sightings/`
+- explicit resolver / tabular experiment: `experiments/forest_covertype/`
 
 Examples should stay concise and demo-oriented. Prefer narrow, pragmatic model choices over heavyweight abstractions.
 
