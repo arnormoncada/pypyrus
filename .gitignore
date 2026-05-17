@@ -12,7 +12,9 @@ data/
 
 # Selected experiment datasets tracked in-repo.
 !experiments/plant_seedlings/data/
-experiments/plant_seedlings/data/raw/
+!experiments/plant_seedlings/data/raw/
+!experiments/plant_seedlings/data/raw/**
+experiments/plant_seedlings/data/raw/.DS_Store
 !experiments/plant_seedlings/data/split/
 !experiments/plant_seedlings/data/split/**
 
