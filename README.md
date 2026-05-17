@@ -1,9 +1,9 @@
-<table>
+<table border="0" cellspacing="0" cellpadding="0" role="presentation" style="border: none;">
   <tr>
-    <td width="290" valign="middle">
+    <td width="290" valign="middle" style="border: none;">
       <img src="docs/PyPyrus-logo.png" alt="PyPyrus logo" width="320">
     </td>
-    <td valign="middle">
+    <td valign="middle" style="border: none;">
       <h1>PyPyrus</h1>
       <p><strong>Data provenance for PyTorch training runs</strong></p>
       <p>Track datasets, batches, and sample usage across runs.</p>
