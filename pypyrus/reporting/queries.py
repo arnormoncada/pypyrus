@@ -64,7 +64,7 @@ def list_run_summaries(store: Store) -> list[dict[str, Any]]:
             }
         )
 
-        summary = dict(run)
+        summary = _normalize_run_record(run)
         summary["duration_seconds"] = _compute_duration_seconds(
             run.get("start_time"),
             run.get("end_time"),
@@ -190,7 +190,7 @@ def build_run_overview(store: Store, run_id: str) -> dict[str, Any] | None:
     if run is None:
         return None
 
-    run = dict(run)
+    run = _normalize_run_record(run)
     run["duration_seconds"] = _compute_duration_seconds(
         run.get("start_time"),
         run.get("end_time"),
@@ -277,3 +277,11 @@ def _sample_id_scheme(sample_id: str) -> str:
     if ":" not in sample_id:
         return "custom"
     return sample_id.split(":", 1)[0]
+
+
+def _normalize_run_record(run: dict[str, Any]) -> dict[str, Any]:
+    """Drop absent optional run fields so render/JSON paths stay clean."""
+    normalized = dict(run)
+    if normalized.get("run_name") in (None, ""):
+        normalized.pop("run_name", None)
+    return normalized

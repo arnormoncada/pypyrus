@@ -44,6 +44,7 @@ class RunStartEvent(ProvenanceEvent):
     config_json: dict[str, Any] | None = None
     environment_hash: str | None = None
     seed_summary: dict[str, Any] | None = None
+    run_name: str | None = None
 
     event_type: EventType = field(default="run_start", init=False)
 

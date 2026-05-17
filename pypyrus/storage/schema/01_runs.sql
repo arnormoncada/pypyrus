@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS runs (
 
   -- RunStartEvent fields
   start_time TEXT NOT NULL,       -- ISO 8601; RunStartEvent.timestamp
+  run_name TEXT,                  -- RunStartEvent.run_name
   code_ref TEXT,                  -- RunStartEvent.code_ref (e.g. git SHA, script path)
   config_ref TEXT,                -- RunStartEvent.config_ref
   config_json TEXT,               -- RunStartEvent.config_json serialized as JSON
