@@ -1,4 +1,15 @@
-# PyPyrus
+<table>
+  <tr>
+    <td width="290" valign="middle">
+      <img src="docs/PyPyrus-logo.png" alt="PyPyrus logo" width="320">
+    </td>
+    <td valign="middle">
+      <h1>PyPyrus</h1>
+      <p><strong>Data provenance for PyTorch training runs</strong></p>
+      <p>Track datasets, batches, and sample usage across runs.</p>
+    </td>
+  </tr>
+</table>
 
 PyPyrus is a data provenance layer for PyTorch training runs. It attaches to
 DataLoaders, records which datasets and batches were delivered, and gives you a
@@ -67,8 +78,8 @@ with Run() as run:
 `Run` supports two store modes:
 
 - `sync` (default): events are written synchronously on the caller path.
-- `buffered_strict`: events are enqueued and written by a dedicated writer
-    thread with strict backpressure (no event dropping).
+- `buffered_strict` (experimental): events are enqueued and written by a
+    dedicated writer thread with strict backpressure (no event dropping).
 
 Example:
 
@@ -82,8 +93,10 @@ with Run(store_mode="buffered_strict", buffered_queue_size=1024) as run:
 Tradeoffs:
 
 - `sync` is simpler and often better for low-throughput or short runs.
-- `buffered_strict` can reduce write-path blocking, but still keeps event
-    preparation on the training path and may add queue/thread coordination cost.
+- `buffered_strict` is experimental. It can reduce write-path blocking, but it
+    still keeps event preparation on the training path and may add queue/thread
+    coordination cost.
+- `buffered_strict` should not be treated as a guaranteed performance win.
 - In strict mode, if the queue is full, producer threads block until space is
     available; PyPyrus does not drop events.
 

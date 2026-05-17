@@ -60,7 +60,7 @@ you override it with `PYPYRUS_DB` or pass a custom store instance.
 `Run` also supports store-mode configuration:
 
 - `store_mode="sync"` (default)
-- `store_mode="buffered_strict"`
+- `store_mode="buffered_strict"` (experimental)
 - `buffered_queue_size=<int>` (used by `buffered_strict`)
 
 Example:
@@ -75,8 +75,9 @@ with Run(store_mode="buffered_strict", buffered_queue_size=1024) as run:
 Behavior tradeoffs:
 
 - `sync` keeps persistence behavior simple and predictable.
-- `buffered_strict` moves durable writes to a writer thread, but event
-    preparation still occurs inline.
+- `buffered_strict` is experimental. It moves durable writes to a writer
+    thread, but event preparation still occurs inline.
+- `buffered_strict` should not be treated as a guaranteed performance win.
 - `buffered_strict` never drops events; when the queue is full it blocks
     producer calls until capacity is available.
 

@@ -1,279 +1,327 @@
 # Thesis Experiment Plan
 
-## Positioning
+## Scope
 
-Primary reported benchmark: **Plant seedlings (MobileNetV3)**.
+The evaluation should stay tightly aligned with the thesis research questions.
+The goal is not to benchmark every supported dataset shape or every PyPyrus
+feature independently. The goal is to produce a small set of experiments that
+directly support the core claims:
 
-Rationale:
-- Strongest current support in repository scripts and timing workflow
-- Lowest execution risk for reproducible paired trials on HPC
-- Clearest narrative for a focused experiment/results chapter
+1. PyPyrus can capture and compare training-time data provenance at the
+   data-stream boundary.
+2. The captured provenance is useful for traceability and divergence diagnosis.
+3. The instrumentation introduces bounded overhead and practical storage cost.
 
-Secondary benchmark: **UFO sightings** as a transferability/traceability validation, not co-primary.
-
-Larger dataset: include only as a **scaling subsection** if compute/time permits.
-
----
-
-## High-Level Experiment Plan
-
-### 1. Reproducibility & Divergence Detection (Core Claim)
-Goal: show PyPyrus correctly identifies matching runs and pinpoints divergence causes.
-
-Planned studies:
-1. Baseline match (positive control): same config/seed/data -> full match expected
-2. Shuffle-only divergence: seed changed -> dataset identity match, batch stream divergence
-3. Transform-only divergence: transform pipeline changed -> transform mismatch and likely batch divergence
-4. Dataset-content divergence: data changed -> dataset fingerprint mismatch
-5. Loader topology divergence: train-only vs train+test roles -> topology mismatch
-6. Sample-level lookup demonstration: query traceability by sample/file
-
-Primary outputs:
-- Match/mismatch status per component (dataset identity, transform declarations, batch stream)
-- First divergence step index
-- Qualitative explanation of divergence source
+The evaluation should therefore focus on a few controlled studies with clear
+positive/negative controls, rather than many small feature demonstrations.
 
 ---
 
-### 2. Overhead & Performance (Core Claim)
-Goal: quantify runtime overhead introduced by instrumentation.
+## Workloads
 
-Design:
-1. Paired alternating runs (`with`, then `without`) under identical conditions
-2. Warm-up pairs excluded from measured results
-3. Longer runs (increase epochs so runtime is less startup-dominated)
-4. Fixed cluster/job settings per condition
+### Primary workload: Plant seedlings
 
-Primary outputs:
-- Mean/median paired delta in seconds
-- Mean paired percent overhead
-- 95% CI for mean paired delta and mean paired percent
-- Variability indicators (stddev/IQR)
+Use the plant seedlings ImageFolder benchmark as the primary workload for the
+reproducibility and runtime-overhead results.
 
----
+Why:
+- lowest execution risk
+- strongest current script support
+- clear file-based sample identity story
+- best fit for repeated paired runs on HPC
 
-### 3. Traceability Quality (Applied Value Claim)
-Goal: demonstrate practical provenance utility for users.
+### Secondary workload: Forest Covertype
 
-Planned studies:
-1. Sample lookup success for file-based data (plant seedlings)
-2. Sample lookup success for record-based data (UFO)
-3. Role/step-level inspection of delivered batches
+Use forest covertype as the structured-record workload and as the larger-scale
+dataset for storage and scaling evidence.
 
-Primary outputs:
-- Lookup success rate
-- Example provenance traces from run -> role -> step -> sample
-- Query latency (optional if feasible)
+Why:
+- provides a record-based sample identity case
+- contrasts with the smaller file-based workload
+- helps show that the design is not limited to one dataset shape
+
+The dataset-type distinction should be treated as supporting context within the
+main experiments, not as a separate experiment family of its own.
 
 ---
 
-### 4. Storage Footprint (Supportive Claim)
-Goal: characterize storage growth and practical cost.
+## Core Evaluation Questions
 
-Planned studies:
-1. DB size vs number of recorded batches/runs
-2. Bytes per batch / bytes per sample trend (approximate)
+### RQ1 and RQ2: Provenance capture, reproducibility, and divergence detection
 
-Primary outputs:
-- Table of run count, event count, DB size
-- Simple scaling trendline
+Show that PyPyrus can:
+- confirm a positive reproducibility match when conditions are held fixed
+- detect and localize divergence when one controlled variable changes
 
----
+### RQ3: Runtime overhead
 
-## Experiment/Testing Plan Per Experiment Type
+Show that PyPyrus adds measurable but bounded execution overhead under repeated,
+paired runs.
 
-## A) Reproducibility & Divergence
+### RQ4: Traceability support
 
-### A1. Baseline Match
-Hypothesis: fixed seed/config/data yields full match.
+Show that the generated provenance records expose the information needed to:
+- identify which dataset instance was used
+- inspect which samples appeared in which delivered batches
+- trace a sample occurrence back to run, role, and step
 
-Protocol:
-1. Execute two independent runs with identical settings
-2. Compare with CLI/API comparison
-3. Record component-level match flags
-
-Acceptance:
-- Full match true
-- No divergence step
-
-### A2. Shuffle Divergence
-Hypothesis: changing only seed changes order, not dataset identity.
-
-Protocol:
-1. Run A with seed S1, run B with seed S2
-2. Keep transforms/data fixed
-3. Compare runs
-
-Acceptance:
-- Dataset identity match true
-- Batch stream match false
-- First divergence step reported
-
-### A3. Transform Divergence
-Hypothesis: transform change is detected and explains mismatch.
-
-Protocol:
-1. Run A baseline transforms
-2. Run B modified transforms
-3. Compare transform declarations and batch stream
-
-Acceptance:
-- Transform mismatch true
-- Divergence detected and explainable
-
-### A4. Dataset Content Divergence
-Hypothesis: changing dataset contents changes dataset fingerprint.
-
-Protocol:
-1. Create controlled modified dataset variant
-2. Run baseline vs modified
-3. Compare dataset identity fields
-
-Acceptance:
-- Dataset fingerprint mismatch
-- Comparison surfaces mismatch cause
-
-### A5. Loader Topology Divergence
-Hypothesis: role/topology changes are surfaced.
-
-Protocol:
-1. Run A with train loader only
-2. Run B with train+test loaders
-3. Compare role-level records
-
-Acceptance:
-- Role/topology mismatch visible in report
-
-### A6. Sample Traceability
-Hypothesis: sample-level provenance lookup is operational and useful.
-
-Protocol:
-1. Query sample IDs / file paths from delivered batches
-2. Validate mapping to runs/steps/roles
-
-Acceptance:
-- High lookup success
-- Human-readable lineage examples
+This should be framed as support for traceability objectives, not as complete
+regulatory compliance.
 
 ---
 
-## B) Overhead & Performance
+## Main Experiments
 
-### B1. Main Runtime Benchmark (Primary)
-Workload: plant seedlings.
+## A. Reproducibility and Divergence Detection
+
+This is the main correctness section of the evaluation.
+
+### A1. Baseline match (positive control)
+
+Goal:
+Show that two nominally identical runs produce a full provenance match.
+
+Workload:
+- plant seedlings
 
 Protocol:
-1. Use paired alternating measured runs
-2. Exclude warm-up pairs
-3. Run 20-30 measured pairs (budget allowing)
-4. Use longer epochs (target multi-minute runs)
+1. Run the same configuration twice with fixed seed, fixed data, and fixed
+   loader settings.
+2. Compare the two runs using the standard comparison workflow.
+3. Record dataset identity match, batch-stream match, and first-divergence
+   status.
 
-Metrics:
-- Paired deltas: `delta_i = with_i - without_i`
-- Mean/median delta (s)
-- Mean percent delta
-- 95% bootstrap CI for mean delta and mean %
+Expected result:
+- dataset identity matches
+- batch stream matches
+- no reported divergence
 
-Acceptance:
-- Bounded overhead estimate with uncertainty interval
+### A2. Shuffle divergence
 
-### B2. Sensitivity Checks
+Goal:
+Show that changing only the seed changes the delivered batch stream while
+leaving dataset identity unchanged.
+
+Workload:
+- plant seedlings
+
 Protocol:
-1. Repeat with different `num_workers` values
-2. Optional batch-size variants
+1. Run configuration A with seed `S1`.
+2. Run configuration B with seed `S2`.
+3. Keep data, transforms, and loader settings otherwise fixed.
+4. Compare the two runs.
 
-Metrics:
-- Overhead change by setting
+Expected result:
+- dataset identity matches
+- batch stream mismatch is reported
+- first divergence step is surfaced
 
-Acceptance:
-- Stable directionality of overhead across settings
+### A3. Dataset-content divergence
+
+Goal:
+Show that changing the underlying data changes dataset identity and is surfaced
+by PyPyrus.
+
+Workload:
+- plant seedlings or forest covertype, depending on which controlled data
+  variant is easiest to construct reproducibly
+
+Protocol:
+1. Create a controlled modified dataset variant.
+2. Run baseline and modified configurations.
+3. Compare the two runs and inspect run metadata.
+
+Expected result:
+- dataset fingerprint mismatch is reported
+- the mismatch is attributable to dataset identity rather than only batch order
+
+Notes:
+- this is the strongest negative control for the dataset-identity claim
+- it is more important than loader-topology variation for the thesis narrative
+
+### Optional A4. Transform-change divergence
+
+Goal:
+Show that changing preprocessing changes the provenance story and likely the
+observed batch stream.
+
+Important limitation:
+- current run comparison is centered on dataset identity and batch-stream
+  comparison, not transform-aware comparison as a first-class result
+
+Use this only if:
+- transform declarations are explicitly inspected in `runs show` or equivalent
+- the thesis text presents this as a supporting divergence case, not as a fully
+  automated transform-comparison claim
 
 ---
 
-## C) Traceability Quality
+## B. Runtime Overhead
 
-### C1. File-Based Traceability
-Workload: plant seedlings.
+This is the main performance section of the evaluation.
 
-Protocol:
-1. Select random delivered samples
-2. Query provenance via CLI/API
+### B1. Primary paired benchmark
 
-Metrics:
-- Success rate
-- Completeness of returned context
+Goal:
+Estimate the runtime overhead introduced by instrumentation under repeated
+paired trials.
 
-### C2. Record-Based Traceability
-Workload: UFO sightings.
+Primary workload:
+- plant seedlings
 
 Protocol:
-1. Select random record IDs
-2. Resolve run/step provenance
+1. Alternate runs with and without instrumentation.
+2. Exclude warm-up pairs.
+3. Keep job settings, data, and training configuration fixed.
+4. Use sufficiently long runs so startup costs do not dominate.
 
-Metrics:
-- Success rate
-- Consistency with expected labels/records
+Primary metrics:
+- mean paired delta in seconds
+- median paired delta in seconds
+- mean paired percent overhead
+- 95% confidence interval for mean delta and mean percent
+- variability summary (stddev or IQR)
 
----
+Interpretation:
+- paired results are the primary estimate
+- unpaired averages should be secondary context only
 
-## D) Storage Footprint
+### B2. Sensitivity / scaling check
 
-### D1. Growth Characterization
-Protocol:
-1. Run short, medium, long workloads
-2. Record DB size and event counts after each
+Goal:
+Assess whether the overhead conclusion remains directionally stable under a
+larger record-based workload.
 
-Metrics:
-- DB size growth per run
-- Approx bytes per event/batch
+Secondary workload:
+- forest covertype
 
-Acceptance:
-- Practical storage budget statement
+Use this as a smaller supporting study, not a second co-primary benchmark.
 
----
+Purpose:
+- show that the overhead story is not tied only to a small file-based dataset
+- provide a small scaling contrast between a smaller and larger workload
 
-## Cluster Settings & Controls (Applied Across Experiments)
+Optional parameter variation:
+- `num_workers`
+- batch size
 
-1. Same partition/QoS and resource request across conditions
-2. Fixed seeds for controlled experiments
-3. Same dataset snapshot and code revision
-4. Record node/job metadata with results
-5. Avoid mixing markedly different load windows when possible
-6. Keep dataloader/training hyperparameters fixed unless explicitly varied
-
----
-
-## Statistical Reporting Template
-
-Report for each benchmark condition:
-1. `n` pairs (after warm-up exclusion)
-2. Mean and median paired delta (seconds)
-3. Mean paired percent overhead
-4. 95% CI of mean delta and mean percent (bootstrap)
-5. Variability (stddev/IQR)
-6. Outlier note and sensitivity check (if any)
-
-Interpretation guidance:
-- Use paired statistics as primary estimate
-- Use unpaired means as secondary context only
+Only include parameter sweeps if they strengthen the main overhead conclusion.
+Do not let them dominate the evaluation chapter.
 
 ---
 
-## Proposed Chapter Structure (Experiment/Results)
+## C. Traceability Demonstration
 
-1. Evaluation goals and hypotheses
-2. Experimental setup (hardware/software/data/protocol)
-3. Reproducibility and divergence results
-4. Overhead and sensitivity results
-5. Traceability demonstration results
-6. Storage footprint results
-7. Threats to validity
-8. Summary of findings and implications
+This should be a short applied-value section, not a large standalone benchmark.
+
+Goal:
+Demonstrate that the recorded provenance can be used to inspect sample- and
+batch-level lineage in practice.
+
+Use:
+- plant seedlings for a file-based example
+- forest covertype for a record-based example
+
+Demonstrate:
+1. run overview
+2. batch inspection at a chosen step
+3. sample lookup for one known sample in each workload
+
+Outputs:
+- one concise file-based trace example
+- one concise record-based trace example
+
+This section should illustrate practical utility, not report a large lookup
+success-rate study unless such a metric becomes especially easy to collect.
+
+---
+
+## D. Storage Footprint
+
+This is a supportive evaluation component.
+
+Goal:
+Characterize the practical storage cost of recorded provenance.
+
+Use:
+- plant seedlings for the smaller workload
+- forest covertype for the larger workload if feasible
+
+Measurements:
+- database size after each run
+- event count
+- approximate bytes per batch
+
+Report this as a simple scaling-oriented result. It does not need a large
+independent subsection unless the findings are especially strong.
+
+---
+
+## Recommended Final Evaluation Set
+
+The minimum thesis-ready experiment set should be:
+
+1. Baseline match
+2. Shuffle divergence
+3. Dataset-content divergence
+4. Primary paired overhead benchmark
+5. Short traceability demonstration using one file-based and one record-based
+   workload
+6. Short storage-footprint characterization
+
+Everything else should be treated as optional.
+
+---
+
+## Experimental Controls
+
+Apply the following across experiments:
+
+1. keep code revision fixed
+2. keep dataset snapshot fixed unless dataset change is the independent variable
+3. keep hardware/job settings fixed within a condition
+4. record seed, epochs, batch size, number of workers, and store mode
+5. avoid mixing results from substantially different cluster load conditions
+
+---
+
+## Statistical Reporting
+
+For each paired runtime condition, report:
+
+1. number of measured pairs after warm-up exclusion
+2. mean paired delta in seconds
+3. median paired delta in seconds
+4. mean paired percent overhead
+5. 95% confidence interval for mean delta and mean percent
+6. variability indicator and any notable outlier behavior
+
+For non-runtime experiments, prioritize:
+- clear positive/negative controls
+- explicit match or mismatch interpretation
+- concise illustrative evidence rather than excessive output dumps
+
+---
+
+## Suggested Results-Chapter Structure
+
+1. 5.1 Evaluation goals and research-question mapping
+2. 5.2 Experimental setup
+3. 5.3 Reproducibility and divergence results
+4. 5.4 Runtime overhead results
+5. 5.5 Traceability demonstration
+6. 5.6 Storage footprint
+7. 5.7 Threats to validity
+8. 5.7 also Short chapter recap / transition to discussion
 
 ---
 
 ## Execution Priority
 
-1. Primary: B1 + A1/A2/A3 (core claims)
-2. Secondary: A4/A5 + C1/C2 (robustness and utility)
-3. Optional: D1 + larger-dataset scaling subsection
+1. Baseline match
+2. Shuffle divergence
+3. Primary overhead benchmark
+4. Dataset-content divergence
+5. Traceability demonstration
+6. Storage footprint
+7. Optional scaling and transform-change extensions
