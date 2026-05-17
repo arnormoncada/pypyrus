@@ -16,7 +16,7 @@ from typing import Any, Callable
 from torch.utils.data import IterableDataset
 
 
-KNOWN_SCHEMES = ("filepath", "record_id", "row", "logical", "index")
+KNOWN_SCHEMES = ("filepath", "record_id", "row", "index")
 
 # File collection contract:
 # - canonical sample container attr: `samples`
@@ -33,11 +33,6 @@ FILE_COLLECTION_ROOT_ATTR = "root"
 STRUCTURED_RECORD_ID_ATTRS = ("record_ids", "ids")
 STRUCTURED_RECORD_CONTAINER_ATTRS = ("records", "rows")
 STRUCTURED_RECORD_KEY_FIELDS = ("record_id", "id", "uuid", "key")
-
-# Framework/logical compatibility contract:
-# - current built-in support is intentionally narrow
-FRAMEWORK_LOGICAL_CLASS_NAMES = ("MNIST", "FashionMNIST", "KMNIST", "QMNIST")
-
 
 @dataclass(slots=True, kw_only=True)
 class SampleIdResolution:
@@ -70,10 +65,6 @@ def resolve_sample_id(
     record_resolution = _resolve_structured_record_sample_id(dataset, index)
     if record_resolution is not None:
         return record_resolution
-
-    logical_resolution = _resolve_framework_logical_sample_id(dataset, index)
-    if logical_resolution is not None:
-        return logical_resolution
 
     return SampleIdResolution(
         sample_id=f"index:{index}",
@@ -137,10 +128,6 @@ def infer_sample_id_metadata(
     )
     if record_resolution is not None:
         return record_resolution.sample_id_scheme, record_resolution.sample_id_resolver
-
-    logical_resolution = _resolve_framework_logical_sample_id(dataset, 0)
-    if logical_resolution is not None:
-        return logical_resolution.sample_id_scheme, logical_resolution.sample_id_resolver
 
     return "index", "fallback_index"
 
@@ -291,22 +278,6 @@ def _extract_record_key(record: Any) -> str | None:
             value = getattr(record, key, None)
         if value is not None:
             return str(value)
-    return None
-
-
-def _resolve_framework_logical_sample_id(
-    dataset: Any,
-    index: int,
-) -> SampleIdResolution | None:
-    """Resolve the current narrow built-in logical/framework compatibility case."""
-    class_name = dataset.__class__.__name__
-    if class_name in FRAMEWORK_LOGICAL_CLASS_NAMES:
-        split = "train" if getattr(dataset, "train", False) else "test"
-        return SampleIdResolution(
-            sample_id=f"logical:{split}#{index}",
-            sample_id_scheme="logical",
-            sample_id_resolver="framework_logical",
-        )
     return None
 
 
