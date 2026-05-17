@@ -38,6 +38,7 @@ def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
         role="train",
         sample_ids=[0, 1, 2],
         fingerprint="batch-a",
+        run_name="baseline-run-001",
     )
     store.close()
 
@@ -46,6 +47,7 @@ def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
 
     assert exit_code == 0
     assert "RUN ID" in captured.out
+    assert "NAME" in captured.out
     assert "DURATION" in captured.out
     assert "DATASETS" in captured.out
     assert "LOADERS" in captured.out
@@ -53,8 +55,10 @@ def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
     assert "BATCHES" in captured.out
     assert "run-001" in captured.out
     assert "run-002" in captured.out
+    assert "baseline-run-001" in captured.out
     assert "10m00s" in captured.out
     assert "train" in captured.out
+    assert "None" not in captured.out
 
     exit_code = main(["--db", str(db_path), "runs", "show", "run-001"])
     captured = capsys.readouterr()
@@ -62,6 +66,7 @@ def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
     assert exit_code == 0
     assert "Run overview" in captured.out
     assert "Run ID: run-001" in captured.out
+    assert "Run name: baseline-run-001" in captured.out
     assert "Duration: 10m00s" in captured.out
     assert "Code ref: git:run-001:clean" in captured.out
     assert "Config ref: config-run-001" in captured.out
@@ -80,6 +85,54 @@ def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
     assert "Environment" in captured.out
     assert "Library versions hash: lib-hash" in captured.out
     assert 'Hardware summary: {"system":"Darwin"}' in captured.out
+
+    exit_code = main(["--db", str(db_path), "runs", "show", "run-002"])
+    captured = capsys.readouterr()
+
+    assert exit_code == 0
+    assert "Run ID: run-002" in captured.out
+    assert "Run name:" not in captured.out
+
+
+def test_runs_list_and_show_json_omit_absent_run_name(tmp_path, capsys) -> None:
+    db_path = tmp_path / "cli_runs_json.db"
+    store = SQLiteStore(db_path)
+
+    _seed_run(
+        store,
+        run_id="run-002",
+        status="failure",
+        role="train",
+        sample_ids=[0, 1],
+        fingerprint="batch-b",
+    )
+    _seed_run(
+        store,
+        run_id="run-001",
+        status="success",
+        role="train",
+        sample_ids=[0, 1, 2],
+        fingerprint="batch-a",
+        run_name="baseline-run-001",
+    )
+    store.close()
+
+    exit_code = main(["--db", str(db_path), "--json", "runs", "list"])
+    captured = capsys.readouterr()
+    summaries = json.loads(captured.out)
+
+    assert exit_code == 0
+    named = next(item for item in summaries if item["run_id"] == "run-001")
+    unnamed = next(item for item in summaries if item["run_id"] == "run-002")
+    assert named["run_name"] == "baseline-run-001"
+    assert "run_name" not in unnamed
+
+    exit_code = main(["--db", str(db_path), "--json", "runs", "show", "run-002"])
+    captured = capsys.readouterr()
+    overview = json.loads(captured.out)
+
+    assert exit_code == 0
+    assert "run_name" not in overview["run"]
 
 
 def test_compare_and_batch_show_support_json_output(tmp_path, capsys) -> None:
@@ -351,6 +404,7 @@ def _seed_run(
     role: str,
     sample_ids: list[int],
     fingerprint: str,
+    run_name: str | None = None,
 ) -> None:
     dataset_id = f"in_memory_deterministic_v1:fingerprint-{run_id}"
     loader_id = f"loader-{run_id}-{role}"
@@ -366,6 +420,7 @@ def _seed_run(
         RunStartEvent(
             run_id=run_id,
             timestamp=f"2026-03-16T00:00:0{1 if run_id.endswith('1') else 2}+00:00",
+            run_name=run_name,
             code_ref=f"git:{run_id}:clean",
             config_ref=f"config-{run_id}",
             environment_hash=f"env-{run_id}",

@@ -16,6 +16,7 @@ def render_runs_table(runs: list[dict[str, Any]]) -> str:
 
     headers = (
         "RUN ID",
+        "NAME",
         "STATUS",
         "START",
         "DURATION",
@@ -27,6 +28,7 @@ def render_runs_table(runs: list[dict[str, Any]]) -> str:
     rows = [
         (
             str(run.get("run_id") or ""),
+            str(run.get("run_name") or ""),
             str(run.get("status") or "active"),
             str(run.get("start_time") or ""),
             _format_duration(run.get("duration_seconds")),
@@ -53,22 +55,28 @@ def render_run_overview(overview: dict[str, Any]) -> str:
         "Run overview",
         "-" * 60,
         f"Run ID: {run.get('run_id')}",
-        f"Status: {run.get('status') or 'active'}",
-        f"Start: {run.get('start_time')}",
-        f"End: {run.get('end_time') or '<active>'}",
-        f"Duration: {_format_duration(run.get('duration_seconds'))}",
-        f"Code ref: {run.get('code_ref') or '<none>'}",
-        f"Config ref: {run.get('config_ref') or '<none>'}",
-        f"Config json: {_format_config_json(run.get('config_json'))}",
-        f"Environment hash: {run.get('environment_hash') or '<none>'}",
-        f"Seed summary: {_format_seed_summary(run.get('seed_summary_json'))}",
-        "",
-        "Summary",
-        f"  Datasets: {len(datasets)}",
-        f"  Loaders: {len(loaders)}",
-        f"  Transforms: {len(transforms)}",
-        f"  Batches: {overview['batch_count']}",
     ]
+    if run.get("run_name"):
+        lines.append(f"Run name: {run.get('run_name')}")
+    lines.extend(
+        [
+            f"Status: {run.get('status') or 'active'}",
+            f"Start: {run.get('start_time')}",
+            f"End: {run.get('end_time') or '<active>'}",
+            f"Duration: {_format_duration(run.get('duration_seconds'))}",
+            f"Code ref: {run.get('code_ref') or '<none>'}",
+            f"Config ref: {run.get('config_ref') or '<none>'}",
+            f"Config json: {_format_config_json(run.get('config_json'))}",
+            f"Environment hash: {run.get('environment_hash') or '<none>'}",
+            f"Seed summary: {_format_seed_summary(run.get('seed_summary_json'))}",
+            "",
+            "Summary",
+            f"  Datasets: {len(datasets)}",
+            f"  Loaders: {len(loaders)}",
+            f"  Transforms: {len(transforms)}",
+            f"  Batches: {overview['batch_count']}",
+        ]
+    )
 
     if batches_by_role:
         role_counts = ", ".join(

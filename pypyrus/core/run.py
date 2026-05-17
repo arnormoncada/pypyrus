@@ -34,10 +34,10 @@ class Run:
         run_id: str | None = None,
         store_mode: Literal["sync", "buffered_strict"] = "sync",
         buffered_queue_size: int = 1024,
-        # run_name: str | None = None,
+        run_name: str | None = None,
     ):
         self.run_id = run_id or str(uuid4())
-        # self.run_name = run_name
+        self.run_name = run_name
         base_store: Store = store or SQLiteStore()
         if store_mode == "sync":
             self.store = base_store
@@ -96,7 +96,7 @@ class Run:
             config_json=config_json,
             environment_hash=environment_hash,
             seed_summary=seed_summary,
-            # run_name=self.run_name,
+            run_name=self.run_name,
         )
 
         self.emit(event)

@@ -1,10 +1,13 @@
 from __future__ import annotations
 
+import sqlite3
+
 import pytest
 
 from pypyrus.core import run as run_module
 from pypyrus.core.run import Run
 from pypyrus.provenance.events import DatasetRegisteredEvent
+from pypyrus.storage.sqlite_store import SQLiteStore
 
 from tests.helpers import fetch_one
 
@@ -85,6 +88,49 @@ def test_explicit_code_ref_overrides_auto_capture(db_path, monkeypatch, store) -
         (run.run_id,),
     )
     assert run_row["code_ref"] == "git:manual:clean"
+
+
+def test_run_persists_optional_run_name(db_path, store) -> None:
+    with Run(store=store, run_name="baseline-a") as run:
+        pass
+
+    run_row = fetch_one(
+        db_path,
+        "SELECT run_name FROM runs WHERE run_id = ?",
+        (run.run_id,),
+    )
+    assert run_row["run_name"] == "baseline-a"
+
+
+def test_store_adds_run_name_column_for_legacy_runs_table(db_path) -> None:
+    conn = sqlite3.connect(db_path)
+    conn.execute(
+        """
+        CREATE TABLE runs (
+            run_id TEXT PRIMARY KEY,
+            start_time TEXT NOT NULL,
+            code_ref TEXT,
+            config_ref TEXT,
+            environment_hash TEXT,
+            seed_summary_json TEXT,
+            end_time TEXT,
+            status TEXT,
+            event_count INTEGER
+        )
+        """
+    )
+    conn.commit()
+    conn.close()
+
+    store = SQLiteStore(db_path)
+    store.close()
+
+    conn = sqlite3.connect(db_path)
+    columns = {row[1] for row in conn.execute("PRAGMA table_info(runs)").fetchall()}
+    conn.close()
+
+    assert "config_json" in columns
+    assert "run_name" in columns
 
 
 def test_run_end_persists_total_event_count(db_path, monkeypatch, store) -> None:

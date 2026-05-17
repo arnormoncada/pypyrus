@@ -78,6 +78,8 @@ class SQLiteStore(Store):
         }
         if "config_json" not in existing:
             conn.execute("ALTER TABLE runs ADD COLUMN config_json TEXT")
+        if "run_name" not in existing:
+            conn.execute("ALTER TABLE runs ADD COLUMN run_name TEXT")
         conn.commit()
 
     # ------------------------------------------------------------------
@@ -124,17 +126,19 @@ class SQLiteStore(Store):
             INSERT INTO runs (
                 run_id,
                 start_time,
+                run_name,
                 code_ref,
                 config_ref,
                 config_json,
                 environment_hash,
                 seed_summary_json
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.run_id,
                 event.timestamp,
+                event.run_name or None,
                 event.code_ref,
                 event.config_ref,
                 json.dumps(event.config_json) if event.config_json is not None else None,
