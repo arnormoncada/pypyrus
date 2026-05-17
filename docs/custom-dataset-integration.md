@@ -1,8 +1,10 @@
 # Custom Dataset Integration
 
-PyPyrus can infer sample identity automatically for a few dataset shapes.
+Best practice: provide `sample_id_resolver=` in `attach(...)`.
 
-If it cannot, use `sample_id_resolver=` in `attach(...)`.
+That is the strongest and most explicit way to control sample identity.
+PyPyrus can also infer sample identity automatically for a few built-in
+map-style dataset shapes.
 
 ## Dataset Base Class Requirement
 
@@ -15,6 +17,9 @@ Custom objects that only implement `__getitem__`, `__len__`, or `__iter__`
 without inheriting these bases are rejected at `attach(...)`.
 
 ## Option 1: Fit a Built-In Contract
+
+This is the convenience path for map-style datasets when you do not provide
+`sample_id_resolver=...`.
 
 ### File Collection Datasets
 
@@ -87,6 +92,8 @@ If your records exist but do not expose a stable key, PyPyrus falls back to:
 - `row:<index>`
 
 ## Option 2: Provide `sample_id_resolver=...`
+
+This is the recommended path.
 
 Use this when:
 
@@ -259,15 +266,13 @@ Use the explicit attach-time override when:
 
 ## Custom Collate That Reorders or Drops Samples
 
-If your collate function reorders or filters samples, PyPyrus cannot infer the
-new ID order unless you pass IDs through collate explicitly. Use
-`id_aware_collate=True` and make your collate function accept
-`(samples, sample_ids)` and return `(batch, remapped_ids)`.
+If your collate reorders, drops, or duplicates samples, use
+`id_aware_collate=True` and make it accept `(samples, sample_ids)` and return
+`(batch, remapped_ids)`.
 
-If your collate only shuffles within the batch (no drop/dup), this is fine: the
-batch still contains the same samples, and batch membership stays correct. The
-only mismatch is ordering: IDs remain in the original order, so they no longer
-align with the shuffled payload positions.
+If your collate only changes the order within the batch, batch membership stays
+correct, but the stored IDs remain in the original order unless you opt into
+`id_aware_collate=True`.
 
 Example (reorder and filter in collate):
 
@@ -277,14 +282,11 @@ from pypyrus import Run, attach
 
 
 def id_aware_collate(samples, sample_ids):
-    # Example: keep even-indexed samples and reverse their order.
     kept = [(s, sid) for s, sid in zip(samples, sample_ids) if sid.endswith(":0") or sid.endswith(":2")]
     kept = list(reversed(kept))
 
     remapped_samples = [s for s, _ in kept]
     remapped_ids = [sid for _, sid in kept]
-
-    # Build your batch from the remapped samples.
     batch = remapped_samples
     return batch, remapped_ids
 
@@ -298,14 +300,9 @@ with Run() as run:
     )
 ```
 
-Why this matters:
-
-- PyPyrus stores `remapped_ids` for each delivered batch.
-- If you reorder or drop samples, returning `(batch, remapped_ids)` is the only
-  way to guarantee correct sample-to-ID mapping in provenance events.
-
-If you need exact per-sample alignment (e.g., to map a specific payload slot to
-its ID), enable `id_aware_collate=True` even for shuffle-only collates.
+PyPyrus stores `remapped_ids` for the delivered batch. If you reorder, drop, or
+duplicate samples, returning `(batch, remapped_ids)` keeps sample IDs aligned
+with the delivered payload.
 
 If your collate needs additional parameters, pre-bind them before constructing
 the DataLoader collate function (for example with `functools.partial`).
@@ -325,9 +322,7 @@ loader = DataLoader(dataset, batch_size=32, collate_fn=collate_fn)
 tracked_loader = attach(loader, run, role="train", id_aware_collate=True)
 ```
 
-When `id_aware_collate=False`, PyPyrus may still call a collate that accepts
-`sample_ids`, but it always stores the original ordered IDs unless
-`id_aware_collate=True`.
+When `id_aware_collate=False`, PyPyrus stores the original ordered IDs.
 
 ## What If Collate Changes Batch Size
 
@@ -338,6 +333,9 @@ explicit approach is `id_aware_collate=True`, where your collate function
 returns the remapped IDs alongside the batch.
 
 ## Recommended Guidance
+
+Best practice is still `sample_id_resolver=...`, especially when you care about
+stable sample identity across splits, wrappers, or custom dataset shapes.
 
 Use the built-in contracts when they fit naturally:
 

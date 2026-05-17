@@ -1,157 +1,92 @@
 # Sample Identity Contract
 
-PyPyrus stores a normalized `sample_id` for each delivered sample when it can.
+PyPyrus stores one `sample_id` for each delivered sample.
 
-The goal is simple:
+Recommended usage:
 
-- use the strongest stable sample identity available
-- fall back safely when a stronger identity is not available
+- provide `sample_id_resolver=` in `attach(...)`
 
-These contracts are **PyPyrus conventions**, not PyTorch-wide standards.
+This is the strongest and most explicit way to control sample identity.
 
-## Dataset Type Requirements
-
-PyPyrus expects the DataLoader dataset to follow the PyTorch dataset base
-classes explicitly:
+## Dataset Requirements
 
 - map-style datasets should inherit `torch.utils.data.Dataset`
 - iterable datasets should inherit `torch.utils.data.IterableDataset`
 
-Datasets that only duck-type these interfaces without inheriting the PyTorch
-bases are rejected at `attach(...)`.
-
-## Normalized Sample ID Schemes
-
-PyPyrus currently emits these normalized schemes:
-
-- `filepath:<relative-path>`
-- `record_id:<value>`
-- `row:<value>`
-- `logical:<split>#<index-or-key>`
-- `index:<value>`
+Datasets that only duck-type these interfaces are rejected at `attach(...)`.
 
 ## Resolution Order
 
-PyPyrus resolves sample IDs in this order:
+For map-style datasets, PyPyrus resolves sample IDs in this order:
 
-1. user-provided `sample_id_resolver`
-2. file collection contract
-3. structured record contract
-4. narrow logical/framework compatibility cases
-5. fallback positional identity
+1. `sample_id_resolver=...`
+2. built-in contract
+3. fallback `index:<i>`
 
-For `IterableDataset`, PyPyrus does not use the built-in fallback path.
-Iterable datasets must provide `sample_id_resolver=...`.
+For iterable datasets:
 
-## File Collection Contract
+1. `sample_id_resolver=...`
 
-Use this family when one file corresponds to one sample.
+Iterable datasets require `sample_id_resolver=...`.
 
-Recommended contract:
+## Built-In Contracts
+
+### File collections
+
+Use this when one file corresponds to one sample.
+
+Expose:
 
 - `.samples`
 - `.root`
 
-Recognized compatibility alias:
+Compatibility alias:
 
 - `.imgs`
 
-If PyPyrus can read a file path from `.samples` and relate it to `.root`, it
-emits:
+PyPyrus emits:
 
 - `filepath:<relative-path>`
 
-Example:
+### Structured records
 
-- `filepath:train/cats/cat_12.jpg`
+Use this when your dataset is really a collection of rows or records.
 
-PyTorch examples:
-
-- `torchvision.datasets.DatasetFolder`
-- `torchvision.datasets.ImageFolder`
-
-## Structured Record Contract
-
-Use this family when a dataset is really a collection of rows or records.
-
-Recommended contract:
+Expose one of:
 
 - `.records`
-
-Recognized compatibility aliases:
-
 - `.rows`
 - `.record_ids`
 - `.ids`
 
-Preferred record key fields, in priority order:
+Preferred record key fields:
 
 - `record_id`
 - `id`
 - `uuid`
 - `key`
 
-Behavior:
+PyPyrus emits:
 
-- if `record_ids` or `ids` exist, PyPyrus emits `record_id:<value>`
-- if `records` or `rows` exist and the record exposes one of the key fields,
-  PyPyrus emits `record_id:<value>`
-- if `records` or `rows` exist but no key field is available, PyPyrus emits
-  `row:<index>`
+- `record_id:<value>` when a stable key is available
+- `row:<index>` otherwise
 
-Examples:
+## Normalized Schemes
 
-- `record_id:customer_84291`
-- `row:183`
+PyPyrus currently emits:
 
-## Logical / Framework Compatibility
+- `filepath:<relative-path>`
+- `record_id:<value>`
+- `row:<value>`
+- `index:<value>`
 
-This is intentionally narrow in the current MVP.
+## Samples CLI
 
-PyPyrus has a small built-in logical compatibility case for some torchvision
-datasets where path- or record-style identity is not the natural fit.
+Use the stored sample ID directly:
 
-This should be treated as compatibility behavior, not as a general user-facing
-contract.
-
-## Fallback Positional Identity
-
-If no stronger built-in contract matches, PyPyrus falls back to:
-
-- `index:<i>`
-
-This is the default map-style positional identity.
-
-Example:
-
-- `index:42`
-
-## Dataset Scope Matters
-
-The same `sample_id` can appear in more than one dataset in a run.
-
-Example:
-
-- `filepath:class_a/item_0.txt`
-
-So `samples find --sample-id ...` may return matches from multiple datasets.
-
-## When To Use `sample_id_resolver=...`
-
-Use a custom resolver when:
-
-- your dataset does not expose the built-in contract attrs
-- your built-in sample identity should be stronger than the default one
-- your logical sample key matters more than path or index
-- you are attaching an `IterableDataset`
-
-Example:
-
-```python
-def sample_id_resolver(dataset, index, sample):
-    row = dataset.records[index]
-    return f"record_id:{row['customer_id']}"
+```bash
+pypyrus samples find <run_id> --sample-id record_id:cust_84291
 ```
 
-See [Custom Dataset Integration](custom-dataset-integration.md) for concrete
-patterns.
+If the same sample ID appears in multiple datasets in one run, `samples find`
+can return matches from more than one dataset.

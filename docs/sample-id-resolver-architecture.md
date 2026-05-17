@@ -105,32 +105,7 @@ If a custom dataset exposes obvious attributes like `record_ids`, `ids`,
 automatically. Otherwise, users should supply `sample_id_resolver=` at
 `attach(...)`.
 
-### 3. Framework / logical dataset
-
-The dataset exposes a stable logical access pattern even if the underlying
-storage is abstracted away.
-
-Examples:
-
-* torchvision datasets
-* framework-provided train/test splits
-* datasets with built-in keys or stable logical indices
-
-Preferred identity:
-
-* built-in key if available
-* otherwise split + index
-* otherwise dataset-local index
-
-Example mappings:
-
-* MNIST-like framework dataset -> `logical:train#1234`
-* keyed logical dataset -> `logical:validation#doc_0042`
-
-For the MVP, MNIST-like usage belongs here rather than opening a separate
-container/binary resolver family.
-
-### 4. Fallback custom / in-memory
+### 3. Fallback custom / in-memory
 
 No source-transparent locator is available.
 
@@ -185,7 +160,6 @@ Still useful, but more positional.
 Examples:
 
 * row index
-* split + index
 
 These are acceptable for the MVP, but they are more brittle if the source
 changes.
@@ -209,7 +183,6 @@ reference schemes:
 * `filepath:<relative-path>`
 * `record_id:<value>`
 * `row:<value>`
-* `logical:<split>#<index-or-key>`
 * `index:<value>`
 
 This is intentionally simple. The goal is not to design a large type system,
@@ -236,9 +209,8 @@ The intended resolution order at attach time is:
 
 1. user-provided resolver override, if present
 2. file-collection resolver
-3. framework/logical resolver
-4. structured-record resolver when the dataset shape makes this straightforward
-5. fallback `index:<i>`
+3. structured-record resolver when the dataset shape makes this straightforward
+4. fallback `index:<i>`
 
 Rule:
 

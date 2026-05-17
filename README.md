@@ -121,10 +121,4 @@ pypyrus samples find <run_id> --sample-id index:3
 
 - [Plant seedlings image classification](experiments/plant_seedlings/train_mobilenetv3_small.py)
 - [UFO sightings shape classification](experiments/ufo_sightings/train_shape_classifier.py)
-
-## Internal Design Notes
-
-These are working documents for implementation planning, not end-user docs:
-
-- [Sample ID resolver architecture](docs/sample-id-resolver-architecture.md)
-- [Internal working notes](docs/internal-working-notes.md)
+- [Forest Covertype tabular classification](experiments/forest_covertype/train_covtype_mlp.py)
