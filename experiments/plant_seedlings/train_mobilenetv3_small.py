@@ -46,6 +46,7 @@ from torch.utils.data import DataLoader
 from torchvision import datasets, models, transforms
 
 from pypyrus import Run, attach
+from pypyrus.storage.sqlite_store import SQLiteStore
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -98,6 +99,18 @@ def build_parser() -> argparse.ArgumentParser:
         type=Path,
         default=Path("run_timing.txt"),
         help="File where runtime timing is appended. Default: run_timing.txt",
+    )
+    parser.add_argument(
+        "--db-path",
+        type=Path,
+        default=None,
+        help="Explicit SQLite database path for instrumented runs. Default: use Run() default store path.",
+    )
+    parser.add_argument(
+        "--run-name",
+        type=str,
+        default=None,
+        help="Optional human-readable run name stored in the run metadata.",
     )
 
     parser.add_argument(
@@ -167,10 +180,17 @@ def main() -> int:
 
     use_instrumentation = not args.no_instrumentation
     if use_instrumentation:
+        store = None
+        if args.db_path is not None:
+            db_path = args.db_path.expanduser().resolve()
+            db_path.parent.mkdir(parents=True, exist_ok=True)
+            store = SQLiteStore(db_path)
         store_mode = "buffered_strict" if args.buffered_queue else "sync"
         with Run(
+            store=store,
             store_mode=store_mode,
             buffered_queue_size=args.buffered_queue_size,
+            run_name=args.run_name,
         ) as run:
             print(f"seed={args.seed}")
             train_loader = attach(train_loader, run, role="train")
