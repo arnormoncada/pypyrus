@@ -1,0 +1,76 @@
+Host: n-62-12-21
+Working directory: /zhome/e3/b/212140/git/pypyrus
+Model name:                              Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz
+GPU Model(s):
+NVIDIA A100-PCIE-40GB
+Python executable: /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+sys.executable = /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+torch.__version__ = 2.5.1+cu118
+torch.version.cuda = 11.8
+cuda.is_available = True
+device_name = NVIDIA A100-PCIE-40GB
+device_cc   = (8, 0)
+Obtaining file:///zhome/e3/b/212140/git/pypyrus
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: pypyrus
+  Building editable for pypyrus (pyproject.toml): started
+  Building editable for pypyrus (pyproject.toml): finished with status 'done'
+  Created wheel for pypyrus: filename=pypyrus-0.1.0-0.editable-py3-none-any.whl size=3049 sha256=341213ddbea70a127a1e139d1491d51da904463e7b77ab316c3ae91e9526f480
+  Stored in directory: /tmp/pip-ephem-wheel-cache-0iw74zuq/wheels/39/e3/38/36c97324553eb373193a81a0e3dc06c8a95b090c9404a78c8e
+Successfully built pypyrus
+Installing collected packages: pypyrus
+  Attempting uninstall: pypyrus
+    Found existing installation: pypyrus 0.1.0
+    Uninstalling pypyrus-0.1.0:
+      Successfully uninstalled pypyrus-0.1.0
+Successfully installed pypyrus-0.1.0
+Running command:
+ python experiments/storage/run_storage_footprint.py --workload all --output-root experiments/results/storage_footprint --plant-data-root experiments/plant_seedlings/data/split --covtype-data-path experiments/forest_covertype/data/covtype_with_sample_id.csv --plant-epochs 10 --covtype-epochs 10 --plant-batch-size 32 --covtype-batch-size 256 --plant-num-workers 2 --covtype-num-workers 0 --covtype-hidden-dim 128 --covtype-test-ratio 0.2 --seed 42 --reset-output
+Running command:
+ /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python experiments/plant_seedlings/train_mobilenetv3_small.py --data-root /zhome/e3/b/212140/git/pypyrus/experiments/plant_seedlings/data/split --epochs 10 --batch-size 32 --num-workers 2 --seed 42 --db-path /zhome/e3/b/212140/git/pypyrus/experiments/results/storage_footprint/plant/plant_storage.db --run-name storage-plant --timing-file /zhome/e3/b/212140/git/pypyrus/experiments/results/storage_footprint/plant/plant_timing.txt
+seed=42
+epoch=1/10 train_loss=1.5796 test_loss=1.3295 test_acc=0.5857
+epoch=2/10 train_loss=0.9926 test_loss=0.9519 test_acc=0.7365
+epoch=3/10 train_loss=0.8214 test_loss=0.7704 test_acc=0.7861
+epoch=4/10 train_loss=0.7167 test_loss=0.7059 test_acc=0.7942
+epoch=5/10 train_loss=0.6490 test_loss=0.6593 test_acc=0.8023
+epoch=6/10 train_loss=0.6105 test_loss=0.6366 test_acc=0.8114
+epoch=7/10 train_loss=0.5685 test_loss=0.6200 test_acc=0.8150
+epoch=8/10 train_loss=0.5462 test_loss=0.5982 test_acc=0.8168
+epoch=9/10 train_loss=0.5267 test_loss=0.5849 test_acc=0.8177
+epoch=10/10 train_loss=0.5030 test_loss=0.5824 test_acc=0.8186
+timing: instrumentation=True epochs=10 batch_size=32 num_workers=2 elapsed_seconds=341.285078
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/storage_footprint/plant/plant_timing.txt
+
+[plant] db_mib=1.605 events=1749 batches=1740 bytes_per_batch=967.50
+Running command:
+ /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python experiments/forest_covertype/train_covtype_mlp.py --data-path /zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv --epochs 10 --batch-size 256 --hidden-dim 128 --test-ratio 0.2 --num-workers 0 --seed 42 --db-path /zhome/e3/b/212140/git/pypyrus/experiments/results/storage_footprint/covtype/covtype_storage.db --run-name storage-covtype --timing-file /zhome/e3/b/212140/git/pypyrus/experiments/results/storage_footprint/covtype/covtype_timing.txt
+seed=42
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/10 train_loss=1.2818 test_loss=0.7303 test_acc=0.6709
+epoch=2/10 train_loss=0.7051 test_loss=0.8051 test_acc=0.6536
+epoch=3/10 train_loss=0.6469 test_loss=0.6300 test_acc=0.7259
+epoch=4/10 train_loss=0.6201 test_loss=0.5835 test_acc=0.7472
+epoch=5/10 train_loss=0.5942 test_loss=0.5572 test_acc=0.7611
+epoch=6/10 train_loss=0.5705 test_loss=0.5834 test_acc=0.7437
+epoch=7/10 train_loss=0.5511 test_loss=0.5487 test_acc=0.7618
+epoch=8/10 train_loss=0.5314 test_loss=0.5206 test_acc=0.7770
+epoch=9/10 train_loss=0.5126 test_loss=0.5297 test_acc=0.7715
+epoch=10/10 train_loss=0.5001 test_loss=0.4858 test_acc=0.7943
+timing: instrumentation=True epochs=10 batch_size=256 num_workers=0 elapsed_seconds=134.148549
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/storage_footprint/covtype/covtype_timing.txt
+
+[covtype] db_mib=37.277 events=22707 batches=22700 bytes_per_batch=1721.94
+
+Suite summary written to: /zhome/e3/b/212140/git/pypyrus/experiments/results/storage_footprint/storage_summary.json

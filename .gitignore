@@ -33,3 +33,6 @@ experiments/plant_seedlings/data/raw/.DS_Store
 build/
 *.egg-info/
 dist/
+
+
+experiments/results/

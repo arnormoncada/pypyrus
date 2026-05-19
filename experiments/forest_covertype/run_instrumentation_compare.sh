@@ -4,13 +4,13 @@ set -euo pipefail
 # All settings can be overridden via environment variables, e.g.:
 # EPOCHS=3 PAIRS=10 WARMUP_PAIRS=1 bash experiments/forest_covertype/run_instrumentation_compare.sh
 DATA_PATH="${DATA_PATH:-experiments/forest_covertype/data/covtype_with_sample_id.csv}"
-EPOCHS="${EPOCHS:-3}"
+EPOCHS="${EPOCHS:-10}"
 BATCH_SIZE="${BATCH_SIZE:-256}"
-NUM_WORKERS="${NUM_WORKERS:-0}"
+NUM_WORKERS="${NUM_WORKERS:-2}"
 HIDDEN_DIM="${HIDDEN_DIM:-128}"
 TEST_RATIO="${TEST_RATIO:-0.2}"
 TIMING_FILE="${TIMING_FILE:-experiments/results/overhead/covtype_timings.txt}"
-PAIRS="${PAIRS:-10}"
+PAIRS="${PAIRS:-20}"
 WARMUP_PAIRS="${WARMUP_PAIRS:-1}"
 PYTHON_BIN="${PYTHON_BIN:-python}"
 RESET_TIMINGS="${RESET_TIMINGS:-1}"

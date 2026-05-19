@@ -35,9 +35,13 @@ unset PYTHONPATH
 
 echo "Host: $(hostname)"
 echo "Working directory: $PWD"
-lscpu | grep "Model name" || true
+lscpu | egrep 'Architecture|CPU\(s\)|Model name|Thread\(s\) per core|Core\(s\) per socket|Socket\(s\)|NUMA node\(s\)|L1d cache|L1i cache|L2 cache|L3 cache'
 echo "GPU Model(s):"
 nvidia-smi --query-gpu=name --format=csv,noheader | sort | uniq
+echo "Memory:"
+free -h || grep MemTotal /proc/meminfo
+echo "GPU summary:"
+nvidia-smi --query-gpu=name,memory.total,driver_version,compute_mode --format=csv,noheader
 
 GPU_NAME="$(nvidia-smi --query-gpu=name --format=csv,noheader | head -n1)"
 ALLOWED_GPU_REGEX="${ALLOWED_GPU_REGEX:-A100}"
@@ -72,7 +76,7 @@ case "${WORKLOAD}" in
     EPOCHS="${EPOCHS:-10}"
     BATCH_SIZE="${BATCH_SIZE:-32}"
     NUM_WORKERS="${NUM_WORKERS:-2}"
-    PAIRS="${PAIRS:-10}"
+    PAIRS="${PAIRS:-20}"
     WARMUP_PAIRS="${WARMUP_PAIRS:-1}"
     TIMING_FILE="${TIMING_FILE:-${OUTPUT_DIR}/plant_timings.txt}"
 
@@ -89,12 +93,12 @@ case "${WORKLOAD}" in
     ;;
   covtype)
     DATA_PATH="${DATA_PATH:-experiments/forest_covertype/data/covtype_with_sample_id.csv}"
-    EPOCHS="${EPOCHS:-3}"
+    EPOCHS="${EPOCHS:-10}"
     BATCH_SIZE="${BATCH_SIZE:-256}"
-    NUM_WORKERS="${NUM_WORKERS:-0}"
+    NUM_WORKERS="${NUM_WORKERS:-2}"
     HIDDEN_DIM="${HIDDEN_DIM:-128}"
     TEST_RATIO="${TEST_RATIO:-0.2}"
-    PAIRS="${PAIRS:-10}"
+    PAIRS="${PAIRS:-20}"
     WARMUP_PAIRS="${WARMUP_PAIRS:-1}"
     BASE_SEED="${BASE_SEED:-100}"
     TIMING_FILE="${TIMING_FILE:-${OUTPUT_DIR}/covtype_timings.txt}"
