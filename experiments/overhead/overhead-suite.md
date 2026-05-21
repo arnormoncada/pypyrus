@@ -47,6 +47,12 @@ Covtype secondary benchmark:
 WORKLOAD=covtype bsub < scripts/batch_run_overhead_gpu.sh
 ```
 
+Covtype batch-size sensitivity sweep:
+
+```bash
+bsub < scripts/batch_run_overhead_batchsize_sweep_gpu.sh
+```
+
 Useful overrides:
 
 - `EPOCHS`
@@ -55,3 +61,11 @@ Useful overrides:
 - `BATCH_SIZE`
 - `NUM_WORKERS`
 - `TIMING_FILE`
+
+Batch-size sweep defaults:
+
+- workload: `covtype`
+- batch sizes: `64 128 256 512 1024`
+- timing output directory: `experiments/results/overhead/batchsize_sweep/`
+- aggregate summary: `covtype_batchsize_sweep_summary.tsv`
+- conservative defaults for a single job: `EPOCHS=3`, `PAIRS=5`, `WARMUP_PAIRS=1`
