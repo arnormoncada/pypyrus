@@ -1,0 +1,34 @@
+[project]
+name = "pypyrus"
+version = "0.1.0"
+description = "Data provenance layer for reproducible ML training"
+requires-python = ">=3.9"
+
+dependencies = [
+    "torch",
+    "torchvision"
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+]
+examples = [
+    "transformers==4.41.2",
+    "protobuf",
+]
+
+[project.scripts]
+pypyrus = "pypyrus.cli.main:main"
+
+[tool.setuptools.packages.find]
+include = ["pypyrus*"]
+
+[tool.setuptools.package-data]
+"pypyrus.storage" = ["schema/*.sql"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_classes = ["Test*"]
+python_functions = ["test_*"]
