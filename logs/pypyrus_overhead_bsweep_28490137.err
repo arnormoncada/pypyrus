@@ -1,0 +1,36 @@
+Loaded module: cuda/11.8
+Traceback (most recent call last):
+  File "/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/train_covtype_mlp.py", line 411, in main
+    train_loss = train_one_epoch(model, train_loader, optimizer, loss_fn, device)
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/train_covtype_mlp.py", line 270, in train_one_epoch
+    for features, labels in loader:
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/instrumentation/pytorch/dataloader.py", line 359, in __iter__
+    self.run.emit(
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/core/run.py", line 188, in emit
+    self.store.append_event(event)
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/storage/sqlite_store.py", line 110, in append_event
+    self._insert_batch_delivered(event)
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/storage/sqlite_store.py", line 251, in _insert_batch_delivered
+    conn.execute(
+sqlite3.OperationalError: disk I/O error
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/train_covtype_mlp.py", line 450, in <module>
+    raise SystemExit(main())
+                     ^^^^^^
+  File "/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/train_covtype_mlp.py", line 385, in main
+    with Run(
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/core/run.py", line 209, in __exit__
+    self.end(status=status)
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/core/run.py", line 151, in end
+    self.emit(event)
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/core/run.py", line 188, in emit
+    self.store.append_event(event)
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/storage/sqlite_store.py", line 98, in append_event
+    self._insert_run_end(event)
+  File "/zhome/e3/b/212140/git/pypyrus/pypyrus/storage/sqlite_store.py", line 152, in _insert_run_end
+    conn.execute(
+sqlite3.OperationalError: database or disk is full
