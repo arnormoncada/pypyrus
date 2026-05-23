@@ -1,0 +1,2 @@
+ERROR: pyproject.toml not found in submit directory: /zhome/e3/b/212140/git/pypyrus
+Submit from repo root, e.g. cd ~/git/pypyrus
