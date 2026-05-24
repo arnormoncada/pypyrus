@@ -1,0 +1,56 @@
+Host: n-62-12-24
+Working directory: /zhome/e3/b/212140/git/pypyrus
+Model name:                              Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz
+GPU Model(s):
+NVIDIA A100-PCIE-40GB
+Python executable: /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+sys.executable = /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+torch.__version__ = 2.5.1+cu118
+torch.version.cuda = 11.8
+cuda.is_available = True
+device_name = NVIDIA A100-PCIE-40GB
+device_cc   = (8, 0)
+Obtaining file:///zhome/e3/b/212140/git/pypyrus
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: pypyrus
+  Building editable for pypyrus (pyproject.toml): started
+  Building editable for pypyrus (pyproject.toml): finished with status 'done'
+  Created wheel for pypyrus: filename=pypyrus-0.1.0-0.editable-py3-none-any.whl size=3049 sha256=4400a78f39d7d0d51f87d6efca43a531ea6bb2b853950234903d91d8c6d56838
+  Stored in directory: /tmp/pip-ephem-wheel-cache-xujf7vyt/wheels/39/e3/38/36c97324553eb373193a81a0e3dc06c8a95b090c9404a78c8e
+Successfully built pypyrus
+Installing collected packages: pypyrus
+  Attempting uninstall: pypyrus
+    Found existing installation: pypyrus 0.1.0
+    Uninstalling pypyrus-0.1.0:
+      Successfully uninstalled pypyrus-0.1.0
+Successfully installed pypyrus-0.1.0
+Running command:
+ python experiments/traceability/run_traceability_support.py --workload all --output-root experiments/results/traceability_support --plant-data-root experiments/plant_seedlings/data/split --covtype-data-path experiments/forest_covertype/data/covtype_with_sample_id.csv --plant-epochs 1 --covtype-epochs 1 --plant-batch-size 32 --covtype-batch-size 256 --plant-num-workers 2 --covtype-num-workers 0 --covtype-hidden-dim 128 --covtype-test-ratio 0.2 --seed 42 --reset-output
+Running command:
+ /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python experiments/plant_seedlings/train_mobilenetv3_small.py --data-root /zhome/e3/b/212140/git/pypyrus/experiments/plant_seedlings/data/split --epochs 1 --batch-size 32 --num-workers 2 --seed 42 --db-path /zhome/e3/b/212140/git/pypyrus/experiments/results/traceability_support/plant/plant_traceability.db --run-name traceability-plant
+seed=42
+epoch=1/1 train_loss=1.5796 test_loss=1.3295 test_acc=0.5857
+timing: instrumentation=True epochs=1 batch_size=32 num_workers=2 elapsed_seconds=28.395881
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/run_timing.txt
+
+[plant] run_id=4b6a7c45-a6ff-46a6-9142-76257608a305 selected_step=0 sample_id=filepath:Cleavers/253.png occurrences=1
+Running command:
+ /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python experiments/forest_covertype/train_covtype_mlp.py --data-path /zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv --epochs 1 --batch-size 256 --hidden-dim 128 --test-ratio 0.2 --num-workers 0 --seed 42 --db-path /zhome/e3/b/212140/git/pypyrus/experiments/results/traceability_support/covtype/covtype_traceability.db --run-name traceability-covtype
+seed=42
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/1 train_loss=1.2818 test_loss=0.7303 test_acc=0.6709
+
+[covtype] run_id=78484a4a-9f5d-4d11-8e9e-11d834434ace selected_step=0 sample_id=record_id:obs_350485 occurrences=1
+
+Suite summary written to: /zhome/e3/b/212140/git/pypyrus/experiments/results/traceability_support/traceability_suite_summary.json
