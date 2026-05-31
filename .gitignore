@@ -10,6 +10,20 @@ __pycache__/
 #/data folders (recursive in case there are multiple in non-root folders)
 data/
 
+# Selected experiment datasets tracked in-repo.
+!experiments/plant_seedlings/data/
+!experiments/plant_seedlings/data/raw/
+!experiments/plant_seedlings/data/raw/**
+experiments/plant_seedlings/data/raw/.DS_Store
+!experiments/plant_seedlings/data/split/
+!experiments/plant_seedlings/data/split/**
+
+!experiments/forest_covertype/data/
+!experiments/forest_covertype/data/**
+
+!experiments/ufo_sightings/data/
+!experiments/ufo_sightings/data/**
+
 
 
 # test stuff
@@ -19,3 +33,6 @@ data/
 build/
 *.egg-info/
 dist/
+
+
+experiments/results/

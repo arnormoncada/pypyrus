@@ -1,0 +1,171 @@
+Host: n-62-18-11
+Working directory: /zhome/e3/b/212140/git/pypyrus
+Model name:                              Intel(R) Xeon(R) Gold 6326 CPU @ 2.90GHz
+GPU Model(s):
+NVIDIA A100 80GB PCIe
+Python executable: /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+sys.executable = /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+torch.__version__ = 2.5.1+cu118
+torch.version.cuda = 11.8
+cuda.is_available = True
+device_name = NVIDIA A100 80GB PCIe
+device_cc   = (8, 0)
+Obtaining file:///zhome/e3/b/212140/git/pypyrus
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: pypyrus
+  Building editable for pypyrus (pyproject.toml): started
+  Building editable for pypyrus (pyproject.toml): finished with status 'done'
+  Created wheel for pypyrus: filename=pypyrus-0.1.0-0.editable-py3-none-any.whl size=3049 sha256=28db3bba9fcfbdd5652b3f7a368548bd5063bd3697b8b87f2bf8fe0605215390
+  Stored in directory: /tmp/pip-ephem-wheel-cache-k3yxihtg/wheels/39/e3/38/36c97324553eb373193a81a0e3dc06c8a95b090c9404a78c8e
+Successfully built pypyrus
+Installing collected packages: pypyrus
+  Attempting uninstall: pypyrus
+    Found existing installation: pypyrus 0.1.0
+    Uninstalling pypyrus-0.1.0:
+      Successfully uninstalled pypyrus-0.1.0
+Successfully installed pypyrus-0.1.0
+Running command:
+ python experiments/repro/run_repro_suite.py --case all --data-root experiments/plant_seedlings/data/split --output-root experiments/results/repro_suite --epochs 3 --batch-size 32 --num-workers 2 --seed-a 42 --seed-b 99 --reset-output
+A1 baseline match
+------------------------------------------------------------
+DB path: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a1/a1_match.db
+Report path: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a1/a1_match.json
+Run A: f53c9685-66b1-454f-8eb4-25f49387cd37 (a1-match-a)
+Run B: 0e9d0e89-1236-41fc-a71d-f52c7686aee8 (a1-match-b)
+
+Run comparison
+------------------------------------------------------------
+Run A: f53c9685-66b1-454f-8eb4-25f49387cd37
+Run B: 0e9d0e89-1236-41fc-a71d-f52c7686aee8
+Roles compared: test, train
+Dataset identities match: True
+Batch streams match: True
+Fully matches: True
+
+Role: test
+  Reason:          match
+  Dataset match:   True
+  Batch match:     True
+  Batches A / B:   105 / 105
+  Matching steps:  105
+  Match rate:      100.00%
+  Fully matches:   True
+  First divergence: None
+
+Role: train
+  Reason:          match
+  Dataset match:   True
+  Batch match:     True
+  Batches A / B:   417 / 417
+  Matching steps:  417
+  Match rate:      100.00%
+  Fully matches:   True
+  First divergence: None
+
+
+JSON evidence written to: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a1/a1_match.json
+
+A2 shuffle divergence
+------------------------------------------------------------
+DB path: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a2/a2_shuffle.db
+Report path: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a2/a2_shuffle.json
+Run A: c97911da-434f-4190-98b0-fbb952211058 (a2-shuffle-s42)
+Run B: e963bab7-aded-4e54-b1d1-cd67d0c04af9 (a2-shuffle-s99)
+
+Run comparison
+------------------------------------------------------------
+Run A: c97911da-434f-4190-98b0-fbb952211058
+Run B: e963bab7-aded-4e54-b1d1-cd67d0c04af9
+Roles compared: test, train
+Dataset identities match: True
+Batch streams match: False
+Fully matches: False
+
+Role: test
+  Reason:          match
+  Dataset match:   True
+  Batch match:     True
+  Batches A / B:   105 / 105
+  Matching steps:  105
+  Match rate:      100.00%
+  Fully matches:   True
+  First divergence: None
+
+Role: train
+  Reason:          batch_fingerprint_mismatch
+  Dataset match:   True
+  Batch match:     False
+  Batches A / B:   417 / 417
+  Matching steps:  0
+  Match rate:      0.00%
+  Fully matches:   False
+  First divergence: step 0
+  Run A:
+    loader_id:       68274a03-92bf-43c9-a540-96dc2a05556e
+    role:            train
+    global_sequence: 0
+    global_step:     0
+    batch_size:      32
+    fingerprint:     49982bf9ebec3bba93563099ac13b858db763d98fdc7a61163b144ea3392c961
+    sample_ids:      [filepath:Cleavers/253.png, filepath:Fat Hen/42.png, filepath:Sugar beet/305.png, filepath:Common wheat/148.png, filepath:Small-flowered Cranesbill/265.png, filepath:Common Chickweed/52.png, filepath:Small-flowered Cranesbill/477.png, filepath:Common wheat/74.png, filepath:Sugar beet/252.png, filepath:Small-flowered Cranesbill/53.png, filepath:Shepherd’s Purse/177.png, filepath:Scentless Mayweed/245.png, filepath:Common Chickweed/493.png, filepath:Loose Silky-bent/143.png, filepath:Fat Hen/404.png, filepath:Cleavers/207.png, filepath:Small-flowered Cranesbill/407.png, filepath:Small-flowered Cranesbill/68.png, filepath:Sugar beet/188.png, filepath:Common Chickweed/141.png, filepath:Charlock/208.png, filepath:Shepherd’s Purse/212.png, filepath:Scentless Mayweed/119.png, filepath:Scentless Mayweed/73.png, filepath:Charlock/65.png, filepath:Cleavers/141.png, filepath:Cleavers/210.png, filepath:Scentless Mayweed/521.png, filepath:Loose Silky-bent/112.png, filepath:Scentless Mayweed/415.png, filepath:Cleavers/317.png, filepath:Common wheat/225.png]
+  Run B:
+    loader_id:       383def56-314b-497a-9824-cecb9ea19c3c
+    role:            train
+    global_sequence: 0
+    global_step:     0
+    batch_size:      32
+    fingerprint:     6f7c45ec03ee51b00a60c9720d0e3a87c93b95c61212eb4f9789ee18404eee69
+    sample_ids:      [filepath:Common Chickweed/518.png, filepath:Charlock/421.png, filepath:Loose Silky-bent/95.png, filepath:Shepherd’s Purse/194.png, filepath:Loose Silky-bent/361.png, filepath:Loose Silky-bent/397.png, filepath:Scentless Mayweed/181.png, filepath:Small-flowered Cranesbill/204.png, filepath:Loose Silky-bent/107.png, filepath:Common wheat/72.png, filepath:Sugar beet/31.png, filepath:Maize/193.png, filepath:Charlock/16.png, filepath:Small-flowered Cranesbill/51.png, filepath:Fat Hen/148.png, filepath:Fat Hen/484.png, filepath:Cleavers/246.png, filepath:Black-grass/263.png, filepath:Scentless Mayweed/282.png, filepath:Fat Hen/14.png, filepath:Cleavers/257.png, filepath:Scentless Mayweed/186.png, filepath:Sugar beet/77.png, filepath:Charlock/198.png, filepath:Fat Hen/98.png, filepath:Loose Silky-bent/410.png, filepath:Cleavers/161.png, filepath:Charlock/66.png, filepath:Charlock/63.png, filepath:Scentless Mayweed/28.png, filepath:Small-flowered Cranesbill/53.png, filepath:Cleavers/175.png]
+
+
+JSON evidence written to: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a2/a2_shuffle.json
+
+A3 dataset-content divergence
+------------------------------------------------------------
+DB path: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a3/a3_dataset_content.db
+Report path: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a3/a3_dataset_content.json
+Run A: a9d7bbef-a862-4105-9c9a-a1b807151f8a (a3-data-base)
+Run B: 4a365c15-2fe2-41c8-911b-9ba7210336c6 (a3-data-mod)
+
+Run comparison
+------------------------------------------------------------
+Run A: a9d7bbef-a862-4105-9c9a-a1b807151f8a
+Run B: 4a365c15-2fe2-41c8-911b-9ba7210336c6
+Roles compared: test, train
+Dataset identities match: False
+Batch streams match: True
+Fully matches: False
+
+Role: test
+  Reason:          match
+  Dataset match:   True
+  Batch match:     True
+  Batches A / B:   105 / 105
+  Matching steps:  105
+  Match rate:      100.00%
+  Fully matches:   True
+  First divergence: None
+
+Role: train
+  Reason:          dataset_fingerprint_mismatch
+  Dataset match:   False
+  Batch match:     True
+  Batches A / B:   417 / 417
+  Dataset reason:  dataset_fingerprint_mismatch
+  Matching steps:  417
+  Match rate:      100.00%
+  Fully matches:   False
+  First divergence: None
+
+
+JSON evidence written to: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/a3/a3_dataset_content.json
+
+
+Suite summary written to: /zhome/e3/b/212140/git/pypyrus/experiments/results/repro_suite/suite_summary.json

@@ -33,6 +33,14 @@ Optional example dependencies, including the UFO transformer path:
 pip install -e ".[examples]"
 ```
 
+Experiment datasets under `experiments/*/data/` use Git LFS. After cloning,
+run:
+
+```bash
+git lfs install
+git lfs pull
+```
+
 ## Minimal SDK Example
 
 ```python

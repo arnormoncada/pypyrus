@@ -67,8 +67,15 @@ def render_run_overview(overview: dict[str, Any]) -> str:
             f"Code ref: {run.get('code_ref') or '<none>'}",
             f"Config ref: {run.get('config_ref') or '<none>'}",
             f"Config json: {_format_config_json(run.get('config_json'))}",
-            f"Environment hash: {run.get('environment_hash') or '<none>'}",
-            f"Seed summary: {_format_seed_summary(run.get('seed_summary_json'))}",
+        ]
+    )
+    if run.get("environment_hash"):
+        lines.append(f"Environment hash: {run.get('environment_hash')}")
+    seed_summary = _format_seed_summary(run.get("seed_summary_json"))
+    if seed_summary != "<none>":
+        lines.append(f"Seed summary: {seed_summary}")
+    lines.extend(
+        [
             "",
             "Summary",
             f"  Datasets: {len(datasets)}",

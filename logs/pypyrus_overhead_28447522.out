@@ -1,0 +1,414 @@
+Host: n-62-18-11
+Working directory: /zhome/e3/b/212140/git/pypyrus
+Model name:                              Intel(R) Xeon(R) Gold 6326 CPU @ 2.90GHz
+GPU Model(s):
+NVIDIA A100 80GB PCIe
+Python executable: /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+sys.executable = /zhome/e3/b/212140/.conda/envs/pypyrus-v100/bin/python
+torch.__version__ = 2.5.1+cu118
+torch.version.cuda = 11.8
+cuda.is_available = True
+device_name = NVIDIA A100 80GB PCIe
+device_cc   = (8, 0)
+Obtaining file:///zhome/e3/b/212140/git/pypyrus
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Checking if build backend supports build_editable: started
+  Checking if build backend supports build_editable: finished with status 'done'
+  Getting requirements to build editable: started
+  Getting requirements to build editable: finished with status 'done'
+  Preparing editable metadata (pyproject.toml): started
+  Preparing editable metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: pypyrus
+  Building editable for pypyrus (pyproject.toml): started
+  Building editable for pypyrus (pyproject.toml): finished with status 'done'
+  Created wheel for pypyrus: filename=pypyrus-0.1.0-0.editable-py3-none-any.whl size=3049 sha256=38ae2360a65fc27190bca940574272a70cc0402205e95abe4cbc1a20024a839b
+  Stored in directory: /tmp/pip-ephem-wheel-cache-ljxgtztm/wheels/39/e3/38/36c97324553eb373193a81a0e3dc06c8a95b090c9404a78c8e
+Successfully built pypyrus
+Installing collected packages: pypyrus
+  Attempting uninstall: pypyrus
+    Found existing installation: pypyrus 0.1.0
+    Uninstalling pypyrus-0.1.0:
+      Successfully uninstalled pypyrus-0.1.0
+Successfully installed pypyrus-0.1.0
+Configuration:
+  DATA_PATH=experiments/forest_covertype/data/covtype_with_sample_id.csv
+  EPOCHS=3
+  BATCH_SIZE=256
+  NUM_WORKERS=0
+  HIDDEN_DIM=128
+  TEST_RATIO=0.2
+  PAIRS=10
+  WARMUP_PAIRS=1
+  BASE_SEED=100
+  TIMING_FILE=experiments/results/overhead/covtype_timings.txt
+
+Running 1 warm-up pair(s) (excluded from summary)...
+
+Warm-up 1/1: WITH instrumentation (seed=100)
+seed=100
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.2848 test_loss=0.7550 test_acc=0.6795
+epoch=2/3 train_loss=0.7479 test_loss=0.6798 test_acc=0.7141
+epoch=3/3 train_loss=0.6578 test_loss=0.6554 test_acc=0.7173
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=52.696470
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt.warmup.tmp
+Warm-up 1/1: WITHOUT instrumentation (seed=100)
+seed=100
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.2848 test_loss=0.7550 test_acc=0.6795
+epoch=2/3 train_loss=0.7479 test_loss=0.6798 test_acc=0.7141
+epoch=3/3 train_loss=0.6578 test_loss=0.6554 test_acc=0.7173
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=39.051034
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt.warmup.tmp
+
+Running 10 measured pair(s)...
+
+Pair 1/10: WITH instrumentation (seed=101)
+seed=101
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.2600 test_loss=0.7674 test_acc=0.6773
+epoch=2/3 train_loss=0.7358 test_loss=0.7009 test_acc=0.6952
+epoch=3/3 train_loss=0.6593 test_loss=0.6483 test_acc=0.7118
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=49.255768
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 1/10: WITHOUT instrumentation (seed=101)
+seed=101
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.2600 test_loss=0.7674 test_acc=0.6773
+epoch=2/3 train_loss=0.7358 test_loss=0.7009 test_acc=0.6952
+epoch=3/3 train_loss=0.6593 test_loss=0.6483 test_acc=0.7118
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.579540
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 2/10: WITH instrumentation (seed=102)
+seed=102
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.3664 test_loss=0.7118 test_acc=0.7014
+epoch=2/3 train_loss=0.7416 test_loss=0.6268 test_acc=0.7348
+epoch=3/3 train_loss=0.6631 test_loss=0.7348 test_acc=0.6582
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=46.984591
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 2/10: WITHOUT instrumentation (seed=102)
+seed=102
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.3664 test_loss=0.7118 test_acc=0.7014
+epoch=2/3 train_loss=0.7416 test_loss=0.6268 test_acc=0.7348
+epoch=3/3 train_loss=0.6631 test_loss=0.7348 test_acc=0.6582
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.621827
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 3/10: WITH instrumentation (seed=103)
+seed=103
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.1922 test_loss=0.6910 test_acc=0.7038
+epoch=2/3 train_loss=0.7304 test_loss=0.7315 test_acc=0.7173
+epoch=3/3 train_loss=0.6535 test_loss=0.6206 test_acc=0.7370
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=49.554842
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 3/10: WITHOUT instrumentation (seed=103)
+seed=103
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.1922 test_loss=0.6910 test_acc=0.7038
+epoch=2/3 train_loss=0.7304 test_loss=0.7315 test_acc=0.7173
+epoch=3/3 train_loss=0.6535 test_loss=0.6206 test_acc=0.7370
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=39.885153
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 4/10: WITH instrumentation (seed=104)
+seed=104
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.2793 test_loss=0.9130 test_acc=0.5915
+epoch=2/3 train_loss=0.7359 test_loss=0.6478 test_acc=0.7319
+epoch=3/3 train_loss=0.6592 test_loss=0.6508 test_acc=0.7143
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=51.242537
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 4/10: WITHOUT instrumentation (seed=104)
+seed=104
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.2793 test_loss=0.9130 test_acc=0.5915
+epoch=2/3 train_loss=0.7359 test_loss=0.6478 test_acc=0.7319
+epoch=3/3 train_loss=0.6592 test_loss=0.6508 test_acc=0.7143
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=42.315834
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 5/10: WITH instrumentation (seed=105)
+seed=105
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.3012 test_loss=0.6644 test_acc=0.7207
+epoch=2/3 train_loss=0.7126 test_loss=0.6441 test_acc=0.7311
+epoch=3/3 train_loss=0.6504 test_loss=0.6094 test_acc=0.7485
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=51.314753
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 5/10: WITHOUT instrumentation (seed=105)
+seed=105
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.3012 test_loss=0.6644 test_acc=0.7207
+epoch=2/3 train_loss=0.7126 test_loss=0.6441 test_acc=0.7311
+epoch=3/3 train_loss=0.6504 test_loss=0.6094 test_acc=0.7485
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=41.369735
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 6/10: WITH instrumentation (seed=106)
+seed=106
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.3504 test_loss=0.7113 test_acc=0.7086
+epoch=2/3 train_loss=0.6918 test_loss=0.6549 test_acc=0.7210
+epoch=3/3 train_loss=0.6294 test_loss=0.5855 test_acc=0.7468
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=50.295560
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 6/10: WITHOUT instrumentation (seed=106)
+seed=106
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.3504 test_loss=0.7113 test_acc=0.7086
+epoch=2/3 train_loss=0.6918 test_loss=0.6549 test_acc=0.7210
+epoch=3/3 train_loss=0.6294 test_loss=0.5855 test_acc=0.7468
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.120273
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 7/10: WITH instrumentation (seed=107)
+seed=107
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.2710 test_loss=0.7222 test_acc=0.6831
+epoch=2/3 train_loss=0.6964 test_loss=0.6922 test_acc=0.6983
+epoch=3/3 train_loss=0.6346 test_loss=0.6274 test_acc=0.7361
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=51.374778
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 7/10: WITHOUT instrumentation (seed=107)
+seed=107
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.2710 test_loss=0.7222 test_acc=0.6831
+epoch=2/3 train_loss=0.6964 test_loss=0.6922 test_acc=0.6983
+epoch=3/3 train_loss=0.6346 test_loss=0.6274 test_acc=0.7361
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.598790
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 8/10: WITH instrumentation (seed=108)
+seed=108
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.4450 test_loss=0.7536 test_acc=0.6761
+epoch=2/3 train_loss=0.7343 test_loss=0.7527 test_acc=0.6970
+epoch=3/3 train_loss=0.6634 test_loss=0.6150 test_acc=0.7397
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=52.605116
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 8/10: WITHOUT instrumentation (seed=108)
+seed=108
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.4450 test_loss=0.7536 test_acc=0.6761
+epoch=2/3 train_loss=0.7343 test_loss=0.7527 test_acc=0.6970
+epoch=3/3 train_loss=0.6634 test_loss=0.6150 test_acc=0.7397
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=42.018179
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 9/10: WITH instrumentation (seed=109)
+seed=109
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.4288 test_loss=0.8288 test_acc=0.6561
+epoch=2/3 train_loss=0.7189 test_loss=0.6772 test_acc=0.7036
+epoch=3/3 train_loss=0.6506 test_loss=0.6242 test_acc=0.7244
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=49.871021
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 9/10: WITHOUT instrumentation (seed=109)
+seed=109
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.4288 test_loss=0.8288 test_acc=0.6561
+epoch=2/3 train_loss=0.7189 test_loss=0.6772 test_acc=0.7036
+epoch=3/3 train_loss=0.6506 test_loss=0.6242 test_acc=0.7244
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.121490
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Pair 10/10: WITH instrumentation (seed=110)
+seed=110
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.1988 test_loss=0.7703 test_acc=0.6675
+epoch=2/3 train_loss=0.7079 test_loss=0.7080 test_acc=0.6966
+epoch=3/3 train_loss=0.6442 test_loss=0.6040 test_acc=0.7419
+timing: instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=53.313859
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+Pair 10/10: WITHOUT instrumentation (seed=110)
+seed=110
+source_csv=/zhome/e3/b/212140/git/pypyrus/experiments/forest_covertype/data/covtype_with_sample_id.csv
+num_features=54
+num_classes=7
+train_rows=464810
+test_rows=116202
+epoch=1/3 train_loss=1.1988 test_loss=0.7703 test_acc=0.6675
+epoch=2/3 train_loss=0.7079 test_loss=0.7080 test_acc=0.6966
+epoch=3/3 train_loss=0.6442 test_loss=0.6040 test_acc=0.7419
+timing: instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=42.054541
+timing_written_to=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+
+Done. Timings:
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=49.255768
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.579540
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=46.984591
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.621827
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=49.554842
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=39.885153
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=51.242537
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=42.315834
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=51.314753
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=41.369735
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=50.295560
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.120273
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=51.374778
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.598790
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=52.605116
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=42.018179
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=49.871021
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=40.121490
+instrumentation=True epochs=3 batch_size=256 num_workers=0 elapsed_seconds=53.313859
+instrumentation=False epochs=3 batch_size=256 num_workers=0 elapsed_seconds=42.054541
+
+Summary:
+timing_file=/zhome/e3/b/212140/git/pypyrus/experiments/results/overhead/covtype_timings.txt
+parsed_runs=20 skipped_lines=0
+
+Instrumentation = True
+  count  : 10
+  min    : 46.984591s
+  max    : 53.313859s
+  mean   : 50.581283s
+  median : 50.769048s
+  stddev : 1.810482s
+
+Instrumentation = False
+  count  : 10
+  min    : 39.885153s
+  max    : 42.315834s
+  mean   : 40.968536s
+  median : 40.610309s
+  stddev : 0.899155s
+
+Comparison (mean)
+  with - without : +9.612746s
+  percent change : +23.46%
+
+Paired Deltas (with_i - without_i)
+  pairs  : 10
+  mean   : 9.612746s
+  median : 9.847275s
+  stddev : 1.389336s
+  min    : 6.362764s
+  max    : 11.259318s
+  mean % : +23.46%
+  95% CI (mean delta): [8.726347s, 10.335421s]
+  95% CI (mean %): [+21.32%, +25.17%]
+
+Pair Details
+  pair  1: with=49.255768s without=40.579540s delta=+8.676228s pct=+21.38%
+  pair  2: with=46.984591s without=40.621827s delta=+6.362764s pct=+15.66%
+  pair  3: with=49.554842s without=39.885153s delta=+9.669689s pct=+24.24%
+  pair  4: with=51.242537s without=42.315834s delta=+8.926703s pct=+21.10%
+  pair  5: with=51.314753s without=41.369735s delta=+9.945018s pct=+24.04%
+  pair  6: with=50.295560s without=40.120273s delta=+10.175287s pct=+25.36%
+  pair  7: with=51.374778s without=40.598790s delta=+10.775988s pct=+26.54%
+  pair  8: with=52.605116s without=42.018179s delta=+10.586937s pct=+25.20%
+  pair  9: with=49.871021s without=40.121490s delta=+9.749531s pct=+24.30%
+  pair 10: with=53.313859s without=42.054541s delta=+11.259318s pct=+26.77%
+
+Raw runs
+  with    49.255768s
+  without 40.579540s
+  with    46.984591s
+  without 40.621827s
+  with    49.554842s
+  without 39.885153s
+  with    51.242537s
+  without 42.315834s
+  with    51.314753s
+  without 41.369735s
+  with    50.295560s
+  without 40.120273s
+  with    51.374778s
+  without 40.598790s
+  with    52.605116s
+  without 42.018179s
+  with    49.871021s
+  without 40.121490s
+  with    53.313859s
+  without 42.054541s

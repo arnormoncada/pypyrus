@@ -1,0 +1,95 @@
+=== Linux Version ===
+Linux n-62-12-21 6.1.173-1.el9.elrepo.x86_64 #1 SMP PREEMPT_DYNAMIC Fri May 15 12:00:58 EDT 2026 x86_64 x86_64 x86_64 GNU/Linux
+
+=== OS Release ===
+NAME="AlmaLinux"
+VERSION="9.7 (Moss Jungle Cat)"
+ID="almalinux"
+ID_LIKE="rhel centos fedora"
+VERSION_ID="9.7"
+PLATFORM_ID="platform:el9"
+PRETTY_NAME="AlmaLinux 9.7 (Moss Jungle Cat)"
+ANSI_COLOR="0;34"
+LOGO="fedora-logo-icon"
+CPE_NAME="cpe:/o:almalinux:almalinux:9::baseos"
+HOME_URL="https://almalinux.org/"
+DOCUMENTATION_URL="https://wiki.almalinux.org/"
+BUG_REPORT_URL="https://bugs.almalinux.org/"
+
+ALMALINUX_MANTISBT_PROJECT="AlmaLinux-9"
+ALMALINUX_MANTISBT_PROJECT_VERSION="9.7"
+REDHAT_SUPPORT_PRODUCT="AlmaLinux"
+REDHAT_SUPPORT_PRODUCT_VERSION="9.7"
+SUPPORT_END=2032-06-01
+
+=== CPU Info ===
+CPU(s):                                  32
+On-line CPU(s) list:                     0-31
+Model name:                              Intel(R) Xeon(R) Gold 6226R CPU @ 2.90GHz
+Thread(s) per core:                      1
+Core(s) per socket:                      16
+Socket(s):                               2
+CPU(s) scaling MHz:                      97%
+NUMA node0 CPU(s):                       0-15
+NUMA node1 CPU(s):                       16-31
+
+------------------------------------------------------------
+Sender: LSF System <lsfadmin@hpc.dtu.dk>
+Subject: Job 28462649: <sysinfo> in cluster <dcc> Done
+
+Job <sysinfo> was submitted from host <hpclogin1> by user <s241645> in cluster <dcc> at Tue May 19 13:45:32 2026
+Job was executed on host(s) <n-62-12-21>, in queue <gpua100>, as user <s241645> in cluster <dcc> at Wed May 20 02:19:50 2026
+</zhome/e3/b/212140> was used as the home directory.
+</zhome/e3/b/212140/git/pypyrus> was used as the working directory.
+Started at Wed May 20 02:19:50 2026
+Terminated at Wed May 20 02:19:52 2026
+Results reported at Wed May 20 02:19:52 2026
+
+Your job looked like:
+
+------------------------------------------------------------
+# LSBATCH: User input
+#!/bin/bash
+#BSUB -J sysinfo
+#BSUB -o logs/sysinfo_%J.out
+#BSUB -e logs/sysinfo_%J.err
+#BSUB -q gpua100
+#BSUB -n 1
+#BSUB -W 5
+
+echo "=== Linux Version ==="
+uname -a
+
+echo ""
+echo "=== OS Release ==="
+cat /etc/os-release
+
+echo ""
+echo "=== CPU Info ==="
+lscpu | grep -E "Model name|CPU\(s\)|Thread|Core|Socket|Cache"
+
+------------------------------------------------------------
+
+Successfully completed.
+
+Resource usage summary:
+
+    CPU time :                                   0.42 sec.
+    Max Memory :                                 -
+    Average Memory :                             -
+    Total Requested Memory :                     1024.00 MB
+    Delta Memory :                               -
+    Max Swap :                                   -
+    Max Processes :                              -
+    Max Threads :                                -
+    Run time :                                   2 sec.
+    Turnaround time :                            45260 sec.
+
+The output (if any) is above this job summary.
+
+
+
+PS:
+
+Read file <logs/sysinfo_28462649.err> for stderr output of this job.
+

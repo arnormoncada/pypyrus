@@ -1,7 +1,7 @@
 """
 Minimal MLP training loop on MNIST.
 
-Usage:  python examples/train_simple_mlp.py
+Usage:  python examples/mnist/train_simple_mlp.py
 """
 
 import torch
@@ -41,7 +41,7 @@ model = SimpleMLP().to(DEVICE)
 
 optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 loss_fn = nn.CrossEntropyLoss()
-with Run() as run:
+with Run(run_name="Simple MLP Training") as run:
     # Attach PyPyrus to the DataLoader so we can track batch deliveries.
     train_loader = attach(train_loader, run, role="train")
     # --- Train ---
