@@ -1,15 +1,9 @@
-<table>
-  <tr>
-    <td width="290" valign="middle">
-      <img src="docs/PyPyrus-logo.png" alt="PyPyrus logo" width="320">
-    </td>
-    <td valign="middle">
-      <h1>PyPyrus</h1>
-      <p><strong>Data provenance for PyTorch training runs</strong></p>
-      <p>Track datasets, batches, and sample usage across runs.</p>
-    </td>
-  </tr>
-</table>
+<p align="center">
+  <img src="docs/PyPyrus large.png" alt="PyPyrus logo" width="640">
+</p>
+
+<p align="center"><strong>Data provenance for PyTorch training runs</strong></p>
+<p align="center">Track datasets, batches, and sample usage across runs.</p>
 
 PyPyrus is a data provenance layer for PyTorch training runs. It attaches to
 DataLoaders, records which datasets and batches were delivered, and gives you a
