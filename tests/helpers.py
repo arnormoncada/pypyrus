@@ -206,6 +206,19 @@ class TorchDatasetFromHFLikeSource(Dataset):
         return self.source[idx]
 
 
+class DescriptorFallbackDataset(Dataset):
+    def __init__(self, n: int = 4):
+        self.n = n
+        self.opaque_state = object()
+
+    def __len__(self) -> int:
+        return self.n
+
+    def __getitem__(self, idx: int) -> tuple[torch.Tensor, int]:
+        sample = torch.tensor([float(idx), float(idx + 1)], dtype=torch.float32)
+        return sample, idx % 2
+
+
 def custom_sample_id_resolver(dataset: Any, index: int, sample: Any) -> str:
     return f"record_id:custom_{index}"
 

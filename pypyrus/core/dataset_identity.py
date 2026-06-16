@@ -202,18 +202,21 @@ def _normalize_in_memory(value: Any) -> Any:
 
 
 def _in_memory_deterministic_fingerprint(dataset: Any) -> DatasetFingerprint | None:
-	dataset = _identity_target(dataset)
-	candidate = dataset
-	if not _is_supported_in_memory(candidate):
-		candidate = _best_effort_in_memory_payload(dataset)
+    dataset = _identity_target(dataset)
 
-	if not _is_supported_in_memory(candidate):
-		return None
+    if _is_supported_in_memory(dataset):
+        candidate = dataset
+    else:
+        candidate = _best_effort_in_memory_payload(dataset)
+        if candidate is None:
+            return None
+        if not _is_supported_in_memory(candidate):
+            return None
 
-	return DatasetFingerprint(
-		fingerprint=hash_json(_normalize_in_memory(candidate)),
-		fingerprint_method="in_memory_deterministic_v1",
-	)
+    return DatasetFingerprint(
+        fingerprint=hash_json(_normalize_in_memory(candidate)),
+        fingerprint_method="in_memory_deterministic_v1",
+    )
 
 
 def _best_effort_in_memory_payload(dataset: Any) -> Any:

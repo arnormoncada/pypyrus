@@ -10,6 +10,7 @@ from pypyrus.core.run import Run
 
 from tests.helpers import (
     ComposeLike,
+    DescriptorFallbackDataset,
     HFLikeMockDataset,
     OffsetFeatures,
     ScaleFeatures,
@@ -174,6 +175,47 @@ def test_attach_uses_hf_style_fingerprint_for_torch_adapter_dataset(
     assert dataset_row["fingerprint_method"] == "hf_builtin"
     assert dataset_row["fingerprint"] == "hf-mock-fingerprint-attach"
     assert dataset_row["dataset_id"] == "hf_builtin:hf-mock-fingerprint-attach"
+    assert dataset_row["sample_id_scheme"] == "index"
+    assert dataset_row["sample_id_resolver"] == "fallback_index"
+
+    batch_rows = fetch_all(
+        db_path,
+        """
+        SELECT sample_ids_blob
+        FROM batch_delivered
+        WHERE run_id = ?
+        ORDER BY global_sequence
+        """,
+        (run.run_id,),
+    )
+    assert len(batch_rows) == len(consumed_batches) == 2
+    assert all(row["sample_ids_blob"] is not None for row in batch_rows)
+
+
+def test_attach_uses_descriptor_fallback_for_opaque_custom_dataset(
+    db_path,
+    store,
+) -> None:
+    dataset = DescriptorFallbackDataset(n=4)
+    loader = DataLoader(dataset, batch_size=2, shuffle=False, num_workers=0)
+
+    with Run(store=store) as run:
+        attached_loader = attach(loader, run, role="train")
+        consumed_batches = list(attached_loader)
+
+    dataset_row = fetch_one(
+        db_path,
+        """
+        SELECT dataset_id, fingerprint, fingerprint_method,
+               sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
+        """,
+        (run.run_id,),
+    )
+    assert dataset_row["fingerprint_method"] == "descriptor_hash_fallback"
+    assert dataset_row["fingerprint"]
+    assert dataset_row["dataset_id"].startswith("descriptor_hash_fallback:")
     assert dataset_row["sample_id_scheme"] == "index"
     assert dataset_row["sample_id_resolver"] == "fallback_index"
 
