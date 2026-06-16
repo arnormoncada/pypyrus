@@ -82,7 +82,7 @@ def _clone_dataloader_with_wrapped_map_dataset(
     kwargs: dict[str, Any] = {
         "dataset": wrapped_dataset,
         "batch_size": loader.batch_size,
-        "shuffle": False,  # sampler/batch_sampler already carries ordering logic
+        "shuffle": False,  # sampler/batch_sampler already carries ordering logic i.e. don't construct a new RandomSampler here
         "sampler": loader.sampler,
         "batch_sampler": loader.batch_sampler,
         "num_workers": loader.num_workers,

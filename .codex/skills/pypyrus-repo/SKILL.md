@@ -35,8 +35,7 @@ Resolution order:
 1. user `sample_id_resolver`
 2. file collection
 3. structured record
-4. narrow logical/framework compatibility
-5. fallback `index:<i>`
+4. fallback `index:<i>`
 
 Canonical contracts:
 

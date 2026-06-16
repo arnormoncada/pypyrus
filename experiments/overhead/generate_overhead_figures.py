@@ -2,7 +2,7 @@
 from __future__ import annotations
 
 import argparse
-import math
+import random
 import statistics
 import sys
 from dataclasses import dataclass
@@ -36,6 +36,13 @@ class TimingSummary:
     @property
     def mean_delta(self) -> float:
         return self.mean_with - self.mean_without
+
+    @property
+    def paired_delta(self) -> list[float]:
+        return [
+            with_value - without_value
+            for with_value, without_value in zip(self.with_values, self.without_values)
+        ]
 
     @property
     def paired_pct(self) -> list[float]:
@@ -135,10 +142,41 @@ def read_timings(path: Path, *, label: str) -> TimingSummary:
     return TimingSummary(label=label, with_values=with_values, without_values=without_values)
 
 
+def percentile(sorted_values: list[float], q: float) -> float:
+    if not sorted_values:
+        raise ValueError("Cannot compute percentile of empty list")
+    if q <= 0.0:
+        return sorted_values[0]
+    if q >= 1.0:
+        return sorted_values[-1]
+
+    index = (len(sorted_values) - 1) * q
+    lower = int(index)
+    upper = min(lower + 1, len(sorted_values) - 1)
+    if lower == upper:
+        return sorted_values[lower]
+
+    weight = index - lower
+    return sorted_values[lower] * (1.0 - weight) + sorted_values[upper] * weight
+
+
 def ci95_halfwidth(values: list[float]) -> float:
     if len(values) < 2:
         return 0.0
-    return 1.96 * (statistics.stdev(values) / math.sqrt(len(values)))
+
+    bootstrap_samples = 10000
+    rng = random.Random(7)
+    n = len(values)
+    means: list[float] = []
+    for _ in range(bootstrap_samples):
+        draw = [values[rng.randrange(n)] for _ in range(n)]
+        means.append(statistics.mean(draw))
+
+    means.sort()
+    lower = percentile(means, 0.025)
+    upper = percentile(means, 0.975)
+    center = statistics.mean(values)
+    return max(center - lower, upper - center)
 
 
 def make_main_overhead_figure(
@@ -203,16 +241,22 @@ def make_batchsize_sweep_figure(
     output_dir: Path,
 ) -> None:
     batch_sizes = [int(summary.label) for summary in summaries]
+    batch_sizes_pct = [batch_size - 6 for batch_size in batch_sizes]
+    batch_sizes_delta = [batch_size + 6 for batch_size in batch_sizes]
     mean_pct = [summary.mean_pct for summary in summaries]
     mean_delta = [summary.mean_delta for summary in summaries]
+    pct_ci = [ci95_halfwidth(summary.paired_pct) for summary in summaries]
+    delta_ci = [ci95_halfwidth(summary.paired_delta) for summary in summaries]
 
     fig, ax1 = plt.subplots(figsize=(8.6, 5.2))
-    ax1.plot(
-        batch_sizes,
+    ax1.errorbar(
+        batch_sizes_pct,
         mean_pct,
+        yerr=pct_ci,
         color="#8c4f66",
         marker="o",
         linewidth=2,
+        capsize=4,
         label="Relative overhead (%)",
     )
     ax1.set_xlabel("Batch size")
@@ -223,12 +267,15 @@ def make_batchsize_sweep_figure(
     ax1.set_axisbelow(True)
 
     ax2 = ax1.twinx()
-    ax2.plot(
-        batch_sizes,
+    ax2.errorbar(
+        batch_sizes_delta,
         mean_delta,
+        yerr=delta_ci,
         color="#436436",
         marker="s",
         linewidth=2,
+        linestyle=":",
+        capsize=4,
         label="Absolute overhead (s)",
     )
     ax2.set_ylabel("Mean overhead (s)", color="#436436")

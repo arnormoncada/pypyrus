@@ -176,6 +176,36 @@ class DuckTypedMapDataset:
         return sample, idx % 2
 
 
+class HFLikeMockDataset:
+    def __init__(self, n: int = 4, *, fingerprint: str = "hf-mock-fingerprint-001"):
+        self._fingerprint = fingerprint
+        self._rows = [
+            {
+                "features": [float(idx), float(idx + 0.5)],
+                "label": idx % 2,
+            }
+            for idx in range(n)
+        ]
+
+    def __len__(self) -> int:
+        return len(self._rows)
+
+    def __getitem__(self, idx: int) -> dict[str, Any]:
+        return self._rows[idx]
+
+
+class TorchDatasetFromHFLikeSource(Dataset):
+    def __init__(self, source: HFLikeMockDataset):
+        self.source = source
+        self._fingerprint = source._fingerprint
+
+    def __len__(self) -> int:
+        return len(self.source)
+
+    def __getitem__(self, idx: int) -> dict[str, Any]:
+        return self.source[idx]
+
+
 def custom_sample_id_resolver(dataset: Any, index: int, sample: Any) -> str:
     return f"record_id:custom_{index}"
 

@@ -92,16 +92,6 @@ with Run(store_mode="buffered_strict", buffered_queue_size=1024) as run:
                 ...
 ```
 
-Tradeoffs:
-
-- `sync` is simpler and often better for low-throughput or short runs.
-- `buffered_strict` is experimental. It can reduce write-path blocking, but it
-    still keeps event preparation on the training path and may add queue/thread
-    coordination cost.
-- `buffered_strict` should not be treated as a guaranteed performance win.
-- In strict mode, if the queue is full, producer threads block until space is
-    available; PyPyrus does not drop events.
-
 ## Minimal CLI Workflow
 
 ```bash
