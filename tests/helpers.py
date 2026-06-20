@@ -323,6 +323,11 @@ def assert_loader_settings_preserved(original: Any, cloned: Any) -> None:
             getattr(cloned, "prefetch_factor", None),
         ),
     }
+    if hasattr(original, "in_order") or hasattr(cloned, "in_order"):
+        checks["in_order"] = (
+            getattr(original, "in_order", None),
+            getattr(cloned, "in_order", None),
+        )
     # With an explicit batch_sampler, PyTorch may rewrite `.sampler`
     # internally, so compare the batch-sampler contract instead.
     if original.batch_sampler is None and cloned.batch_sampler is None:

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
-import pytest
+import inspect
+
 import torch
 from torch.utils.data import DataLoader
 
@@ -186,20 +187,3 @@ def test_attached_loader_preserves_seeded_shuffle_order(store) -> None:
     assert len(original_batches) == len(attached_batches)
     for original_batch, attached_batch in zip(original_batches, attached_batches):
         assert equal_payload(original_batch, attached_batch)
-
-
-def test_attach_errors_when_clone_drops_dataloader_kwargs(monkeypatch, store) -> None:
-    # Lock in the stricter safety rule: dropping clone-time kwargs is treated
-    # as unsafe rather than silently accepted.
-    loader = DataLoader(TinyMapDataset(n=6), batch_size=2, shuffle=False, num_workers=0)
-
-    def fake_filter(kwargs):
-        filtered = dict(kwargs)
-        filtered.pop("pin_memory", None)
-        return filtered, {"pin_memory"}
-
-    monkeypatch.setattr(dataloader_module, "_filter_supported_dataloader_kwargs", fake_filter)
-
-    with Run(store=store) as run:
-        with pytest.raises(TypeError, match="Dropping DataLoader kwargs is not allowed"):
-            attach(loader, run, role="train")

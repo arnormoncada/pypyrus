@@ -56,6 +56,73 @@ def _classify_dataset(dataset: Any) -> str:
     )
 
 
+def _supported_dataloader_constructor_kwargs() -> set[str]:
+    signature = inspect.signature(DataLoader.__init__)
+    return {
+        name
+        for name, parameter in signature.parameters.items()
+        if name != "self"
+        and parameter.kind
+        not in {inspect.Parameter.VAR_POSITIONAL, inspect.Parameter.VAR_KEYWORD}
+    }
+
+
+def _build_clone_dataloader_kwargs(
+    loader: DataLoader,
+    *,
+    wrapped_dataset: Any,
+    wrapped_collate_fn: Any,
+    dataset_kind: str,
+) -> dict[str, Any]:
+    """
+    Reconstruct clone kwargs from the current DataLoader constructor surface.
+
+    We preserve any constructor-backed loader attributes the installed torch
+    version exposes, then apply the small set of PyPyrus-specific overrides
+    and DataLoader legality fixups.
+    """
+    supported_kwargs = _supported_dataloader_constructor_kwargs()
+    kwargs: dict[str, Any] = {}
+    iterable_excluded = {"sampler", "batch_sampler", "shuffle"}
+
+    for name in supported_kwargs:
+        if dataset_kind == "iterable" and name in iterable_excluded:
+            continue
+
+        if name == "dataset":
+            kwargs[name] = wrapped_dataset
+            continue
+
+        if name == "collate_fn":
+            kwargs[name] = wrapped_collate_fn
+            continue
+
+        if dataset_kind == "map" and name == "shuffle":
+            # Preserve the original sampler/batch_sampler objects rather than
+            # letting DataLoader synthesize a fresh shuffle strategy.
+            kwargs[name] = False
+            continue
+
+        if hasattr(loader, name):
+            kwargs[name] = getattr(loader, name)
+
+    # DataLoader forbids setting both batch_sampler and
+    # batch_size/shuffle/sampler/drop_last.
+    if kwargs.get("batch_sampler") is not None:
+        kwargs.pop("batch_size", None)
+        kwargs.pop("shuffle", None)
+        kwargs.pop("sampler", None)
+        kwargs.pop("drop_last", None)
+
+    # Some args are invalid when num_workers == 0.
+    if kwargs.get("num_workers") == 0:
+        kwargs.pop("prefetch_factor", None)
+        kwargs.pop("persistent_workers", None)
+
+    # Remove None values that some torch versions dislike.
+    return {k: v for k, v in kwargs.items() if v is not None}
+
+
 def _clone_dataloader_with_wrapped_map_dataset(
     loader: DataLoader,
     *,
@@ -78,48 +145,12 @@ def _clone_dataloader_with_wrapped_map_dataset(
         loader.collate_fn,
         id_aware_collate=id_aware_collate,
     )
-
-    kwargs: dict[str, Any] = {
-        "dataset": wrapped_dataset,
-        "batch_size": loader.batch_size,
-        "shuffle": False,  # sampler/batch_sampler already carries ordering logic i.e. don't construct a new RandomSampler here
-        "sampler": loader.sampler,
-        "batch_sampler": loader.batch_sampler,
-        "num_workers": loader.num_workers,
-        "collate_fn": wrapped_collate_fn,
-        "pin_memory": loader.pin_memory,
-        "drop_last": loader.drop_last,
-        "timeout": loader.timeout,
-        "worker_init_fn": loader.worker_init_fn,
-        "multiprocessing_context": loader.multiprocessing_context,
-        "generator": loader.generator,
-        "prefetch_factor": getattr(loader, "prefetch_factor", None),
-        "persistent_workers": getattr(loader, "persistent_workers", False),
-        "pin_memory_device": getattr(loader, "pin_memory_device", ""),
-    }
-
-    # DataLoader forbids setting both batch_sampler and batch_size/shuffle/sampler/drop_last
-    if loader.batch_sampler is not None:
-        kwargs.pop("batch_size", None)
-        kwargs.pop("shuffle", None)
-        kwargs.pop("sampler", None)
-        kwargs.pop("drop_last", None)
-
-    # Some args are invalid when num_workers == 0
-    if loader.num_workers == 0:
-        kwargs.pop("prefetch_factor", None)
-        kwargs.pop("persistent_workers", None)
-
-    # Remove None values that some torch versions dislike
-    kwargs = {k: v for k, v in kwargs.items() if v is not None}
-    safe_kwargs, dropped = _filter_supported_dataloader_kwargs(kwargs)
-    if dropped:
-        dropped_str = ", ".join(sorted(dropped))
-        raise TypeError(
-            "Failed to clone DataLoader for PyPyrus instrumentation. "
-            "Dropping DataLoader kwargs is not allowed because it may change "
-            f"training behavior. Unsupported kwargs: {dropped_str}"
-        )
+    safe_kwargs = _build_clone_dataloader_kwargs(
+        loader,
+        wrapped_dataset=wrapped_dataset,
+        wrapped_collate_fn=wrapped_collate_fn,
+        dataset_kind="map",
+    )
 
     try:
         return DataLoader(**safe_kwargs)
@@ -152,36 +183,12 @@ def _clone_dataloader_with_wrapped_iterable_dataset(
         loader.collate_fn,
         id_aware_collate=id_aware_collate,
     )
-
-    kwargs: dict[str, Any] = {
-        "dataset": wrapped_dataset,
-        "batch_size": loader.batch_size,
-        "num_workers": loader.num_workers,
-        "collate_fn": wrapped_collate_fn,
-        "pin_memory": loader.pin_memory,
-        "drop_last": loader.drop_last,
-        "timeout": loader.timeout,
-        "worker_init_fn": loader.worker_init_fn,
-        "multiprocessing_context": loader.multiprocessing_context,
-        "generator": loader.generator,
-        "prefetch_factor": getattr(loader, "prefetch_factor", None),
-        "persistent_workers": getattr(loader, "persistent_workers", False),
-        "pin_memory_device": getattr(loader, "pin_memory_device", ""),
-    }
-
-    if loader.num_workers == 0:
-        kwargs.pop("prefetch_factor", None)
-        kwargs.pop("persistent_workers", None)
-
-    kwargs = {k: v for k, v in kwargs.items() if v is not None}
-    safe_kwargs, dropped = _filter_supported_dataloader_kwargs(kwargs)
-    if dropped:
-        dropped_str = ", ".join(sorted(dropped))
-        raise TypeError(
-            "Failed to clone IterableDataset DataLoader for PyPyrus "
-            "instrumentation. Dropping DataLoader kwargs is not allowed "
-            f"because it may change training behavior. Unsupported kwargs: {dropped_str}"
-        )
+    safe_kwargs = _build_clone_dataloader_kwargs(
+        loader,
+        wrapped_dataset=wrapped_dataset,
+        wrapped_collate_fn=wrapped_collate_fn,
+        dataset_kind="iterable",
+    )
 
     try:
         return DataLoader(**safe_kwargs)
@@ -212,28 +219,6 @@ def _clone_dataloader_with_wrapped_dataset(
         sample_id_resolver=sample_id_resolver,
         id_aware_collate=id_aware_collate,
     )
-
-
-def _filter_supported_dataloader_kwargs(kwargs: dict[str, Any]) -> tuple[dict[str, Any], set[str]]:
-    """
-    Keep only kwargs supported by the current torch DataLoader constructor.
-
-    This makes cloning more robust across torch versions where optional
-    DataLoader parameters differ.
-    """
-    signature = inspect.signature(DataLoader.__init__)
-    parameters = signature.parameters
-    accepts_kwargs = any(
-        p.kind == inspect.Parameter.VAR_KEYWORD for p in parameters.values()
-    )
-
-    if accepts_kwargs:
-        return dict(kwargs), set()
-
-    allowed = {name for name in parameters if name != "self"}
-    filtered = {k: v for k, v in kwargs.items() if k in allowed}
-    dropped = {k for k in kwargs if k not in allowed}
-    return filtered, dropped
 
 
 class DataLoaderProxy:
