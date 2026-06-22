@@ -36,3 +36,6 @@ dist/
 
 
 experiments/results/
+
+.pytest_cache/
+.venv/
