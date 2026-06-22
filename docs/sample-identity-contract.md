@@ -44,6 +44,11 @@ Compatibility alias:
 
 - `.imgs`
 
+Accepted entry forms inside `.samples` / `.imgs`:
+
+- a path-like value directly, such as `"/data/cats/cat_1.jpg"`
+- a tuple/list whose first element is the path, such as `("/data/cats/cat_1.jpg", 0)`
+
 PyPyrus emits:
 
 - `filepath:<relative-path>`
@@ -52,12 +57,15 @@ PyPyrus emits:
 
 Use this when your dataset is really a collection of rows or records.
 
-Expose one of:
+PyPyrus supports two built-in structured-record shapes.
+
+Shape A: record objects stored in an indexed container.
 
 - `.records`
 - `.rows`
-- `.record_ids`
-- `.ids`
+
+Here `dataset.records[i]` or `dataset.rows[i]` is the record associated with
+sample `__getitem__(i)`.
 
 Preferred record key fields:
 
@@ -65,6 +73,22 @@ Preferred record key fields:
 - `id`
 - `uuid`
 - `key`
+
+If one of those fields exists on the indexed record, PyPyrus emits:
+
+- `record_id:<value>`
+
+Shape B: a separate indexed list of stable record IDs aligned with dataset
+order.
+
+- `.record_ids`
+- `.ids`
+
+Here `record_ids[i]` or `ids[i]` is treated as the sample ID for the sample
+produced by `__getitem__(i)`.
+
+If both shapes are present, PyPyrus resolves the explicit indexed ID list
+(`.record_ids` / `.ids`) before falling back to record-object key fields.
 
 PyPyrus emits:
 
@@ -88,5 +112,5 @@ Use the stored sample ID directly:
 pypyrus samples find <run_id> --sample-id record_id:cust_84291
 ```
 
-If the same sample ID appears in multiple datasets in one run, `samples find`
+If the same sample ID appears in multiple datasets/loaders in one run, `samples find`
 can return matches from more than one dataset.
