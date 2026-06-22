@@ -93,6 +93,10 @@ with Run(store_mode="buffered_strict", buffered_queue_size=1024) as run:
 ```
 
 ## Minimal CLI Workflow
+See the PyPyrus CLI help:
+```bash
+pypyrus --help
+```
 
 ```bash
 pypyrus runs list

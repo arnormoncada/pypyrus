@@ -44,6 +44,12 @@ This is a real training run, so expect it to take a few minutes on CPU. It was a
 
 ## Inspect The Run
 
+Check out the PyPyrus help page:
+
+```bash
+pypyrus --help
+```
+
 PyPyrus writes to `./pypyrus.db` by default, so you can inspect the run directly with the CLI.
 
 List runs:
