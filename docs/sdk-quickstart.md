@@ -9,12 +9,24 @@ The plant seedlings data already lives in `experiments/plant_seedlings/data/` in
 ```bash
 git clone https://github.com/arnormoncada/pypyrus.git
 cd pypyrus
+
+python -m venv .venv
+source .venv/bin/activate
+pip install --upgrade pip
+
 git lfs install
 git lfs pull
+
 pip install -e .
 ```
 
-The first run may also download the pretrained torchvision weights used by `MobileNet_V3_Small_Weights.DEFAULT`.
+If you have an older machine like me, and usually run into `torch` /
+`torchvision` / `numpy` compatibility issues, use the pinned installer
+script which installs the versions I used for development 🧌:
+
+```bash
+./scripts/install_old_mac_env.sh
+```
 
 ## Run The Demo
 
