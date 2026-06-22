@@ -15,20 +15,11 @@ intentionally small:
 - `Run`
 - `attach`
 
-New to PyPyrus? Start with the [SDK Quickstart](docs/sdk-quickstart.md) for a
-short end-to-end walkthrough using the plant seedlings example.
-
 ## Install
 
 ```bash
 pip install -e .
 ```
-<!-- 
-Optional example dependencies, including the UFO transformer path:
-
-```bash
-pip install -e ".[examples]"
-``` -->
 
 Experiment datasets under `experiments/*/data/` use Git LFS. After cloning,
 run:
