@@ -1,178 +1,138 @@
 # SDK Quickstart
 
-This page shows the smallest useful PyPyrus workflow:
+This walkthrough uses the [plant seedlings](https://www.kaggle.com/datasets/vbookshelf/v2-plant-seedlings-dataset) example as a small end-to-end PyPyrus demo: clone the repo, fetch the dataset, run one training job, then inspect what PyPyrus recorded.
 
-1. create a `Run`
-2. attach one or more DataLoaders
-3. train as usual
-4. inspect the recorded run with the CLI
+## Setup
 
-## Install
+The plant seedlings data already lives in `experiments/plant_seedlings/data/` in this repo. It is stored with Git LFS, so fetch it after cloning:
 
 ```bash
+git clone https://github.com/arnormoncada/pypyrus.git
+cd pypyrus
+git lfs install
+git lfs pull
 pip install -e .
 ```
 
-PyPyrus currently targets map-style PyTorch DataLoaders.
+The first run may also download the pretrained torchvision weights used by `MobileNet_V3_Small_Weights.DEFAULT`.
 
-If you want to run optional example paths that use extra dependencies, install:
+## Run The Demo
+
+Run the example with the built-in split and the demo run name:
 
 ```bash
-pip install -e ".[examples]"
+python experiments/plant_seedlings/train_mobilenetv3_small.py \
+  --data-root experiments/plant_seedlings/data/split \
+  --epochs 2 \
+  --num-workers 0 \
+  --run-name plant-seedlings-demo
 ```
 
-## Minimal Example
+This is a real training run, so expect it to take a few minutes on CPU. It was also usde for the experiments, so it contains extra configuration and timing code.
 
-```python
-from torch.utils.data import DataLoader
+## Inspect The Run
 
-from pypyrus import Run, attach
+PyPyrus writes to `./pypyrus.db` by default, so you can inspect the run directly with the CLI.
 
-
-train_loader = DataLoader(train_dataset, batch_size=32, shuffle=True)
-test_loader = DataLoader(test_dataset, batch_size=32, shuffle=False)
-
-with Run() as run:
-    train_loader = attach(train_loader, run, role="train")
-    test_loader = attach(test_loader, run, role="test")
-
-    for batch in train_loader:
-        ...
-```
-
-## What `Run` Does
-
-`Run` is the audit boundary for one training execution.
-
-When a run starts, PyPyrus records:
-
-- a new `run_id`
-- a best-effort code reference
-- a best-effort environment snapshot
-
-When the run ends, PyPyrus records the final status and flushes the store.
-
-By default, `Run()` uses the local SQLite store backing `./pypyrus.db`, unless
-you override it with `PYPYRUS_DB` or pass a custom store instance.
-
-### Run Store Parameters
-
-`Run` also supports store-mode configuration:
-
-- `store_mode="sync"` (default)
-- `store_mode="buffered_strict"` (experimental)
-- `buffered_queue_size=<int>` (used by `buffered_strict`)
-
-Example:
-
-```python
-with Run(store_mode="buffered_strict", buffered_queue_size=1024) as run:
-        train_loader = attach(train_loader, run, role="train")
-        for batch in train_loader:
-                ...
-```
-
-Behavior tradeoffs:
-
-- `sync` keeps persistence behavior simple and predictable.
-- `buffered_strict` is experimental. It moves durable writes to a writer
-    thread, but event preparation still occurs inline.
-- `buffered_strict` should not be treated as a guaranteed performance win.
-- `buffered_strict` never drops events; when the queue is full it blocks
-    producer calls until capacity is available.
-
-## What `attach(...)` Does
-
-`attach(...)` wraps a PyTorch DataLoader so PyPyrus can observe:
-
-- dataset registration
-- loader registration
-- transform declarations when available
-- delivered batches and their sample IDs
-
-The required argument is:
-
-- `role`
-
-Use roles like:
-
-- `train`
-- `val`
-- `test`
-
-Roles let PyPyrus distinguish multiple loaders in one run.
-
-## Optional Dataset Provenance Override
-
-If your dataset is backed by a source file or directory but does not expose a
-useful path on the dataset object, pass explicit provenance metadata to
-`attach(...)`.
-
-Example:
-
-```python
-with Run() as run:
-    train_loader = attach(
-        train_loader,
-        run,
-        role="train",
-        dataset_uri="/data/scrubbed.csv",
-        dataset_name="PokemonCSVDataset",
-        dataset_version_hint="preprocessed-v1",
-    )
-```
-
-This is especially useful for:
-
-- CSV / Parquet / Arrow-backed datasets wrapped in custom `Dataset` classes
-- datasets that load from one file but do not expose `.path` or `.root`
-- cases where you want a clearer run report than the dataset class name alone
-
-Best practice:
-
-- use built-in dataset attributes like `.root` / `.path` when they are natural
-- use `dataset_uri=` when the source path exists but PyPyrus cannot infer it
-- keep sample identity separate from dataset provenance
-  For tabular data, use `record_id:*`, `row:*`, or `sample_id_resolver=...`
-  for rows; use `dataset_uri=` to say where the dataset came from
-
-## Optional `sample_id_resolver`
-
-If PyPyrus cannot infer the right sample identity from your dataset shape, pass
-`sample_id_resolver=` to `attach(...)`.
-
-`IterableDataset` always requires `sample_id_resolver=...`.
-
-Example:
-
-```python
-def sample_id_resolver(dataset, index, sample):
-    row = dataset.records[index]
-    return f"record_id:{row['customer_id']}"
-
-
-with Run() as run:
-    train_loader = attach(
-        train_loader,
-        run,
-        role="train",
-        sample_id_resolver=sample_id_resolver,
-    )
-```
-
-See [Custom Dataset Integration](custom-dataset-integration.md) for the full
-contract.
-
-## Inspect the Result
-
-After a run finishes:
+List runs:
 
 ```bash
 pypyrus runs list
+```
+
+Find the row named `plant-seedlings-demo` and copy its `run_id`.
+
+Show the run:
+
+```bash
 pypyrus runs show <run_id>
 ```
 
-Useful next steps:
+Look for:
 
-- [CLI Usage](cli-usage.md)
-- [Sample Identity Contract](sample-identity-contract.md)
+- `Run name: plant-seedlings-demo`
+- two `ImageFolder` datasets
+- `train` and `test` roles
+- `sample_id_scheme: filepath`
+- `sample_id_resolver: file_collection`
+
+Show the first recorded batch:
+
+```bash
+pypyrus batches show <run_id> --step 0
+```
+
+`--step` is run-global. In this output, the sample IDs should look like `filepath:<class>/<filename>`.
+
+Find one sample from that batch:
+
+```bash
+pypyrus samples find <run_id> --sample-id <sample_id_from_step_0>
+```
+
+Paste one sample ID from the `batches show` output and confirm that PyPyrus reports where that sample appeared.
+
+## What Is PyPyrus Code Here?
+
+Most of [train_mobilenetv3_small.py](../experiments/plant_seedlings/train_mobilenetv3_small.py) is ordinary PyTorch or Python. The PyPyrus-specific part is small:
+
+```python
+with Run(..., run_name=args.run_name) as run:
+    train_loader = attach(train_loader, run, role="train")
+    test_loader = attach(test_loader, run, role="test")
+```
+
+- `Run` creates the tracked run and stores the human-readable run name. In this walkthrough, `args.run_name` is `plant-seedlings-demo`.
+- `attach(..., role="train")` instruments the training loader.
+- `attach(..., role="test")` instruments the evaluation loader.
+
+## Why Sample IDs Work Automatically
+
+`torchvision.datasets.ImageFolder` already fits PyPyrus's built-in file-collection contract:
+
+- `dataset.root` points at the split root such as `.../data/split/train`
+- `dataset.samples` is a list of entries shaped like `(path, class_index)`
+
+That lets PyPyrus store sample IDs as `filepath:<relative-path>`, for example `filepath:Charlock/383.png`.
+
+Because this walkthrough uses separate `train/` and `test/` roots, PyPyrus registers two dataset identities: one for the training split and one for the test split.
+
+## Another Example: Forest Covertype
+
+PyPyrus also includes [train_covtype_mlp.py](../experiments/forest_covertype/train_covtype_mlp.py), a tabular CSV example based on the [forest covertype dataset](https://www.kaggle.com/datasets/uciml/forest-cover-type-dataset).
+
+That example shows the more explicit PyPyrus path:
+
+```python
+def covtype_sample_id_resolver(dataset, index, sample):
+    row = dataset.rows[index]
+    return SampleIdResolution(
+        sample_id=f"record_id:{row['sample_id']}",
+        sample_id_scheme="record_id",
+        sample_id_resolver="user_override",
+    )
+
+
+with Run(..., run_name=args.run_name) as run:
+    train_loader = attach(
+        train_loader,
+        run,
+        role="train",
+        sample_id_resolver=covtype_sample_id_resolver,
+        dataset_uri=str(data_path),
+    )
+```
+
+- `dataset_uri=str(data_path)` tells PyPyrus exactly which CSV file the dataset came from. Strongest way to control dataset identity.
+- `covtype_sample_id_resolver(...)` reads the stable row ID from `dataset.rows[index]` and stores sample IDs like `record_id:12345`.
+- This shows that how you can seamlessly integrate PyPyrus with your own dataset types, even if they don't fit the built-in file-collection or structured-record contracts.
+
+You can run the covertype example with:
+
+```bash
+python experiments/forest_covertype/train_covtype_mlp.py \
+  --data-path experiments/forest_covertype/data/covtype_with_sample_id.csv \
+  --epochs 2 \
+  --num-workers 0 \
+  --run-name forest-covertype-demo
+```

@@ -135,25 +135,6 @@ Expected result:
 - dataset fingerprint mismatch is reported
 - the mismatch is attributable to dataset identity rather than only batch order
 
-Notes:
-- this is the strongest negative control for the dataset-identity claim
-- it is more important than loader-topology variation for the thesis narrative
-
-### Optional A4. Transform-change divergence
-
-Goal:
-Show that changing preprocessing changes the provenance story and likely the
-observed batch stream.
-
-Important limitation:
-- current run comparison is centered on dataset identity and batch-stream
-  comparison, not transform-aware comparison as a first-class result
-
-Use this only if:
-- transform declarations are explicitly inspected in `runs show` or equivalent
-- the thesis text presents this as a supporting divergence case, not as a fully
-  automated transform-comparison claim
-
 ---
 
 ## B. Runtime Overhead
@@ -195,18 +176,13 @@ larger record-based workload.
 Secondary workload:
 - forest covertype
 
-Use this as a smaller supporting study, not a second co-primary benchmark.
-
 Purpose:
 - show that the overhead story is not tied only to a small file-based dataset
 - provide a small scaling contrast between a smaller and larger workload
 
 Optional parameter variation:
-- `num_workers`
 - batch size
 
-Only include parameter sweeps if they strengthen the main overhead conclusion.
-Do not let them dominate the evaluation chapter.
 
 ---
 
@@ -245,11 +221,10 @@ Characterize the practical storage cost of recorded provenance.
 
 Use:
 - plant seedlings for the smaller workload
-- forest covertype for the larger workload if feasible
+- forest covertype for the larger workload
 
 Measurements:
 - database size after each run
-- event count
 - approximate bytes per batch
 
 Report this as a simple scaling-oriented result. It does not need a large
@@ -257,7 +232,7 @@ independent subsection unless the findings are especially strong.
 
 ---
 
-## Recommended Final Evaluation Set
+## Final Evaluation Set
 
 The minimum thesis-ready experiment set should be:
 
@@ -269,59 +244,5 @@ The minimum thesis-ready experiment set should be:
    workload
 6. Short storage-footprint characterization
 
-Everything else should be treated as optional.
 
 ---
-
-## Experimental Controls
-
-Apply the following across experiments:
-
-1. keep code revision fixed
-2. keep dataset snapshot fixed unless dataset change is the independent variable
-3. keep hardware/job settings fixed within a condition
-4. record seed, epochs, batch size, number of workers, and store mode
-5. avoid mixing results from substantially different cluster load conditions
-
----
-
-## Statistical Reporting
-
-For each paired runtime condition, report:
-
-1. number of measured pairs after warm-up exclusion
-2. mean paired delta in seconds
-3. median paired delta in seconds
-4. mean paired percent overhead
-5. 95% confidence interval for mean delta and mean percent
-6. variability indicator and any notable outlier behavior
-
-For non-runtime experiments, prioritize:
-- clear positive/negative controls
-- explicit match or mismatch interpretation
-- concise illustrative evidence rather than excessive output dumps
-
----
-
-## Suggested Results-Chapter Structure
-
-1. 5.1 Evaluation goals and research-question mapping
-2. 5.2 Experimental setup
-3. 5.3 Reproducibility and divergence results
-4. 5.4 Runtime overhead results
-5. 5.5 Traceability demonstration
-6. 5.6 Storage footprint
-7. 5.7 Threats to validity
-8. 5.7 also Short chapter recap / transition to discussion
-
----
-
-## Execution Priority
-
-1. Baseline match
-2. Shuffle divergence
-3. Primary overhead benchmark
-4. Dataset-content divergence
-5. Traceability demonstration
-6. Storage footprint
-7. Optional scaling and transform-change extensions

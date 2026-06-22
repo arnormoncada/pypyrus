@@ -72,19 +72,11 @@ User-facing docs:
 - `docs/cli-usage.md`
 - `docs/custom-dataset-integration.md`
 
-Internal working docs:
-
-- `docs/internal-working-notes.md`
-- `docs/sample-id-resolver-architecture.md`
-
-Do not mix internal planning material into user docs.
-
 ## Reference Experiments
 
 Main experiment references currently cover:
 
 - file collections: `experiments/plant_seedlings/`
-- structured records: `experiments/ufo_sightings/`
 - explicit resolver / tabular experiment: `experiments/forest_covertype/`
 
 Examples should stay concise and demo-oriented. Prefer narrow, pragmatic model choices over heavyweight abstractions.

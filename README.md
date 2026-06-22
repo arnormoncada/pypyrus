@@ -21,12 +21,6 @@ intentionally small:
 pip install -e .
 ```
 
-Optional example dependencies, including the UFO transformer path:
-
-```bash
-pip install -e ".[examples]"
-```
-
 Experiment datasets under `experiments/*/data/` use Git LFS. After cloning,
 run:
 
@@ -34,6 +28,9 @@ run:
 git lfs install
 git lfs pull
 ```
+
+## New to PyPyrus? 
+Start with the [SDK Quickstart](docs/sdk-quickstart.md) for a short end-to-end walkthrough using the plant seedlings example. More references and docs are at the bottom of this page 📜
 
 ## Minimal SDK Example
 
@@ -69,7 +66,7 @@ with Run() as run:
         loader,
         run,
         role="train",
-        dataset_uri="/data/scrubbed.csv",
+        dataset_uri="path/to/data/scrubbed.csv",
         dataset_name="PokemonCSVDataset",
         dataset_version_hint="preprocessed-v1",
     )
@@ -80,8 +77,8 @@ with Run() as run:
 `Run` supports two store modes:
 
 - `sync` (default): events are written synchronously on the caller path.
-- `buffered_strict` (experimental): events are enqueued and written by a
-    dedicated writer thread with strict backpressure (no event dropping).
+- `buffered_strict` (WIP): Currently rather simple, but events are enqueued and written by a
+    dedicated writer thread using the SQLiteStore (sync). The defualt store is recommended and battle-tested, this one is still a concept in development use at your own risk.
 
 Example:
 
@@ -112,5 +109,4 @@ pypyrus samples find <run_id> --sample-id index:3
 ## Experiments
 
 - [Plant seedlings image classification](experiments/plant_seedlings/train_mobilenetv3_small.py)
-- [UFO sightings shape classification](experiments/ufo_sightings/train_shape_classifier.py)
 - [Forest Covertype tabular classification](experiments/forest_covertype/train_covtype_mlp.py)

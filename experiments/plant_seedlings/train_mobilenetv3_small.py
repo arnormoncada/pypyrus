@@ -97,8 +97,8 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument(
         "--timing-file",
         type=Path,
-        default=Path("run_timing.txt"),
-        help="File where runtime timing is appended. Default: run_timing.txt",
+        default=None,
+        help="Optional file where runtime timing is appended",
     )
     parser.add_argument(
         "--db-path",
@@ -216,23 +216,25 @@ def main() -> int:
                 f"test_loss={test_loss:.4f} "
                 f"test_acc={test_accuracy:.4f}"
             )
+    
 
     timer_end = time.perf_counter()
     elapsed_seconds = timer_end - timer_start
-    timing_line = (
-        f"instrumentation={use_instrumentation} "
-        f"epochs={args.epochs} "
-        f"batch_size={args.batch_size} "
-        f"num_workers={args.num_workers} "
-        f"elapsed_seconds={elapsed_seconds:.6f}\n"
-    )
-    timing_path = args.timing_file.expanduser().resolve()
-    timing_path.parent.mkdir(parents=True, exist_ok=True)
-    with timing_path.open("a", encoding="utf-8") as timing_file:
-        timing_file.write(timing_line)
+    if args.timing_file is not None:
+        timing_line = (
+            f"instrumentation={use_instrumentation} "
+            f"epochs={args.epochs} "
+            f"batch_size={args.batch_size} "
+            f"num_workers={args.num_workers} "
+            f"elapsed_seconds={elapsed_seconds:.6f}\n"
+        )
+        timing_path = args.timing_file.expanduser().resolve()
+        timing_path.parent.mkdir(parents=True, exist_ok=True)
+        with timing_path.open("a", encoding="utf-8") as timing_file:
+            timing_file.write(timing_line)
 
-    print(f"timing: {timing_line.strip()}")
-    print(f"timing_written_to={timing_path}")
+        print(f"timing: {timing_line.strip()}")
+        print(f"timing_written_to={timing_path}")
 
     return 0
 

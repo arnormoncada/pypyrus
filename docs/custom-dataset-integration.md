@@ -48,16 +48,27 @@ Compatibility alias:
 
 - `.imgs`
 
+Accepted `.samples` / `.imgs` entry forms:
+
+- a path-like value directly
+- a tuple/list whose first element is the path, as in the example above
+
+Absolute paths are generally **encouraged** for both obtaining the root and for the sample paths. PyPyrus will normalize them to relative paths for storage.
+
 ### Structured Record Datasets
 
-If your dataset is really a collection of rows or records, the recommended
-contract is:
+If your dataset is really a collection of rows or records, PyPyrus supports two
+built-in shapes.
+
+Shape A: a record container whose items carry their own stable key.
 
 - `.records`
-
-and ideally each record exposes:
-
-- `record_id`
+- compatibility alias: `.rows`
+- preferred key fields inside each record:
+  - `record_id`
+  - `id`
+  - `uuid`
+  - `key`
 
 Example:
 
@@ -81,11 +92,31 @@ PyPyrus can then emit:
 
 - `record_id:customer_84291`
 
-Compatibility aliases:
+Shape B: a separate indexed list of stable record IDs aligned with the dataset
+order.
 
-- `.rows`
 - `.record_ids`
-- `.ids`
+- compatibility alias: `.ids`
+
+Example:
+
+```python
+class MyTabularDataset(Dataset):
+    def __init__(self, rows, record_ids):
+        self.rows = rows
+        self.record_ids = record_ids
+
+    def __getitem__(self, index):
+        row = self.rows[index]
+        return features_from_row(row), label_from_row(row)
+```
+
+Here `record_ids[index]` is treated as the sample ID for the sample produced by
+`__getitem__(index)`.
+
+PyPyrus can then emit:
+
+- `record_id:<record_ids[index]>`
 
 If your records exist but do not expose a stable key, PyPyrus falls back to:
 
@@ -163,6 +194,10 @@ Dataset provenance and sample identity are separate:
 - dataset provenance: where the dataset came from
 - sample identity: how one sample is named inside that dataset
 
+Best practice is to provide dataset provenance explicitly with `dataset_uri=...`,
+independent of dataset type, when you want a stable and clear source reference
+in run reports.
+
 Example:
 
 - dataset URI: `/data/scrubbed.csv`
@@ -180,60 +215,26 @@ tracked_loader = attach(
 )
 ```
 
-That records the source file. Sample IDs still come from `.records`,
+That records the source file explicitly. Sample IDs still come from `.records`,
 `.record_ids`, or `sample_id_resolver=...`.
+
+PyPyrus may also infer source provenance from natural dataset attributes when
+they exist:
+
+- file-collection datasets often expose `.root`
+- record-based or single-file datasets may expose a path-like attribute such as
+  `.path`
+
+When that inference is weak, unavailable, or less clear than the logical source
+you want to report, prefer setting `dataset_uri=...` explicitly.
 
 ### Best Practice
 
-For image-folder or per-file datasets:
+- Pass `dataset_uri=...` explicitly to `attach(...)`
+- use natural built-in source attributes like `.root` or `.path` when they fit
+  your dataset class naturally
 
-- expose `.samples` + `.root`
-
-For CSV / Parquet / single-file tabular datasets:
-
-- expose a path-like attribute such as `.path` when that fits your dataset class
-- or pass `dataset_uri=...` explicitly to `attach(...)`
-- use `.records`, `.record_ids`, or `sample_id_resolver=...` for row identity
-
-### Best Practice For Row-Based Datasets
-
-For row-based datasets, prefer IDs that survive splitting and reordering.
-
-Best to worst:
-
-1. stable record key from the source data
-   Example: `id`, `uuid`, `record_id`, `key`
-2. explicit `sample_id_resolver=...`
-   when your stable key exists but is not exposed through a built-in contract
-3. fallback `row:<index>`
-   only when no better row identity exists
-
-Example with stable row IDs:
-
-```python
-class CustomerDataset(Dataset):
-    def __init__(self, records, *, path):
-        self.records = records
-        self.path = path
-
-    def __getitem__(self, index):
-        row = self.records[index]
-        return features_from_row(row), label_from_row(row)
-```
-
-With records like:
-
-```python
-{"record_id": "cust_84291", "age": 42, "label": 1}
-```
-
-PyPyrus can identify samples as:
-
-- `record_id:cust_84291`
-
-This is the recommended shape for train/test splits from one source file.
-
-### Split Caveat For `row:<index>`
+## Split Caveat For `row:<index>`
 
 Be careful with `row:<index>` for train/test splits.
 
@@ -253,16 +254,9 @@ Those are not necessarily the same source row.
 If you need exact row identity across splits, do not rely on `row:<index>`.
 Provide:
 
-- stable row keys in `.records`
-- or `.record_ids`
+- stable row keys in `.records` / `.rows`
+- or aligned `.record_ids` / `.ids`
 - or `sample_id_resolver=...`
-
-Use the explicit attach-time override when:
-
-- your dataset wraps a source file but does not expose its path
-- the dataset class name alone is not descriptive enough in run reports
-- you want to include a preprocessing/version label with
-  `dataset_version_hint=...`
 
 ## Custom Collate That Reorders or Drops Samples
 
@@ -337,25 +331,24 @@ returns the remapped IDs alongside the batch.
 Best practice is still `sample_id_resolver=...`, especially when you care about
 stable sample identity across splits, wrappers, or custom dataset shapes.
 
-Use the built-in contracts when they fit naturally:
+Use the built-in contracts as the convenience path when they fit naturally:
 
 - `.samples` + `.root` for file collections
-- `.records` + `record_id` for structured records
+- `.records` / `.rows` with stable key fields for structured records
+- `.record_ids` / `.ids` aligned with dataset order for structured records
 
 Use `sample_id_resolver=` when:
 
 - your internal dataset shape differs
 - your logical sample key is domain-specific
-- you want to guarantee a stronger stable identity than path or index
-- you want row/sample identity to stay separate from dataset source provenance
+- you want to guarantee a stronger stable identity
 
 ## Examples in This Repo
 
 - [Plant seedlings example](../experiments/plant_seedlings/train_mobilenetv3_small.py)
   shows file-collection datasets
-- [UFO sightings example](../experiments/ufo_sightings/train_shape_classifier.py)
-  shows a structured-record dataset shape and defaults to the fast torch-native
-  classifier path; the transformer path is optional
+- [Forest Covertype tabular classification](experiments/forest_covertype/train_covtype_mlp.py)
+
 
 Related pages:
 
