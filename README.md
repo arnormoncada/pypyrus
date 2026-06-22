@@ -117,3 +117,7 @@ pypyrus samples find <run_id> --sample-id index:3
 
 - [Plant seedlings image classification](experiments/plant_seedlings/train_mobilenetv3_small.py)
 - [Forest Covertype tabular classification](experiments/forest_covertype/train_covtype_mlp.py)
+
+## Minimal Example: MNIST
+
+- [Simple MLP training on MNIST](examples/mnist/train_simple_mlp.py)
