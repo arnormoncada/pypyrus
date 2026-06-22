@@ -58,8 +58,6 @@ class SQLiteStore(Store):
         """Initialize schema."""
         conn = self._get_conn()
         load_schema(conn)
-        self._ensure_runs_metadata_columns(conn)
-        # self._validate_schema_compatibility(conn)
 
     def close(self) -> None:
         """Close connection."""
@@ -70,17 +68,6 @@ class SQLiteStore(Store):
     def flush(self) -> None:
         """Commit current transaction."""
         self._get_conn().commit()
-
-    def _ensure_runs_metadata_columns(self, conn: sqlite3.Connection) -> None:
-        existing = {
-            row["name"]
-            for row in conn.execute("PRAGMA table_info(runs)").fetchall()
-        }
-        if "config_json" not in existing:
-            conn.execute("ALTER TABLE runs ADD COLUMN config_json TEXT")
-        if "run_name" not in existing:
-            conn.execute("ALTER TABLE runs ADD COLUMN run_name TEXT")
-        conn.commit()
 
     # ------------------------------------------------------------------
     # Event Writing
@@ -130,10 +117,9 @@ class SQLiteStore(Store):
                 code_ref,
                 config_ref,
                 config_json,
-                environment_hash,
                 seed_summary_json
             )
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+            VALUES (?, ?, ?, ?, ?, ?, ?)
             """,
             (
                 event.run_id,
@@ -142,7 +128,6 @@ class SQLiteStore(Store):
                 event.code_ref,
                 event.config_ref,
                 json.dumps(event.config_json) if event.config_json is not None else None,
-                event.environment_hash,
                 json.dumps(event.seed_summary) if event.seed_summary is not None else None,
             ),
         )

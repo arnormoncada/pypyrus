@@ -35,9 +35,12 @@ class Run:
         store_mode: Literal["sync", "buffered_strict"] = "sync",
         buffered_queue_size: int = 1024,
         run_name: str | None = None,
+        seed_summary: dict | None = None,
+
     ):
         self.run_id = run_id or str(uuid4())
         self.run_name = run_name
+        self.seed_summary = seed_summary
         base_store: Store = store or SQLiteStore()
         if store_mode == "sync":
             self.store = base_store
@@ -70,7 +73,6 @@ class Run:
         code_ref: str | None = None,
         config_ref: str | None = None,
         config_json: dict[str, Any] | None = None,
-        environment_hash: str | None = None,
         seed_summary: dict | None = None,
     ) -> None:
         """
@@ -89,12 +91,14 @@ class Run:
         if config_ref is None:
             config_ref = hash_json(config_json)
 
+        if seed_summary is None:
+            seed_summary = self.seed_summary
+
         event = RunStartEvent(
             run_id=self.run_id,
             code_ref=code_ref,
             config_ref=config_ref,
             config_json=config_json,
-            environment_hash=environment_hash,
             seed_summary=seed_summary,
             run_name=self.run_name,
         )
@@ -201,7 +205,7 @@ class Run:
     # ------------------------------------------------------------------
 
     def __enter__(self) -> "Run":
-        self.start()
+        self.start(seed_summary=self.seed_summary)
         return self
 
     def __exit__(self, exc_type, exc, tb):

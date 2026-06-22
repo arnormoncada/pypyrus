@@ -70,7 +70,6 @@ def test_runs_list_and_show_render_expected_output(tmp_path, capsys) -> None:
     assert "Duration: 10m00s" in captured.out
     assert "Code ref: git:run-001:clean" in captured.out
     assert "Config ref: config-run-001" in captured.out
-    assert "Environment hash: env-run-001" in captured.out
     assert 'Seed summary: {"global_seed": 7}' in captured.out
     assert "Summary" in captured.out
     assert "Batch counts by role: train=1" in captured.out
@@ -423,7 +422,6 @@ def _seed_run(
             run_name=run_name,
             code_ref=f"git:{run_id}:clean",
             config_ref=f"config-{run_id}",
-            environment_hash=f"env-{run_id}",
             seed_summary={"global_seed": 7},
         )
     )
