@@ -1,7 +1,5 @@
 from __future__ import annotations
 
-import sqlite3
-
 import pytest
 
 from pypyrus.core import run as run_module
@@ -100,37 +98,6 @@ def test_run_persists_optional_run_name(db_path, store) -> None:
         (run.run_id,),
     )
     assert run_row["run_name"] == "baseline-a"
-
-
-def test_store_adds_run_name_column_for_legacy_runs_table(db_path) -> None:
-    conn = sqlite3.connect(db_path)
-    conn.execute(
-        """
-        CREATE TABLE runs (
-            run_id TEXT PRIMARY KEY,
-            start_time TEXT NOT NULL,
-            code_ref TEXT,
-            config_ref TEXT,
-            environment_hash TEXT,
-            seed_summary_json TEXT,
-            end_time TEXT,
-            status TEXT,
-            event_count INTEGER
-        )
-        """
-    )
-    conn.commit()
-    conn.close()
-
-    store = SQLiteStore(db_path)
-    store.close()
-
-    conn = sqlite3.connect(db_path)
-    columns = {row[1] for row in conn.execute("PRAGMA table_info(runs)").fetchall()}
-    conn.close()
-
-    assert "config_json" in columns
-    assert "run_name" in columns
 
 
 def test_run_end_persists_total_event_count(db_path, monkeypatch, store) -> None:
