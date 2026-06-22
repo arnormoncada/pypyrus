@@ -3,7 +3,7 @@ from __future__ import annotations
 from pathlib import Path
 
 import torch
-from torch.utils.data import DataLoader
+from torch.utils.data import DataLoader, random_split
 
 from pypyrus.core.attach import attach
 from pypyrus.core.dataset_identity import resolve_dataset_identity
@@ -22,6 +22,12 @@ from tests.helpers import (
     fetch_all,
     fetch_one,
 )
+
+
+def _subset_original_index_resolver(dataset, index: int, sample) -> int:
+    if hasattr(dataset, "indices") and hasattr(dataset, "dataset"):
+        return int(dataset.indices[index])
+    return index
 
 
 def test_file_collection_dataset_persists_filepath_sample_ids(db_path, store, tmp_path) -> None:
@@ -407,6 +413,68 @@ def test_structured_record_payload_ids_match_persisted_ids_when_shuffled(db_path
 
     assert persisted_ids == [f"record_id:{record_id}" for record_id in emitted_record_ids]
     assert emitted_record_ids != ["cust_001", "cust_002", "cust_003", "cust_004"]
+
+
+def test_subset_custom_resolver_ids_persist_and_follow_shuffled_payloads(
+    db_path, store
+) -> None:
+    full_dataset = TinyMapDataset(n=12)
+    split_generator = torch.Generator().manual_seed(1234)
+    train_subset, _held_out_subset = random_split(
+        full_dataset,
+        [8, 4],
+        generator=split_generator,
+    )
+    loader_generator = torch.Generator().manual_seed(4321)
+    loader = DataLoader(
+        train_subset,
+        batch_size=3,
+        shuffle=True,
+        num_workers=0,
+        generator=loader_generator,
+    )
+
+    with Run(store=store) as run:
+        attached = attach(
+            loader,
+            run,
+            role="train",
+            sample_id_resolver=_subset_original_index_resolver,
+        )
+        consumed_batches = list(attached)
+
+    dataset_row = fetch_one(
+        db_path,
+        """
+        SELECT sample_id_scheme, sample_id_resolver
+        FROM dataset_registrations
+        WHERE run_id = ?
+        """,
+        (run.run_id,),
+    )
+    assert dataset_row["sample_id_scheme"] == "index"
+    assert dataset_row["sample_id_resolver"] == "user_override"
+
+    batch_rows = fetch_all(
+        db_path,
+        """
+        SELECT sample_ids_blob
+        FROM batch_delivered
+        WHERE run_id = ?
+        ORDER BY global_sequence
+        """,
+        (run.run_id,),
+    )
+    decoded_ids = [decode_sample_ids_blob(row["sample_ids_blob"]) for row in batch_rows]
+
+    persisted_ids: list[str] = [sample_id for batch in decoded_ids for sample_id in batch]
+    payload_original_indices: list[int] = []
+    for batch in consumed_batches:
+        features, _labels = batch
+        payload_original_indices.extend(int(value) for value in features[:, 0].tolist())
+
+    assert persisted_ids == [f"index:{row_index}" for row_index in payload_original_indices]
+    assert all(batch is not None for batch in decoded_ids)
 
 
 def test_same_dataset_can_use_different_sample_id_resolvers_across_runs(db_path, store) -> None:

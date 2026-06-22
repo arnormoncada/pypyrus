@@ -43,7 +43,14 @@ optimizer = torch.optim.Adam(model.parameters(), lr=LR)
 loss_fn = nn.CrossEntropyLoss()
 with Run(run_name="Simple MLP Training") as run:
     # Attach PyPyrus to the DataLoader so we can track batch deliveries.
-    train_loader = attach(train_loader, run, role="train")
+    train_loader = attach(
+        train_loader,
+        run,
+        role="train",
+        dataset_name="MNIST",
+        dataset_uri=train_data.root,
+        dataset_version_hint="split=train",
+    )
     # --- Train ---
     for epoch in range(1, EPOCHS + 1):
         total_loss = 0

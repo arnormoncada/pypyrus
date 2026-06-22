@@ -58,6 +58,17 @@ class DatasetWrapper(Dataset):
             PYPYRUS_PAYLOAD_KEY: sample,
         }
 
+    def __getitems__(self, indices: list[int]) -> list[dict[str, Any]]:
+        """
+        Preserve PyPyrus wrapping when DataLoader uses batched map-style fetches.
+
+        Some datasets such as torch.utils.data.Subset implement ``__getitems__``
+        and modern DataLoader will prefer that path over repeated ``__getitem__``
+        calls. If we delegated that method to the underlying dataset, batched
+        fetches would bypass PyPyrus sample-ID wrapping entirely.
+        """
+        return [self[index] for index in indices]
+
     def _make_sample_id(self, index: int, sample: Any) -> int | str:
         """
         Return a stable identifier for a sample.
