@@ -40,7 +40,7 @@ python experiments/plant_seedlings/train_mobilenetv3_small.py \
   --run-name plant-seedlings-demo
 ```
 
-This is a real training run, so expect it to take a few minutes on CPU. It was also used for the experiments, so it contains extra configuration and timing code.
+This is a real training run, so expect it to take a few minutes (5 min max) on CPU. It was also used for the experiments, so it contains extra configuration and timing code.
 
 ## Inspect The Run
 
