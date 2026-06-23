@@ -15,11 +15,19 @@ intentionally small:
 - `Run`
 - `attach`
 
+## New to PyPyrus? 
+#### *(or you are my thesis supervisor/examiner and want to try pypyrus out)* 
+Start with the [SDK Quickstart](docs/sdk-quickstart.md) for a short end-to-end walkthrough using the plant seedlings example. More references and docs are at the bottom of this page 📜
+
 ## Install
 
 ```bash
+git clone https://github.com/arnormoncada/pypyrus.git
+cd pypyrus
+
 python -m venv .venv
 source .venv/bin/activate
+
 pip install --upgrade pip
 pip install -e .
 ```
@@ -31,9 +39,6 @@ run:
 git lfs install
 git lfs pull
 ```
-
-## New to PyPyrus? 
-Start with the [SDK Quickstart](docs/sdk-quickstart.md) for a short end-to-end walkthrough using the plant seedlings example. More references and docs are at the bottom of this page 📜
 
 ## Minimal SDK Example
 

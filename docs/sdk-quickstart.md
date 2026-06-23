@@ -1,6 +1,6 @@
 # SDK Quickstart
 
-This walkthrough uses the [plant seedlings](https://www.kaggle.com/datasets/vbookshelf/v2-plant-seedlings-dataset) example as a small end-to-end PyPyrus demo: clone the repo, fetch the dataset, run one training job, then inspect what PyPyrus recorded.
+This walkthrough uses the [plant seedlings](https://www.kaggle.com/datasets/vbookshelf/v2-plant-seedlings-dataset) example as a small end-to-end PyPyrus demo: clone the repo, fetch the dataset, run one training job, then inspect what PyPyrus recorded. It assumes you git lfs installed, and a POSIX shell (bash, zsh, etc.). 
 
 ## Setup
 
@@ -20,7 +20,7 @@ git lfs pull
 pip install -e .
 ```
 
-If you have an older machine like me, and usually run into `torch` /
+If you have an older machine like me (intel mac), and usually run into `torch` /
 `torchvision` / `numpy` compatibility issues, use the pinned installer
 script which installs the versions I used for development 🧌:
 
@@ -40,7 +40,7 @@ python experiments/plant_seedlings/train_mobilenetv3_small.py \
   --run-name plant-seedlings-demo
 ```
 
-This is a real training run, so expect it to take a few minutes on CPU. It was also usde for the experiments, so it contains extra configuration and timing code.
+This is a real training run, so expect it to take a few minutes on CPU. It was also used for the experiments, so it contains extra configuration and timing code.
 
 ## Inspect The Run
 
@@ -73,6 +73,7 @@ Look for:
 - `train` and `test` roles
 - `sample_id_scheme: filepath`
 - `sample_id_resolver: file_collection`
+- `uri: path/to/train` and `uri: path/to/test`
 
 Show the first recorded batch:
 
@@ -88,7 +89,9 @@ Find one sample from that batch:
 pypyrus samples find <run_id> --sample-id <sample_id_from_step_0>
 ```
 
-Paste one sample ID from the `batches show` output and confirm that PyPyrus reports where that sample appeared.
+Paste one sample ID from the `batches show` output and confirm that PyPyrus reports where that sample appeared e.g. 
+
+`... --sample-id filepath:Charlock/383.png`.
 
 ## What Is PyPyrus Code Here?
 
