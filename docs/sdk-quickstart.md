@@ -21,7 +21,7 @@ pip install -e .
 ```
 
 If you have an older machine like me (intel mac), and usually run into `torch` /
-`torchvision` / `numpy` compatibility issues, use the pinned installer
+`torchvision` / `numpy` compatibility issues, try the pinned installer
 script which installs the versions I used for development 🧌:
 
 ```bash
